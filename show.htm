@@ -62,7 +62,7 @@
   		<img src="images/startdot.gif" onclick="RunSlide('last')" title="Go to previous slide" style="vertical-align:-2px;cursor:pointer"><span style="vertical-align:1px">&nbsp;&nbsp;|&nbsp;</span>
    		<img src="images/enddot.gif" onclick="RunSlide('next')" title="Go to next slide" style="vertical-align:-2px;cursor:pointer">
 	</div>
-	<div id="playerSiz" style="position:absolute;width:16px;cursor:col-resize" class="unselectable" title="Resize player">
+	<div id="playerSiz" style="position:absolute;width:8px;cursor:col-resize" class="unselectable" title="Resize player">
 		<div style="position:absolute;width:80px;height:100%;left:-40px" class="unselectable"></div>
 	</div>
 	<div id="contentDiv" style="position:absolute" class="contents unselectable">
@@ -83,7 +83,9 @@
 			<br><br><br>
 			Click <a href="//docs.google.com/presentation/d/18LLvvy3rMbRexOj_UmPI3JBhcymq5Ok1w7swoKeb50c/pub" target="_blank"> here </a> for a short slide show about Qmedia
 	</div>
-	<div id="transSiz" style="position:absolute;width:16px;cursor:col-resize" class="unselectable" title="Resize transcript"></div>
+	<div id="transSiz" style="position:absolute;width:8px;cursor:col-resize" class="unselectable" title="Resize transcript">
+		<div style="position:absolute;width:80px;height:100%;left:-40px" class="unselectable"></div>
+	</div>
 	<div id="cache0" style="display:none"></div><div id="cache1" style="display:none"></div><div id="cache2" style="display:none"></div><div id="cache3" style="display:none"></div>
 </div>
  
@@ -97,7 +99,8 @@
 	var showTitle="";															// Title of show
 	var showVectors=new Array();												// Timing vectors
 	var showCurSource=new Array();												// Current sources
-	
+	var paneAnimationTimer=null;												// Times pane animations
+		
 	var transInfoRatio=.5;														// Ratio of conter/transcript to info windows
 	var transHgt=400;															// Height of transscript
 	var transLanguage="English";												// Transcript language
@@ -255,9 +258,9 @@
 			 { a:314, b:3926 },	
 			 { a:367, b:4554 } ];	
 
-	var sv=[ { a:0,   b:"//www.viseyes.org/shiva/qmedia/clinton01.jpg" },
-			 { a:26,  b:"//www.viseyes.org/shiva/qmedia/clinton02.jpg" },	
-			 { a:54,  b:"//www.viseyes.org/shiva/qmedia/clinton03.jpg" },	
+	var sv=[ { a:0,   b:"//www.viseyes.org/shiva/qmedia/clinton01.jpg", d:.5 },
+			 { a:26,  b:"//www.viseyes.org/shiva/qmedia/clinton02.jpg", d:.8 },	
+			 { a:54,  b:"//www.viseyes.org/shiva/qmedia/clinton03.jpg", d:.5 },	
 			 { a:78,  b:"//www.viseyes.org/shiva/qmedia/clinton04.jpg" },	
 			 { a:120, b:"//www.viseyes.org/shiva/qmedia/clinton05.jpg" },	
 			 { a:143, b:"//www.viseyes.org/shiva/qmedia/clinton06.jpg" },	
@@ -270,7 +273,7 @@
 	var iv=[ { a:0,   b:"info.jpg" },
 			 { a:93,  b:"//www.viseyes.org/shiva/go.htm?e=375" },	
 			 { a:108, b:"info.jpg"  },	
-			 { a:188, b:"//www.viseyes.org/shiva/qmedia/clinton08.jpg"  },	
+			 { a:188, b:"//www.viseyes.org/shiva/qmedia/clinton08.jpg" },	
 			 { a:314, b:"//www.clintonfoundation.org", c:"scroll" },	
 			 { a:367, b:"" } ];	
 
@@ -278,11 +281,45 @@
 	MakeVectors(2,tv);															// Make transcript timing list
 	MakeVectors(3,iv);															// Make info timing list
 	
-	$("#titleDiv").html(showTitle);												// Set titlw
+	$("#titleDiv").html(showTitle);												// Set title
 	MakeTOC(toc);																// Fill TOC contents
 	MakeTranscript();															// Load transcript
 	if ((playerType != "youtube") && (playerType != "vimeo"))					// Doesn't resize on callback
 		ResizePanes();															// Resize panes
+	}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PANES
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	function ShowContent(pane, div)											// SHOW IMAGE OR IFRAME
+	{
+		var i,o,extra="scrolling='no'";
+		var n=showVectors[pane].length-1;										// Last vector
+		for (i=n;i>=0;i--) {													// For each vector
+			o=showVectors[pane][i];												// Point at slide
+			if (playerNow >= o.ps) {											// In this one
+				if (showCurSource[pane] != o.cs) {								// A new item
+					if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))					// An image
+						$("#"+div).html("<img width='100%' src='"+o.cs+"'>"); 	// Load as image
+					else{														// An iframe
+						$("#"+div+"IF").remove();								// Remove any existing iframes
+						if ((o.c) && (o.c.match(/scroll/i))) 	extra="";		// Add scroll bars
+						$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+o.cs+"'></iframe>");	// Load in iframe
+						}
+					if (o.d != undefined) 										// If changing ratios
+						AnimatePanes(o.d,o.e,pane);								// Animate transition
+					showCurSource[pane]=o.cs;									// Then is now
+					o=showVectors[pane][i+1];									// Point at next slide
+					if (o) {													// If not penulitimate image
+						if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))				// If an image				
+							$("#cache"+pane).html("<img src='"+o.cs+"'>"); 		// Load as image
+						}
+					}						
+				break;															// Stop looking
+				}																	
+			}
 	}
 
 	function ResizePanes()
@@ -295,7 +332,7 @@
 		$("#playerDiv").css({ width:w+"px",top:pt+"px"});						// Set player pos
 		$("#slideDiv").css({ left:(showWid-w2+8)+"px",width:(w2)+"px",top:pt+"px"}); // Set slider pos/size
 		var h=Math.max($("#playerDiv").height(),$("#slideDiv").height());		// Player height
-		$("#playerSiz").css({ left:(w+4)+"px",height:h+"px",top:pt+"px"});		// Set sizer pos
+		$("#playerSiz").css({ left:(w+8)+"px",height:h+"px",top:pt+"px"});		// Set sizer pos
 		h+=pt;																	// Point at top of control bar
 		var ct=h+$("#controlDiv").height()+24;									// Contents top
 		$("#contentDiv").css({ top:ct+"px",height:transHgt+"px"});				// Position/size contents
@@ -304,18 +341,43 @@
 		$("#slider").width(showWid-210);										// Slider width
 		w=showWid*transInfoRatio;												// Transcript width
 		$("#transDiv").css({ left:cw+"px",width:(w-cw-8)+"px",height:transHgt+"px",top:ct+"px"});
-		$("#transSiz").css({ left:w+8+"px",height:transHgt-32+"px",top:ct-0+32+"px"});	// Pos transcript sizer
-		if (transText)															// If a transcript
-			w=showWid*(1-transInfoRatio);										// Info window width
-		else																	// None
-			w=showWid-cw;														// But up to contents
-		$("#infoDiv").css({ left:(showWid-w+24)+"px",width:(w-16)+"px",height:transHgt+"px",top:ct+"px"});
+		$("#transSiz").css({ left:(w+4)+"px",height:transHgt+"px",top:ct+"px"});	// Pos transcript sizer
+		w=showWid*(1-transInfoRatio)-8;											// Info window width
+		$("#infoDiv").css({ left:(showWid-w+8)+"px",width:Math.max(w,0)+"px",height:transHgt+"px",top:ct+"px"});
 		$("#transHgt").css({ top:ct+transHgt+"px"});							// Set transcript height
 		$("#transSearchDiv").css("left",$("#transDiv").width()-104)+"px";		// Search div width
 		RunPlayer("resize");													// Resize player
 		RunSlide("resize");														// Resize slides
 		RunInfo("resize");														// Resize info
 		}		
+
+	function AnimatePanes(end, dur, which)									// ANIMATE CHANGE OF PANE RATIO
+	{
+		var start;
+		if (which == slidePane) 	 start=playerSlideRatio;					// Get current player ratio
+		else if (which == infoPane)  start=transInfoRatio,trace(start,end);						// Get current transcript ratio
+		if (start == end) 														// Already there
+			return;																// Quit
+		clearInterval(paneAnimationTimer);										// Kill timer
+		var startTime=new Date().getTime();										// Set start
+		if (dur == undefined)													// If no duration set
+			dur=.5;																// Set default
+		dur=dur*1000;															// Secs to ms
+		paneAnimationTimer=setInterval(onAnimate,24);							// Set timer ~40ps
+
+		function onAnimate() {
+			var now=(new Date().getTime()-startTime)/dur;						// Get now
+			now=1.0-((Math.cos(3.1414*now)+1)/2.0);								// Full cosine curve
+			now=Math.min(now,1);												// Cap
+			var pos=start+(end-start)*now;										// Get val
+			if (which == slidePane) 	 	playerSlideRatio=pos;				// Set player ratio
+			else if (which == infoPane) 	transInfoRatio=pos;					// Set transcript ratio
+			ResizePanes();														// Resize
+			if (now > .99)														// If done
+				clearInterval(paneAnimationTimer);								// Kill timer
+			}
+	}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TRANSCRIPT
@@ -427,6 +489,7 @@ function GetCharPosTimeFrom(t)												// GET CHARPOS IN TRANSCRIPT FROM TIME
 			});
 
 		$("#transSiz").draggable({												// DRAG TRANSCRIPT WIDTH HANDLER
+			cursorAt:{left:0},													// Cursor offext
 			cursor: "col-resize", axis:"x",										// X-only
 			stop: ResizePanes,													// Resize panes when done
 			drag: function(event, ui) {											// On drag
@@ -511,10 +574,11 @@ function GetCharPosTimeFrom(t)												// GET CHARPOS IN TRANSCRIPT FROM TIME
 			o.pd=rlc[i+1].a-rlc[i].a;										// Set time duration
 			if (!isNaN(o.cs))												// If numeric content
 				o.cd=rlc[i+1].b-rlc[i].b;									// Set content duration
+			if (rlc[i].d)	o.d=rlc[i].d;									// Add param if set
+			if (rlc[i].e)	o.e=rlc[i].e;									// Add param if set
 			showVectors[pane].push(o);										// Add to vector list
 			}
 	}
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -629,7 +693,7 @@ function GetCharPosTimeFrom(t)												// GET CHARPOS IN TRANSCRIPT FROM TIME
 	        }
  	}																		// End closure
 
-	function RunSlide(what, param)										// SLIDE ACTIONS
+	function RunSlide(what )											// SLIDE ACTIONS
 	{
 		var i;
 		if (what == "show") 												// Show
@@ -652,7 +716,7 @@ function GetCharPosTimeFrom(t)												// GET CHARPOS IN TRANSCRIPT FROM TIME
 			}
 		else if (what == "resize") 											// Resize
 			$("#slideDivIF").height($("#slideDiv").height()-2);				// Set iframe height, if any
-	}																		// End closure
+		}																		// End closure
 
 	function RunInfo(what, param)										// INFO ACTIONS
 	{
@@ -661,33 +725,6 @@ function GetCharPosTimeFrom(t)												// GET CHARPOS IN TRANSCRIPT FROM TIME
 		else if (what == "resize") 											// Resize
 			$("#infoDivIF").height($("#informationText").height()-2);		// Set iframe height, if any
 	}																		// End closure
-
-	function ShowContent(pane, div)										// SHOW IMAGE OR IFRAME
-	{
-		var i,o,extra="scrolling='no'";
-		var n=showVectors[pane].length-1;									// Last vector
-		for (i=n;i>=0;i--) {												// For each vector
-			o=showVectors[pane][i];											// Point at slide
-			if (playerNow >= o.ps) {										// In this one
-				if (showCurSource[pane] != o.cs) {							// A new item
-					if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))				// An image
-						$("#"+div).html("<img width='100%' src='"+o.cs+"'>"); // Load as image
-					else{													// An iframe
-						$("#"+div+"IF").remove();							// Remove any existing iframes
-						if ((o.c) && (o.c.match(/scroll/i))) 	extra="";	// Add scroll bars
-						$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+o.cs+"'></iframe>");	// Load in iframe
-						}
-					showCurSource[pane]=o.cs;								// Then is now
-					o=showVectors[pane][i+1];								// Point at next slide
-					if (o) {												// If not penulitimate image
-						if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))			// If an image				
-							$("#cache"+pane).html("<img src='"+o.cs+"'>"); 	// Load as image
-						}
-					}						
-				break;														// Stop looking
-				}																	
-			}
-	}
 	
 </script>
 </body></html>
