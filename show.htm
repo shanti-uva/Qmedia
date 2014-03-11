@@ -210,17 +210,17 @@
 		
 	});
 
-	function LoadContent(show)													// LOAD SHOW CONTENT
+	function LoadContent(show)												// LOAD SHOW CONTENT
 	{
 		$("#playerDiv").html("<img width='100%' src='video.jpg'onload='ResizePanes()'>");
-		MakeVectors(1,show.slideVectors);											// Make slides timing list
-		MakeVectors(2,show.transVectors);											// Make transcript timing list
-		MakeVectors(3,show.infoVectors);											// Make info timing list
-		$("#titleDiv").html(show.title);											// Set title
-		MakeTOC(show.toc);															// Fill TOC contents
-		MakeTranscript();															// Load transcript
-		if ((playerType != "youtube") && (playerType != "vimeo"))					// Doesn't resize on callback
-			ResizePanes();															// Resize panes
+		MakeVectors(1,show.slideVectors);										// Make slides timing list
+		MakeVectors(2,show.transVectors);										// Make transcript timing list
+		MakeVectors(3,show.infoVectors);										// Make info timing list
+		$("#titleDiv").html(show.title);										// Set title
+		MakeTOC(show.toc);														// Fill TOC contents
+		MakeTranscript();														// Load transcript
+		if ((playerType != "youtube") && (playerType != "vimeo"))				// Doesn't resize on callback
+			ResizePanes();														// Resize panes
 	}
 
 
@@ -229,90 +229,90 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	function ShowContent(pane, div)												// SHOW IMAGE OR IFRAME
+	function ShowContent(pane, div)											// SHOW IMAGE OR IFRAME
 	{
 		var i,o,extra="scrolling='no'";
-		var n=showVectors[pane].length-1;											// Last vector
-		for (i=n;i>=0;i--) {														// For each vector
-			o=showVectors[pane][i];													// Point at slide
-			if (playerNow >= o.ps) {												// In this one
-				if (showCurSource[pane] != o.cs) {									// A new item
-					if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))						// An image
-						$("#"+div).html("<img width='100%' src='"+o.cs+"'>"); 		// Load as image
-					else{															// An iframe
-						$("#"+div+"IF").remove();									// Remove any existing iframes
-						if ((o.c) && (o.c.match(/scroll/i))) 	extra="";			// Add scroll bars
+		var n=showVectors[pane].length-1;										// Last vector
+		for (i=n;i>=0;i--) {													// For each vector
+			o=showVectors[pane][i];												// Point at slide
+			if (playerNow >= o.ps) {											// In this one
+				if (showCurSource[pane] != o.cs) {								// A new item
+					if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))					// An image
+						$("#"+div).html("<img width='100%' src='"+o.cs+"'>"); 	// Load as image
+					else{														// An iframe
+						$("#"+div+"IF").remove();								// Remove any existing iframes
+						if ((o.c) && (o.c.match(/scroll/i))) 	extra="";		// Add scroll bars
 						$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+o.cs+"'></iframe>");	// Load in iframe
 						}
-					if (o.d != undefined) 											// If changing ratios
-						AnimatePanes(o.d,o.e,pane);									// Animate transition
-					showCurSource[pane]=o.cs;										// Then is now
-					o=showVectors[pane][i+1];										// Point at next slide
-					if (o) {														// If not penulitimate image
-						if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))					// If an image				
-							$("#cache"+pane).html("<img src='"+o.cs+"'>"); 			// Load as image
+					if (o.d != undefined) 										// If changing ratios
+						AnimatePanes(o.d,o.e,pane);								// Animate transition
+					showCurSource[pane]=o.cs;									// Then is now
+					o=showVectors[pane][i+1];									// Point at next slide
+					if (o) {													// If not penulitimate image
+						if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))				// If an image				
+							$("#cache"+pane).html("<img src='"+o.cs+"'>"); 		// Load as image
 						}
 					}						
-				break;																// Stop looking
+				break;															// Stop looking
 				}																	
 			}
 	}
 
-	function ResizePanes()														// RESIZE PANES
+	function ResizePanes()													// RESIZE PANES
 	{ 
-		$("#showDiv").width(sd.width);												// Set show width
-		$("#titleDiv").width(sd.width-16);											// Set title width
-		var w=sd.width*sd.playerSlideRatio-4;										// Player width
-		var w2=sd.width-w-8;														// Slide width
-		if (w <= 0)				w=0,w2=sd.width;									// Full slide											
-		else if (w2 <= 0)		w2=0,w=sd.width;									// Full video											
-		var pt=$("#titleDiv").height()+32;											// Top of player
-		$("#playerDiv").css({ width:w+"px",top:pt+"px"});							// Set player pos
+		$("#showDiv").width(sd.width);											// Set show width
+		$("#titleDiv").width(sd.width-16);										// Set title width
+		var w=sd.width*sd.playerSlideRatio-4;									// Player width
+		var w2=sd.width-w-8;													// Slide width
+		if (w <= 0)				w=0,w2=sd.width;								// Full slide											
+		else if (w2 <= 0)		w2=0,w=sd.width;								// Full video											
+		var pt=$("#titleDiv").height()+32;										// Top of player
+		$("#playerDiv").css({ width:w+"px",top:pt+"px"});						// Set player pos
 		$("#slideDiv").css({ left:(sd.width-w2+8)+"px",width:(w2)+"px",top:pt+"px"}); // Set slider pos/size
-		var h=Math.max($("#playerDiv").height(),$("#slideDiv").height());			// Player height
-		$("#playerSiz").css({ left:(w+8)+"px",height:h+"px",top:pt+"px"});			// Set sizer pos
-		h+=pt;																		// Point at top of control bar
-		var ct=h+$("#controlDiv").height()+24;										// Contents top
-		$("#contentDiv").css({ top:ct+"px",height:sd.transHgt+"px"});				// Position/size contents
-		var cw=$("#contentDiv").width()+8;											// Get width of content panel
-		$("#controlDiv").css({ top:h+"px" });										// Position control slider
-		$("#slider").width(sd.width-210);											// Slider width
-		w=sd.width*sd.transInfoRatio;												// Transcript width
+		var h=Math.max($("#playerDiv").height(),$("#slideDiv").height());		// Player height
+		$("#playerSiz").css({ left:(w+8)+"px",height:h+"px",top:pt+"px"});		// Set sizer pos
+		h+=pt;																	// Point at top of control bar
+		var ct=h+$("#controlDiv").height()+24;									// Contents top
+		$("#contentDiv").css({ top:ct+"px",height:sd.transHgt+"px"});			// Position/size contents
+		var cw=$("#contentDiv").width()+8;										// Get width of content panel
+		$("#controlDiv").css({ top:h+"px" });									// Position control slider
+		$("#slider").width(sd.width-210);										// Slider width
+		w=sd.width*sd.transInfoRatio;											// Transcript width
 		$("#transDiv").css({ left:cw+"px",width:(w-cw-8)+"px",height:sd.transHgt+"px",top:ct+"px"});
 		$("#transSiz").css({ left:(w+4)+"px",height:sd.transHgt+"px",top:(ct)+"px"});// Pos transcript sizer
 		w=sd.width*(1-sd.transInfoRatio)-8;											// Info window width
 		$("#infoDiv").css({ left:(sd.width-w+8)+"px",width:Math.max(w,0)+"px",height:sd.transHgt+"px",top:ct+"px"});
-		$("#transHgt").css({ top:ct+sd.transHgt+"px"});								// Set transcript height
-		$("#transSearchDiv").css("left",$("#transDiv").width()-104)+"px";			// Search div width
-		RunPlayer("resize");														// Resize player
-		RunSlide("resize");															// Resize slides
-		RunInfo("resize");															// Resize info
+		$("#transHgt").css({ top:ct+sd.transHgt+"px"});							// Set transcript height
+		$("#transSearchDiv").css("left",$("#transDiv").width()-104)+"px";		// Search div width
+		RunPlayer("resize");													// Resize player
+		RunSlide("resize");														// Resize slides
+		RunInfo("resize");														// Resize info
 		}		
 
-	function AnimatePanes(end, dur, which)										// ANIMATE CHANGE OF PANE RATIO
+	function AnimatePanes(end, dur, which)									// ANIMATE CHANGE OF PANE RATIO
 	{
 		var start;
-		if (which == slidePane) 	 start=sd.playerSlideRatio;						// Get current player ratio
-		else if (which == infoPane)  start=sd.transInfoRatio,trace(start,end);		// Get current transcript ratio
-		if (start == end) 															// Already there
-			return;																	// Quit
-		clearInterval(paneAnimationTimer);											// Kill timer
-		var startTime=new Date().getTime();											// Set start
-		if (dur == undefined)														// If no duration set
-			dur=.5;																	// Set default
-		dur=dur*1000;																// Secs to ms
-		paneAnimationTimer=setInterval(onAnimate,24);								// Set timer ~40ps
+		if (which == slidePane) 	 start=sd.playerSlideRatio;					// Get current player ratio
+		else if (which == infoPane)  start=sd.transInfoRatio,trace(start,end);	// Get current transcript ratio
+		if (start == end) 														// Already there
+			return;																// Quit
+		clearInterval(paneAnimationTimer);										// Kill timer
+		var startTime=new Date().getTime();										// Set start
+		if (dur == undefined)													// If no duration set
+			dur=.5;																// Set default
+		dur=dur*1000;															// Secs to ms
+		paneAnimationTimer=setInterval(onAnimate,24);							// Set timer ~40ps
 
 		function onAnimate() {
-			var now=(new Date().getTime()-startTime)/dur;							// Get now
-			now=1.0-((Math.cos(3.1414*now)+1)/2.0);									// Full cosine curve
-			now=Math.min(now,1);													// Cap
-			var pos=start+(end-start)*now;											// Get val
-			if (which == slidePane) 	 	sd.playerSlideRatio=pos;				// Set player ratio
-			else if (which == infoPane) 	sd.transInfoRatio=pos;					// Set transcript ratio
-			ResizePanes();															// Resize
-			if (now > .99)															// If done
-				clearInterval(paneAnimationTimer);									// Kill timer
+			var now=(new Date().getTime()-startTime)/dur;						// Get now
+			now=1.0-((Math.cos(3.1414*now)+1)/2.0);								// Full cosine curve
+			now=Math.min(now,1);												// Cap
+			var pos=start+(end-start)*now;										// Get val
+			if (which == slidePane) 	 	sd.playerSlideRatio=pos;			// Set player ratio
+			else if (which == infoPane) 	sd.transInfoRatio=pos;				// Set transcript ratio
+			ResizePanes();														// Resize
+			if (now > .99)														// If done
+				clearInterval(paneAnimationTimer);								// Kill timer
 			}
 	}
 
@@ -491,146 +491,146 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	function RunPlayer(what, param, param2)								// PLAYER ACTIONS
+	function RunPlayer(what, param, param2)									// PLAYER ACTIONS
 	{
-		if (what == "play") {												// Play
-			if ($("#playBut").attr("src") == "images/playbut.gif")	{		// If in pause
-				$("#playBut").attr("src","images/pausebut.gif");			// Show pause but
-				playerMode="play";											// Set mode
+		if (what == "play") {													// Play
+			if ($("#playBut").attr("src") == "images/playbut.gif")	{			// If in pause
+				$("#playBut").attr("src","images/pausebut.gif");				// Show pause but
+				playerMode="play";												// Set mode
 				}
-			else if (param == undefined) {									// Already in play, but not going to a time
-				$("#playBut").attr("src","images/playbut.gif");				// Show play but
-				playerMode="pause";											// Set mode
+			else if (param == undefined) {										// Already in play, but not going to a time
+				$("#playBut").attr("src","images/playbut.gif");					// Show play but
+				playerMode="pause";												// Set mode
 				}
-			if (param != undefined) {										// If playing to a time
-				if ((""+param).match(/:/))									// In tc format
-					param=TimecodeToSeconds(param);							// Convert to secs
-				playerNow=Math.max(Math.min(param,sd.playerStop),0);		// Set cur time
+			if (param != undefined) {											// If playing to a time
+				if ((""+param).match(/:/))										// In tc format
+					param=TimecodeToSeconds(param);								// Convert to secs
+				playerNow=Math.max(Math.min(param,sd.playerStop),0);			// Set cur time
 				}	
-			if ((player) && (playerType == "youtube")) {					// If initted YouTube
-				player.seekTo(playerNow,true);								// Cue
-				if (playerMode == "play")	player.playVideo();				// Play
-				if (playerMode == "pause")	player.pauseVideo();			// Pause
+			if ((player) && (playerType == "youtube")) {						// If initted YouTube
+				player.seekTo(playerNow,true);									// Cue
+				if (playerMode == "play")	player.playVideo();					// Play
+				if (playerMode == "pause")	player.pauseVideo();				// Pause
 				}
-			RunPlayer("show");												// Show where we're at
+			RunPlayer("show");													// Show where we're at
 			}
-		else if (what == "scrub") {											// Scrub
-			playerNow=Math.max(Math.min(param,sd.playerStop),0)				// Set now
-			if ((player) && (playerType == "youtube")) 						// If initted YouTube
-				player.seekTo(playerNow,true);								// Cue
-			RunPlayer("show",param2);										// Show where we're at
+		else if (what == "scrub") {												// Scrub
+			playerNow=Math.max(Math.min(param,sd.playerStop),0)					// Set now
+			if ((player) && (playerType == "youtube")) 							// If initted YouTube
+				player.seekTo(playerNow,true);									// Cue
+			RunPlayer("show",param2);											// Show where we're at
 			}
-		else if (what == "pause") {											// Pause
-			$("#playBut").attr("src","images/playbut.gif");					// Show pause but
-			playerMode="pause";												// Set mode
-			if ((player) && (playerType == "youtube")) 						// If initted YouTube
-				player.pauseVideo();										// Pause
+		else if (what == "pause") {												// Pause
+			$("#playBut").attr("src","images/playbut.gif");						// Show pause but
+			playerMode="pause";													// Set mode
+			if ((player) && (playerType == "youtube")) 							// If initted YouTube
+				player.pauseVideo();											// Pause
 			}
-		else if (what == "show") {											// Scrub
-			var str=SecondsToTimecode(playerNow)+" / ";						// Cur time
-			str+=SecondsToTimecode(sd.playerStop);							// End time
-			$("#timeDisp").text(str);										// Show now
-			$("#slider").slider("value",playerNow);							// Set slider
-			var max=$("#transcriptText")[0].scrollHeight;					// Max
-			var cp=GetCharPosTimeFrom(playerNow);							// Get char pos in transcript
-			if (!param)														// If not inhibiting scroll
+		else if (what == "show") {												// Scrub
+			var str=SecondsToTimecode(playerNow)+" / ";							// Cur time
+			str+=SecondsToTimecode(sd.playerStop);								// End time
+			$("#timeDisp").text(str);											// Show now
+			$("#slider").slider("value",playerNow);								// Set slider
+			var max=$("#transcriptText")[0].scrollHeight;						// Max
+			var cp=GetCharPosTimeFrom(playerNow);								// Get char pos in transcript
+			if (!param)															// If not inhibiting scroll
 				$("#transcriptText").scrollTop(cp.pct*max-$("#transcriptText").height()/4);	// Set scroll
-			HighlightText(cp.pos,cp.pos2);									// Highlight area
-			RunSlide("show");												// Show slide
-			RunInfo("show");												// Show Info
+			HighlightText(cp.pos,cp.pos2);										// Highlight area
+			RunSlide("show");													// Show slide
+			RunInfo("show");													// Show Info
 			}
-		else if (what == "quality") {										// Quality
-			if ((player) && (playerType == "youtube")) {					// If initted YouTube
+		else if (what == "quality") {											// Quality
+			if ((player) && (playerType == "youtube")) {						// If initted YouTube
 				var o={ Default:"default", Good:"small", Better:"medium", Best:"large"};	// Choices
-				player.setPlaybackQuality(o[playerQuality]);				// Set quality
+				player.setPlaybackQuality(o[playerQuality]);					// Set quality
 				}
 			}
-		else if (what == "volume") {										// Volume
-			if ((player) && (playerType == "youtube")) 						// If initted YouTube
+		else if (what == "volume") {											// Volume
+			if ((player) && (playerType == "youtube")) 							// If initted YouTube
 				player.setVolume(sd.playerVolume);								// Set volume
 			}
-		else if (what == "speed") {											// Speed
+		else if (what == "speed") {												// Speed
 			s=Math.max(.25,sd.playerSpeed/50);									// Speed set .25 to 2
-			if ((player) && (playerType == "youtube")) 						// If initted YouTube
-				player.setPlaybackRate(s);									// Set speed
+			if ((player) && (playerType == "youtube")) 							// If initted YouTube
+				player.setPlaybackRate(s);										// Set speed
 			}
-		else if (what == "caption") {										// Captions
+		else if (what == "caption") {											// Captions
 			player.setOption("cc","fontSize", 3);
 			}
-		else if (what == "resize") {										// Resize
-			var w=$("#playerDiv").width();									// Get width
-			if ((player) && (playerType == "youtube")) 						// If initted YouTube
-				player.setSize(w,w*playerAspect);							// Resize
+		else if (what == "resize") {											// Resize
+			var w=$("#playerDiv").width();										// Get width
+			if ((player) && (playerType == "youtube")) 							// If initted YouTube
+				player.setSize(w,w*playerAspect);								// Resize
 			}
-		else if (what == "load") {											// Volume
-			if ((player) && (playerType == "youtube")) 						// If initted YouTube
-				player.loadVideoById(param);								// Load video
+		else if (what == "load") {												// Volume
+			if ((player) && (playerType == "youtube")) 							// If initted YouTube
+				player.loadVideoById(param);									// Load video
 			}
-		else if (what == "ready") {											// When ready
-			RunPlayer("play",sd.playerStart);								// Play
-			RunPlayer("resize");											// Resize player
- 			ResizePanes();													// Resize panes
-			RunPlayer("pause");												// Pause
-			if (sd.playerAuto == "true")									// If autoplay
-				RunPlayer("play",sd.playerStart);							// Play
+		else if (what == "ready") {												// When ready
+			RunPlayer("play",sd.playerStart);									// Play
+			RunPlayer("resize");												// Resize player
+ 			ResizePanes();														// Resize panes
+			RunPlayer("pause");													// Pause
+			if (sd.playerAuto == "true")										// If autoplay
+				RunPlayer("play",sd.playerStart);								// Play
 			}
 
-		else if (what == "init") {											// Init player
- 			if (playerType == "youtube") {									// If YouTube
-	       		player=new YT.Player("playerDiv", {							// Init player
-					playerVars:{ modestbranding:1, controls:0, 				// Settings
+		else if (what == "init") {												// Init player
+ 			if (playerType == "youtube") {										// If YouTube
+	       		player=new YT.Player("playerDiv", {								// Init player
+					playerVars:{ modestbranding:1, controls:0, 					// Settings
 						disablekb:1, rel:0, showinfo:0, autoplay:1 },
-	          		videoId: sd.playerSource,								// Set source
-	         	 	events:{												// Add event handlers
-	            		"onStateChange": function(s) {						// Change of state
+	          		videoId: sd.playerSource,									// Set source
+	         	 	events:{													// Add event handlers
+	            		"onStateChange": function(s) {							// Change of state
 		         			if (s.data == 1) {
-								$("#playBut").attr("src","images/pausebut.gif");	// Show pause but
-								playerMode="play";							// Set mode
+								$("#playBut").attr("src","images/pausebut.gif");// Show pause but
+								playerMode="play";								// Set mode
        							}
-       						else if ((s.data == 2) || (s.data == 0)) {		// In pause
+       						else if ((s.data == 2) || (s.data == 0)) {			// In pause
   								$("#playBut").attr("src","images/playbut.gif");	// Show play but
-								playerMode="pause";							// Set mode
+								playerMode="pause";								// Set mode
        							}
        						},
-	            		"onReady": function(s) { RunPlayer("ready") }		// When ready
+	            		"onReady": function(s) { RunPlayer("ready") }			// When ready
 	    				}
 		       		});
 				}
 	        }
- 	}																		// End closure
+ 	}																			// End closure
 
-	function RunSlide(what )											// SLIDE ACTIONS
+	function RunSlide(what )												// SLIDE ACTIONS
 	{
 		var i;
-		if (what == "show") 												// Show
-			ShowContent(slidePane,"slideDiv");								// Show content
-		else if (what == "last") { 											// Go to previous slide
-			var n=showVectors[slidePane].length-1;							// Last vector
-			for (i=n;i>0;i--) 												// For each vector
-				if (playerNow >= showVectors[slidePane][i].ps) {			// In this one
-					RunPlayer("scrub",showVectors[slidePane][i-1].ps);		// Go there
-					break;													// Quit looking
+		if (what == "show") 													// Show
+			ShowContent(slidePane,"slideDiv");									// Show content
+		else if (what == "last") { 												// Go to previous slide
+			var n=showVectors[slidePane].length-1;								// Last vector
+			for (i=n;i>0;i--) 													// For each vector
+				if (playerNow >= showVectors[slidePane][i].ps) {				// In this one
+					RunPlayer("scrub",showVectors[slidePane][i-1].ps);			// Go there
+					break;														// Quit looking
 					}
 			}
-		else if (what == "next") { 											// Go to next slide
-			var n=showVectors[slidePane].length-1;							// Last vector
-			for (i=n-1;i>=0;i--) 											// For each vector
-				if (playerNow >= showVectors[slidePane][i].ps) {			// In this one
-					RunPlayer("scrub",showVectors[slidePane][i+1].ps);		// Go there
-					break;													// Quit looking
+		else if (what == "next") { 												// Go to next slide
+			var n=showVectors[slidePane].length-1;								// Last vector
+			for (i=n-1;i>=0;i--) 												// For each vector
+				if (playerNow >= showVectors[slidePane][i].ps) {				// In this one
+					RunPlayer("scrub",showVectors[slidePane][i+1].ps);			// Go there
+					break;														// Quit looking
 					}
 			}
-		else if (what == "resize") 											// Resize
-			$("#slideDivIF").height($("#slideDiv").height()-2);				// Set iframe height, if any
+		else if (what == "resize") 												// Resize
+			$("#slideDivIF").height($("#slideDiv").height()-2);					// Set iframe height, if any
 		}																		// End closure
 
-	function RunInfo(what, param)										// INFO ACTIONS
+	function RunInfo(what, param)											// INFO ACTIONS
 	{
-		if (what == "show") 												// Show
-			ShowContent(infoPane,"informationText");						// Show content
-		else if (what == "resize") 											// Resize
-			$("#infoDivIF").height($("#informationText").height()-2);		// Set iframe height, if any
-	}																		// End closure
+		if (what == "show") 													// Show
+			ShowContent(infoPane,"informationText");							// Show content
+		else if (what == "resize") 												// Resize
+			$("#infoDivIF").height($("#informationText").height()-2);			// Set iframe height, if any
+	}																			// End closure
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -648,72 +648,72 @@
 		$("#popup").show().delay(700).hide(300)
 		}
 
-	function MakeVectors(pane, rlc)										// CREATE TIMIMG VECTOR ARRAY
+	function MakeVectors(pane, rlc)											// CREATE TIMIMG VECTOR ARRAY
 	{
 		var i,o,c="";
-		for (i=0;i<rlc.length-1;++i) {										// For each run length
-			o={};															// New obj
-			o.ps=rlc[i].a;													// Time start
-			o.cs=rlc[i].b;													// Content start
-			if (rlc[i].c)													// If a width set
-				c=rlc[i].c;													// Use it
-			if (c)															// If something there							
-				o.c=c;														// Set 3rd param
-			o.pd=rlc[i+1].a-rlc[i].a;										// Set time duration
-			if (!isNaN(o.cs))												// If numeric content
-				o.cd=rlc[i+1].b-rlc[i].b;									// Set content duration
-			if (rlc[i].d)	o.d=rlc[i].d;									// Add param if set
-			if (rlc[i].e)	o.e=rlc[i].e;									// Add param if set
-			showVectors[pane].push(o);										// Add to vector list
+		for (i=0;i<rlc.length-1;++i) {											// For each run length
+			o={};																// New obj
+			o.ps=rlc[i].a;														// Time start
+			o.cs=rlc[i].b;														// Content start
+			if (rlc[i].c)														// If a width set
+				c=rlc[i].c;														// Use it
+			if (c)																// If something there							
+				o.c=c;															// Set 3rd param
+			o.pd=rlc[i+1].a-rlc[i].a;											// Set time duration
+			if (!isNaN(o.cs))													// If numeric content
+				o.cd=rlc[i+1].b-rlc[i].b;										// Set content duration
+			if (rlc[i].d)	o.d=rlc[i].d;										// Add param if set
+			if (rlc[i].e)	o.e=rlc[i].e;										// Add param if set
+			showVectors[pane].push(o);											// Add to vector list
 			}
 	}
 
-	function MakeSelect(id, multi, items, sel, extra, values)			// CREATE HTML SELECT
+	function MakeSelect(id, multi, items, sel, extra, values)				// CREATE HTML SELECT
 	{
-		var	str="<select id='"+id+"'";										// Header
-		if (multi)															// Multi select
-			str+="multiple='multiple' size='"+multi+"'";					// Add flag
-		if (extra)															// If extra param
-			str+=extra;														// Add them
-		str+=">";															// End header
-		for (i=0;i<items.length;++i) {										// For each option
-			str+="<option";													// Add tag
-			if (sel == items[i])											// If selected
-				str+=" selected='selected'"									// Add tag
-			if (values && values[i])										// If has a value
-				str+=" value='"+values[i]+"'";								// Add it
-			str+=">"+items[i]+"</option>";									// End option
+		var	str="<select id='"+id+"'";											// Header
+		if (multi)																// Multi select
+			str+="multiple='multiple' size='"+multi+"'";						// Add flag
+		if (extra)																// If extra param
+			str+=extra;															// Add them
+		str+=">";																// End header
+		for (i=0;i<items.length;++i) {											// For each option
+			str+="<option";														// Add tag
+			if (sel == items[i])												// If selected
+				str+=" selected='selected'"										// Add tag
+			if (values && values[i])											// If has a value
+				str+=" value='"+values[i]+"'";									// Add it
+			str+=">"+items[i]+"</option>";										// End option
 			}	
-		return str+"</select>";												// End select				
+		return str+"</select>";													// End select				
 	}
 
-	function TimecodeToSeconds(timecode) 								// CONVERT TIMECODE TO SECONDS
+	function TimecodeToSeconds(timecode) 									// CONVERT TIMECODE TO SECONDS
 	{
 		var h=0,m=0;
-		var v=(""+timecode).split(":");										// Split by colons
-		var s=v[0]															// Add them
-	 	if (v.length == 2)													// Just minutes, seconds
-			s=v[1],m=v[0];													// Add them
-		else if (v.length == 3)												// Hours, minutes, seconds
-			s=v[2],m=v[1],h=v[0];											// Add them
-		return(Number(h*3600)+Number(m*60)+Number(s));						// Convert
+		var v=(""+timecode).split(":");											// Split by colons
+		var s=v[0]																// Add them
+	 	if (v.length == 2)														// Just minutes, seconds
+			s=v[1],m=v[0];														// Add them
+		else if (v.length == 3)													// Hours, minutes, seconds
+			s=v[2],m=v[1],h=v[0];												// Add them
+		return(Number(h*3600)+Number(m*60)+Number(s));							// Convert
 	}
 	
-	function SecondsToTimecode(secs) 									// CONVERT SECONDS TO TIMECODE
+	function SecondsToTimecode(secs) 										// CONVERT SECONDS TO TIMECODE
 	{
 		var str="",n;
-		n=Math.floor(secs/3600);											// Get hours
-		if (n) str+=n+":";													// Add to tc
-		n=Math.floor(secs/60);												// Get mins
-		if (n < 10) str+="0";												// Add leading 0
-		str+=n+":";															// Add to tc
-		n=Math.floor(secs%60);												// Get secs
-		if (n < 10) str+="0";												// Add leading 0
-		str+=n;																// Add to tc
-		return str;															// Return timecode			
+		n=Math.floor(secs/3600);												// Get hours
+		if (n) str+=n+":";														// Add to tc
+		n=Math.floor(secs/60);													// Get mins
+		if (n < 10) str+="0";													// Add leading 0
+		str+=n+":";																// Add to tc
+		n=Math.floor(secs%60);													// Get secs
+		if (n < 10) str+="0";													// Add leading 0
+		str+=n;																	// Add to tc
+		return str;																// Return timecode			
 	}	
 
-	function trace(msg, p1, p2, p3, p4)									// CONSOLE 
+	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{
 		if (p4 != undefined)
 			console.log(msg,p1,p2,p3,p4);
