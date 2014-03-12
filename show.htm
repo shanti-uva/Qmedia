@@ -108,7 +108,7 @@
 	var playerTime=null;														// Timer
 	var playerMode="empty";														// State of player
 	var playerAspect=.5625;														// Player aspect ratio
-	var playerType="!youtube";													// Type of player
+	var playerType="";															// Type of player
 	var	playerTRT=367;															// Total running time
 		
 
@@ -116,11 +116,6 @@
 // INIT
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-	var tag=document.createElement('script');									// Create script
-	tag.src="//www.youtube.com/iframe_api";										// Set api url
-	var firstScriptTag=document.getElementsByTagName('script')[0];				// Find 1st script
-	firstScriptTag.parentNode.insertBefore(tag,firstScriptTag);					// Add to dom
 
 	$(document).ready(function() {												// When loaded
 		var i;
@@ -219,7 +214,28 @@
 		$("#titleDiv").html(show.title);										// Set title
 		MakeTOC(show.toc);														// Fill TOC contents
 		MakeTranscript();														// Load transcript
-		if ((playerType != "youtube") && (playerType != "vimeo"))				// Doesn't resize on callback
+		var tag=document.createElement('script');								// Create script
+		if (show.playerSource.match(/kaltura/i)) {								// If Kaltura 
+			playerType="kaltura";												// Set type
+			tag.src="";															// Set api url
+			}
+		else if (show.playerSource.match(/\/\//i)) {							// If HTML5
+			playerType="html5";													// Set type
+			tag.src="";															// No api url
+			}
+		else if (!isNaN(show.playerSource)) {									// If Vimeo
+			playerType="vimeo";													// Set type
+			tag.src="";															// Set api url
+			}
+		else{																	// If youtube
+			playerType="youtube";												// Set type
+			tag.src="//www.youtube.com/iframe_api";								// Set api url
+			}
+		if (tag.src) {															// If a valid player
+			var firstScriptTag=document.getElementsByTagName('script')[0];		// Find 1st script
+			firstScriptTag.parentNode.insertBefore(tag,firstScriptTag);			// Load
+			}
+		else 
 			ResizePanes();														// Resize panes
 	}
 
@@ -470,6 +486,12 @@
 		RunPlayer("init");														// Init player								
  	}
 
+	function jsCallbackReady(objectId) 										// KALTURA PLAYER READY
+	{
+		player=document.getElementById(objectId);								// Set player var
+		RunPlayer("init");														// Init player								
+	}   
+
 	function OnPlayerTimer()												// GET TIME FROM CHARPOS IN TRANSCRIPT
 	{
 		if ((player) && (playerType == "youtube")) {							// If initted YouTube
@@ -596,6 +618,12 @@
 	    				}
 		       		});
 				}
+			}
+		else if (playerType == "kaltura") {										// If Kaltura
+	        }
+		else if (playerType == "vimeo") {										// If Vimeo
+	        }
+		else if (playerType == "html5") {										// If HTML5
 	        }
  	}																			// End closure
 
@@ -744,7 +772,6 @@
 		playerQuality:"Default",
 		playerVolume:75,
 		playerSpeed:50,
-		playerType:"!youtube",
 		playerStart:0,
 		playerStop:367,
 		playerSource:"ft24bHtNJwY",
