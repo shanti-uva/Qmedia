@@ -309,7 +309,7 @@
 	{
 		var start;
 		if (which == slidePane) 	 start=sd.playerSlideRatio;					// Get current player ratio
-		else if (which == infoPane)  start=sd.transInfoRatio,trace(start,end);	// Get current transcript ratio
+		else if (which == infoPane)  start=sd.transInfoRatio;					// Get current transcript ratio
 		if (start == end) 														// Already there
 			return;																// Quit
 		clearInterval(paneAnimationTimer);										// Kill timer
@@ -529,24 +529,36 @@
 					param=TimecodeToSeconds(param);								// Convert to secs
 				playerNow=Math.max(Math.min(param,sd.playerStop),0);			// Set cur time
 				}	
-			if ((player) && (playerType == "youtube")) {						// If initted YouTube
+			if (!player)	return;												// If no player yet, quit
+			if (playerType == "youtube") {										// If YouTube
 				player.seekTo(playerNow,true);									// Cue
 				if (playerMode == "play")	player.playVideo();					// Play
 				if (playerMode == "pause")	player.pauseVideo();				// Pause
+				}
+			else if (playerType == "kaltura") {									// If Kaltura
+				sendNotification("seekTo",playerNow);							// Cue
+				if (playerMode == "play")  	player.sendNotification("doPlay"); 	// Play
+				if (playerMode == "pause")	player.sendNotification("doPause");	// Pause
 				}
 			RunPlayer("show");													// Show where we're at
 			}
 		else if (what == "scrub") {												// Scrub
 			playerNow=Math.max(Math.min(param,sd.playerStop),0)					// Set now
-			if ((player) && (playerType == "youtube")) 							// If initted YouTube
+			if (!player)	return;												// If no player yet, quit
+			if (playerType == "youtube") 										// If YouTube
 				player.seekTo(playerNow,true);									// Cue
+			else if (playerType == "kaltura") 									// If Kaltura
+				player.sendNotification("doSeek",playerNow);					// Cue			
 			RunPlayer("show",param2);											// Show where we're at
 			}
 		else if (what == "pause") {												// Pause
 			$("#playBut").attr("src","images/playbut.gif");						// Show pause but
 			playerMode="pause";													// Set mode
-			if ((player) && (playerType == "youtube")) 							// If initted YouTube
+			if (!player)	return;												// If no player yet, quit
+			if (playerType == "youtube") 										// If YouTube
 				player.pauseVideo();											// Pause
+			if (playerType == "kaltura") 										// If Kaltura
+				player.sendNotification("doSeek",playerNow);					// Cue			
 			}
 		else if (what == "show") {												// Scrub
 			var str=SecondsToTimecode(playerNow)+" / ";							// Cur time
@@ -562,30 +574,32 @@
 			RunInfo("show");													// Show Info
 			}
 		else if (what == "quality") {											// Quality
-			if ((player) && (playerType == "youtube")) {						// If initted YouTube
+		if (!player)	return;													// If no player yet, quit
+			if (playerType == "youtube") {										// If YouTube
 				var o={ Default:"default", Good:"small", Better:"medium", Best:"large"};	// Choices
 				player.setPlaybackQuality(o[playerQuality]);					// Set quality
 				}
 			}
 		else if (what == "volume") {											// Volume
-			if ((player) && (playerType == "youtube")) 							// If initted YouTube
+			if (!player)	return;												// If no player yet, quit
+				if (playerType == "youtube") 									// If YouTube
 				player.setVolume(sd.playerVolume);								// Set volume
 			}
 		else if (what == "speed") {												// Speed
+			if (!player)	return;												// If no player yet, quit
 			s=Math.max(.25,sd.playerSpeed/50);									// Speed set .25 to 2
-			if ((player) && (playerType == "youtube")) 							// If initted YouTube
+			if (playerType == "youtube") 										// If initted YouTube
 				player.setPlaybackRate(s);										// Set speed
 			}
-		else if (what == "caption") {											// Captions
-			player.setOption("cc","fontSize", 3);
-			}
 		else if (what == "resize") {											// Resize
+			if (!player)	return;												// If no player yet, quit
 			var w=$("#playerDiv").width();										// Get width
-			if ((player) && (playerType == "youtube")) 							// If initted YouTube
+			if (playerType == "youtube") 										// If initted YouTube
 				player.setSize(w,w*playerAspect);								// Resize
 			}
 		else if (what == "load") {												// Volume
-			if ((player) && (playerType == "youtube")) 							// If initted YouTube
+			if (!player)	return;												// If no player yet, quit
+			if (playerType == "youtube") 										// If YouTube
 				player.loadVideoById(param);									// Load video
 			}
 		else if (what == "ready") {												// When ready
@@ -596,7 +610,6 @@
 			if (sd.playerAuto == "true")										// If autoplay
 				RunPlayer("play",sd.playerStart);								// Play
 			}
-
 		else if (what == "init") {												// Init player
  			if (playerType == "youtube") {										// If YouTube
 	       		player=new YT.Player("playerDiv", {								// Init player
@@ -615,16 +628,15 @@
        							}
        						},
 	            		"onReady": function(s) { RunPlayer("ready") }			// When ready
-	    				}
-		       		});
+		 	   			}});
+					}
 				}
-			}
-		else if (playerType == "kaltura") {										// If Kaltura
-	        }
-		else if (playerType == "vimeo") {										// If Vimeo
-	        }
-		else if (playerType == "html5") {										// If HTML5
-	        }
+			else if (playerType == "kaltura") {									// If Kaltura
+		        }
+			else if (playerType == "vimeo") {									// If Vimeo
+		        }
+			else if (playerType == "html5") {									// If HTML5
+		       }
  	}																			// End closure
 
 	function RunSlide(what )												// SLIDE ACTIONS
