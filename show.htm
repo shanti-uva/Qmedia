@@ -7,6 +7,8 @@
  	<link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.8.16.custom.css">
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="//cdnapi.kaltura.com/p/381832/sp/38183200/embedIframeJs/uiconf_id/2389012/partner_id/381832"></script>
+	
 	<style type="text/css">
 		body { 			font-family:Verdana,Geneva,sans-serif; font-size:xx-small; }
 		.rounded-corners { -moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;}
@@ -110,7 +112,9 @@
 	var playerAspect=.5625;														// Player aspect ratio
 	var playerType="";															// Type of player
 	var	playerTRT=367;															// Total running time
+	var kpid=381832,kconf=2389012;												// Kaltura ids
 		
+	
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INIT
@@ -214,10 +218,13 @@
 		$("#titleDiv").html(show.title);										// Set title
 		MakeTOC(show.toc);														// Fill TOC contents
 		MakeTranscript();														// Load transcript
+
 		var tag=document.createElement('script');								// Create script
 		if (show.playerSource.match(/kaltura/i)) {								// If Kaltura 
 			playerType="kaltura";												// Set type
-			tag.src="";															// Set api url
+			tag.src="//cdnapi.kaltura.com/p/381832/sp/38183200/embedIframeJs/uiconf_id/2389012/partner_id/2389012";															// Set api url
+			tag.src="";															// No api url
+			RunPlayer("init");
 			}
 		else if (show.playerSource.match(/\/\//i)) {							// If HTML5
 			playerType="html5";													// Set type
@@ -488,7 +495,9 @@
 
 	function jsCallbackReady(objectId) 										// KALTURA PLAYER READY
 	{
+		
 		player=document.getElementById(objectId);								// Set player var
+		trace('player')
 		RunPlayer("init");														// Init player								
 	}   
 
@@ -515,7 +524,7 @@
 
 	function RunPlayer(what, param, param2)									// PLAYER ACTIONS
 	{
-		if (what == "play") {													// Play
+			if (what == "play") {													// Play
 			if ($("#playBut").attr("src") == "images/playbut.gif")	{			// If in pause
 				$("#playBut").attr("src","images/pausebut.gif");				// Show pause but
 				playerMode="play";												// Set mode
@@ -630,13 +639,30 @@
 	            		"onReady": function(s) { RunPlayer("ready") }			// When ready
 		 	   			}});
 					}
-				}
 			else if (playerType == "kaltura") {									// If Kaltura
-		        }
+				str=sd.playerSource;											// Copy source
+				if (str.match(/id=/i))											// If is embed code
+					str=str.match(/id="(kaltura_[^"]+)"/i)[1];					// Strip id out
+				kWidget.embed({ targetId: 'playerDiv',							// Container
+				     			wid: kpid,										// Partner id
+				         		uiconf_id: kconf,								// Conf id
+				         		entry_id: str.replace(/kaltura/i,""),			// Source id
+				         		flashvars:{   'autoPlay': false  },				// Vars
+				         		params:{  'wmode': 'transparent'      },		// Params
+				        		
+				        		readyCallback: function(playerId){				// On ready
+				             		player=$('#'+playerId)[0];
+ 									console.log( 'Player:' + playerId + ' is ready '); 
+				        			}	
+				        	});
+		    	
+		    	trace(kWidget)
+		    	}
 			else if (playerType == "vimeo") {									// If Vimeo
 		        }
 			else if (playerType == "html5") {									// If HTML5
-		       }
+		    	}
+			}																	// End init
  	}																			// End closure
 
 	function RunSlide(what )												// SLIDE ACTIONS
@@ -787,6 +813,7 @@
 		playerStart:0,
 		playerStop:367,
 		playerSource:"ft24bHtNJwY",
+//		playerSource:"kaltura_c4n6wmeu",
 		playerAuto:"false",
 		playerAspect:.5625,
 		playerSlideRatio:.5,
