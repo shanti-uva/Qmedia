@@ -7,7 +7,6 @@
  	<link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.8.16.custom.css">
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
-	<script type="text/javascript" src="//cdnapi.kaltura.com/p/381832/sp/38183200/embedIframeJs/uiconf_id/2389012/partner_id/381832"></script>
 	
 	<style type="text/css">
 		body { 			font-family:Verdana,Geneva,sans-serif; font-size:xx-small; }
@@ -219,17 +218,16 @@
 		$("#titleDiv").html(show.title);										// Set title
 		MakeTOC(show.toc);														// Fill TOC contents
 		MakeTranscript();														// Load transcript
-
 		var tag=document.createElement('script');								// Create script
-		tag.src="";																// No api url
-		
 		if (show.playerSource.match(/kaltura/i)) {								// If Kaltura 
 			playerType="kaltura";												// Set type
 //			tag.src="//cdnapi.kaltura.com/p/381832/sp/38183200/embedIframeJs/uiconf_id/2389012/partner_id/2389012";															// Set api url
+			tag.src="";															// No api url
 			RunPlayer("init");
 			}
 		else if (show.playerSource.match(/\/\//i)) {							// If HTML5
 			playerType="html5";													// Set type
+//			tag.src="";															// No api url
 			}
 		else if (!isNaN(show.playerSource)) {									// If Vimeo
 			playerType="vimeo";													// Set type
@@ -491,6 +489,7 @@
 
     function onYouTubeIframeAPIReady() 										// YOUTUBE PLAYER READY
     {   
+		trace(33)
 		RunPlayer("init");														// Init player								
  	}
 
