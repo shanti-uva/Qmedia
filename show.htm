@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<link REL="SHORTCUT ICON" HREF="qlogo.ico">
-	<title>Qmedia player</title>
+	<title>Qmedia</title>
  	<link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.8.16.custom.css">
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
@@ -109,12 +109,13 @@
 	var playerNow=0;															// Current time in secs
 	var playerTime=null;														// Timer
 	var playerMode="empty";														// State of player
-	var playerAspect=.5625;														// Player aspect ratio
 	var playerType="";															// Type of player
-	var	playerTRT=367;															// Total running time
+	var	playerCurTime=0;														// Current time
+	var	playerTRT=0;															// Total running time
+	var playerHgt=0,playerWid=0;												// Source height/width
+	var playerAspect=.5625;														// Player aspect ratio
 	var kpid=381832,kconf=2389012;												// Kaltura ids
 		
-	
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INIT
@@ -220,19 +221,19 @@
 		MakeTranscript();														// Load transcript
 
 		var tag=document.createElement('script');								// Create script
+		tag.src="";																// No api url
+		
 		if (show.playerSource.match(/kaltura/i)) {								// If Kaltura 
 			playerType="kaltura";												// Set type
-			tag.src="//cdnapi.kaltura.com/p/381832/sp/38183200/embedIframeJs/uiconf_id/2389012/partner_id/2389012";															// Set api url
-			tag.src="";															// No api url
+//			tag.src="//cdnapi.kaltura.com/p/381832/sp/38183200/embedIframeJs/uiconf_id/2389012/partner_id/2389012";															// Set api url
 			RunPlayer("init");
 			}
 		else if (show.playerSource.match(/\/\//i)) {							// If HTML5
 			playerType="html5";													// Set type
-			tag.src="";															// No api url
 			}
 		else if (!isNaN(show.playerSource)) {									// If Vimeo
 			playerType="vimeo";													// Set type
-			tag.src="";															// Set api url
+			RunPlayer("init");
 			}
 		else{																	// If youtube
 			playerType="youtube";												// Set type
@@ -497,38 +498,81 @@
 	{
 		
 		player=document.getElementById(objectId);								// Set player var
-		trace('player')
+		trace('kplayer')
 		RunPlayer("init");														// Init player								
 	}   
 
 	function OnPlayerTimer()												// GET TIME FROM CHARPOS IN TRANSCRIPT
 	{
-		if ((player) && (playerType == "youtube")) {							// If initted YouTube
-			if ((player.getPlayerState) && (player.getPlayerState() == 1)) {	// If in play
-				if (player.getCurrentTime() >= sd.playerStop)					// Past end
-					RunPlayer("pause");											// Pause
-				playerNow=Math.min(player.getCurrentTime(),sd.playerStop);		// Get time
-				RunPlayer("show");												// Show status
+		if (!player) 															// No player yet
+			return;																// Quit
+		if (playerType == "youtube") {											// If  YouTube
+			if ((player.getPlayerState) && (player.getPlayerState() == 1)) 		// If in play
+				playerCurTime=player.getCurrentTime();							// Get cur time
 				}
-			}
+		if (playerCurTime >= sd.playerStop)										// Past end
+			RunPlayer("pause");													// Pause
+		playerNow=Math.min(playerCurTime,sd.playerStop);						// Get capped time
+		RunPlayer("show");														// Show status
 	}
 
 	function shivaEventHandler(e)											// ON SHIVA EVENT
-	{}
+	{
+		if (e.origin.match(/vimeo/i)) {											// From vimeo
+    		var ev=$.parseJSON(e.data);											// Parse json
+ 			if (ev.event == "playProgress") {									// If playing			
+				playerCurTime=ev.data.seconds;									// Set current time
+				}
+			else if (ev.event == "play") {										// If play			
+				$("#playBut").attr("src","images/pausebut.gif");				// Show pause but
+				playerMode="play";												// Set mode
+ 				}
+			else if ((ev.event == "pause") || (ev.event == "finish")) {			// If pause/end			
+  				$("#playBut").attr("src","images/playbut.gif");					// Show play but
+				playerMode="pause";												// Set mode
+    			}
+			else if (ev.method == "getDuration") {								// If duration	
+   				playerTRT=ev.value;												// Get duration
+ 				}
+ 			else if (ev.method == "getVideoHeight") {							// If height	
+ 				playerHgt=ev.value;												// Set it
+ 				if (playerWid)													// If have both parts
+ 					playerAspect=playerHgt/playerWid;							// Calc asp		
+				}
+			else if (ev.method == "getVideoWidth") {							// If width	
+ 				playerWid=ev.value;												// Set it
+ 				if (playerHgt)													// If have both parts
+ 					playerAspect=playerHgt/playerWid;							// Calc asp		
+				}
+ 			else if (ev.event == "ready"){										// If ready			
+	 			var f=$("#vplayer");											// Point at iframe
+				f[0].contentWindow.postMessage("{\"method\":\"addEventListener\",\"value\":\"play\"}","*");
+				f[0].contentWindow.postMessage("{\"method\":\"addEventListener\",\"value\":\"pause\"}","*");
+ 				f[0].contentWindow.postMessage("{\"method\":\"addEventListener\",\"value\":\"playProgress\"}","*");
+ 				f[0].contentWindow.postMessage("{\"method\":\"getVideoHeight\"}","*");
+ 				f[0].contentWindow.postMessage("{\"method\":\"getVideoWidth\"}","*");
+ 				f[0].contentWindow.postMessage("{\"method\":\"getDuration\"}","*");
+ 				RunPlayer("ready");												// Show status
+				}
+		}	
+	}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ACTIONS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function test(e) {	trace(e) }	
+
 
 	function RunPlayer(what, param, param2)									// PLAYER ACTIONS
 	{
-			if (what == "play") {													// Play
+		var i,str;
+		if (what == "play") {													// Play
 			if ($("#playBut").attr("src") == "images/playbut.gif")	{			// If in pause
 				$("#playBut").attr("src","images/pausebut.gif");				// Show pause but
 				playerMode="play";												// Set mode
-				}
+ 				}
 			else if (param == undefined) {										// Already in play, but not going to a time
 				$("#playBut").attr("src","images/playbut.gif");					// Show play but
 				playerMode="pause";												// Set mode
@@ -536,7 +580,7 @@
 			if (param != undefined) {											// If playing to a time
 				if ((""+param).match(/:/))										// In tc format
 					param=TimecodeToSeconds(param);								// Convert to secs
-				playerNow=Math.max(Math.min(param,sd.playerStop),0);			// Set cur time
+				playerCurTime=playerNow=Math.max(Math.min(param,sd.playerStop),0);	// Set cur time
 				}	
 			if (!player)	return;												// If no player yet, quit
 			if (playerType == "youtube") {										// If YouTube
@@ -549,15 +593,24 @@
 				if (playerMode == "play")  	player.sendNotification("doPlay"); 	// Play
 				if (playerMode == "pause")	player.sendNotification("doPause");	// Pause
 				}
+			else if (playerType == "vimeo") {									// If Vimeo
+				player.contentWindow.postMessage("{\"method\":\"seekTo\",\"value\":\""+playerNow+"\"}","*");
+				if (playerMode == "play")										// Play
+					player.contentWindow.postMessage("{\"method\":\"play\"}","*");	// Send
+				if (playerMode == "pause")										// Pause
+					player.contentWindow.postMessage("{\"method\":\"pause\"}","*");	// Send
+ 				}
 			RunPlayer("show");													// Show where we're at
 			}
 		else if (what == "scrub") {												// Scrub
-			playerNow=Math.max(Math.min(param,sd.playerStop),0)					// Set now
+			playerCurTime=playerNow=Math.max(Math.min(param,sd.playerStop),0)	// Set now
 			if (!player)	return;												// If no player yet, quit
 			if (playerType == "youtube") 										// If YouTube
 				player.seekTo(playerNow,true);									// Cue
 			else if (playerType == "kaltura") 									// If Kaltura
 				player.sendNotification("doSeek",playerNow);					// Cue			
+			else if (playerType == "vimeo") 									// If Vimeo
+				player.contentWindow.postMessage("{\"method\":\"seekTo\",\"value\":\""+playerNow+"\"}","*");
 			RunPlayer("show",param2);											// Show where we're at
 			}
 		else if (what == "pause") {												// Pause
@@ -568,7 +621,9 @@
 				player.pauseVideo();											// Pause
 			if (playerType == "kaltura") 										// If Kaltura
 				player.sendNotification("doSeek",playerNow);					// Cue			
-			}
+			else if (playerType == "vimeo") 									// If Vimeo
+				player.contentWindow.postMessage("{\"method\":\"pause\"}","*");	// Send
+ 			}
 		else if (what == "show") {												// Scrub
 			var str=SecondsToTimecode(playerNow)+" / ";							// Cur time
 			str+=SecondsToTimecode(sd.playerStop);								// End time
@@ -591,8 +646,10 @@
 			}
 		else if (what == "volume") {											// Volume
 			if (!player)	return;												// If no player yet, quit
-				if (playerType == "youtube") 									// If YouTube
+			if (playerType == "youtube") 										// If YouTube
 				player.setVolume(sd.playerVolume);								// Set volume
+			else if (playerType == "vimeo") 									// If Vimeo
+				player.contentWindow.postMessage("{\"method\":\"setVolume\",\"value\":\""+sd.playerVolume/100+"\"}","*"); // Send
 			}
 		else if (what == "speed") {												// Speed
 			if (!player)	return;												// If no player yet, quit
@@ -605,6 +662,10 @@
 			var w=$("#playerDiv").width();										// Get width
 			if (playerType == "youtube") 										// If initted YouTube
 				player.setSize(w,w*playerAspect);								// Resize
+			else if (playerType == "vimeo") {									// If Vimeo
+				$("#vplayer").width(w);											// Set width
+				$("#vplayer").height(w*playerAspect);							// Set height
+				}
 			}
 		else if (what == "load") {												// Volume
 			if (!player)	return;												// If no player yet, quit
@@ -647,9 +708,7 @@
 				     			wid: kpid,										// Partner id
 				         		uiconf_id: kconf,								// Conf id
 				         		entry_id: str.replace(/kaltura/i,""),			// Source id
-				         		flashvars:{   'autoPlay': false  },				// Vars
 				         		params:{  'wmode': 'transparent'      },		// Params
-				        		
 				        		readyCallback: function(playerId){				// On ready
 				             		player=$('#'+playerId)[0];
  									console.log( 'Player:' + playerId + ' is ready '); 
@@ -659,7 +718,12 @@
 		    	trace(kWidget)
 		    	}
 			else if (playerType == "vimeo") {									// If Vimeo
-		        }
+				str="<iframe id='vplayer' src='//player.vimeo.com/video/";		// Iframe start
+				str+=sd.playerSource;											// Add source
+				str+="?api=1&player_id=vplayer' width='500' height='281' frameborder='0' webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>";
+				$("#playerDiv").html(str);										// Add vimeo iframe
+		       	player=$("#vplayer")[0];										// Point to iframe
+				}
 			else if (playerType == "html5") {									// If HTML5
 		    	}
 			}																	// End init
@@ -667,7 +731,7 @@
 
 	function RunSlide(what )												// SLIDE ACTIONS
 	{
-		var i;
+		var i,str;
 		if (what == "show") 													// Show
 			ShowContent(slidePane,"slideDiv");									// Show content
 		else if (what == "last") { 												// Go to previous slide
@@ -793,6 +857,8 @@
 			console.log(msg);
 		
 	}
+	
+	
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DEMO DATA
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -812,12 +878,17 @@
 		playerSpeed:50,
 		playerStart:0,
 		playerStop:367,
+//		playerSource:"7100569",
 		playerSource:"ft24bHtNJwY",
 //		playerSource:"kaltura_c4n6wmeu",
 		playerAuto:"false",
 		playerAspect:.5625,
 		playerSlideRatio:.5,
 		width:1000,
+	
+
+	
+	
 		toc:[ 
 			{start:"00:00",title:"Opening credits"},
 			{start:"00:26",title:"My TED wish"},
