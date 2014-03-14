@@ -70,7 +70,7 @@
 	</div>
 	<div id="transDiv" style="position:absolute" class="trans">
 		<span class="labels">Transcript</span>
-		<div id="transSearchDiv" style='position:absolute;top:0px'> 
+		<div id="transSearchDiv" style='position:absolute;top:0px;white-space:nowrap'> 
 			<input style='width:100px;font-size:small;border:1px solid #ddd' id='transSearch'>
   			<img src="images/settingsbut.gif" id="transSettings" title="Transcript menu" style="vertical-align:-2px;cursor:pointer">
 	  	</div>
@@ -134,6 +134,7 @@
 			}
 		LoadContent(sd);														// Load show content
 		RunPlayer("scrub",0);													// Show start/end times
+		ResizePanes();															// Resize panes
 		$("#showDiv").show(1000);												// Show interface
 		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
 
@@ -148,7 +149,8 @@
 			cursor: "col-resize", axis:"x",										// X-only
 			stop: ResizePanes,													// Resize panes when done
 			drag: function(event, ui) {											// On drag
-			 	sd.playerSlideRatio=Math.max(0,Math.min(1,(event.clientX-8)/(sd.width+16)));	// Set ratio between windows
+				var wid=Math.min($("body").width(),sd.width);					// Cap at screen size
+			 	sd.playerSlideRatio=Math.max(0,Math.min(1,(event.clientX-8)/(wid+16)));	// Set ratio between windows
 				ResizePanes();													// Resize panes
 				}
 			});
@@ -219,7 +221,7 @@
 		MakeTOC(show.toc);														// Fill TOC contents
 		MakeTranscript();														// Load transcript
 		var tag=document.createElement('script');								// Create script
-		if (show.playerSource.match(/kaltura/i)) {								// If Kaltura 
+		if (show.playerSource.match(/kaltura_player/i)) {						// If Kaltura 
 			playerType="kaltura";												// Set type
 //			tag.src="//cdnapi.kaltura.com/p/381832/sp/38183200/embedIframeJs/uiconf_id/2389012/partner_id/2389012";															// Set api url
 			tag.src="";															// No api url
@@ -227,7 +229,8 @@
 			}
 		else if (show.playerSource.match(/\/\//i)) {							// If HTML5
 			playerType="html5";													// Set type
-//			tag.src="";															// No api url
+			RunPlayer("init");
+			tag.src="";															// No api url
 			}
 		else if (!isNaN(show.playerSource)) {									// If Vimeo
 			playerType="vimeo";													// Set type
@@ -253,7 +256,7 @@
 
 	function ShowContent(pane, div)											// SHOW IMAGE OR IFRAME
 	{
-		var i,o,extra="scrolling='no'";
+		var i,o,oo,extra="scrolling='no'";
 		var n=showVectors[pane].length-1;										// Last vector
 		for (i=n;i>=0;i--) {													// For each vector
 			o=showVectors[pane][i];												// Point at slide
@@ -269,10 +272,10 @@
 					if (o.d != undefined) 										// If changing ratios
 						AnimatePanes(o.d,o.e,pane);								// Animate transition
 					showCurSource[pane]=o.cs;									// Then is now
-					o=showVectors[pane][i+1];									// Point at next slide
-					if (o) {													// If not penulitimate image
-						if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))				// If an image				
-							$("#cache"+pane).html("<img src='"+o.cs+"'>"); 		// Load as image
+					oo=showVectors[pane][i+1];									// Point at next slide
+					if (oo) {													// If not penulitimate image
+						if (oo.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))			// If an image				
+							$("#cache"+pane).html("<img src='"+oo.cs+"'>"); 	// Load as image
 						}
 					}						
 				break;															// Stop looking
@@ -282,15 +285,16 @@
 
 	function ResizePanes()													// RESIZE PANES
 	{ 
-		$("#showDiv").width(sd.width);											// Set show width
-		$("#titleDiv").width(sd.width-16);										// Set title width
-		var w=sd.width*sd.playerSlideRatio-4;									// Player width
-		var w2=sd.width-w-8;													// Slide width
-		if (w <= 0)				w=0,w2=sd.width;								// Full slide											
-		else if (w2 <= 0)		w2=0,w=sd.width;								// Full video											
+		var wid=Math.min($("body").width(),sd.width);							// Cap at screen size
+		$("#showDiv").width(wid);												// Set show width
+		$("#titleDiv").width(wid-16);											// Set title width
+		var w=wid*sd.playerSlideRatio-4;										// Player width
+		var w2=wid-w-8;															// Slide width
+		if (w <= 0)				w=0,w2=wid;										// Full slide											
+		else if (w2 <= 0)		w2=0,w=wid;										// Full video											
 		var pt=$("#titleDiv").height()+32;										// Top of player
 		$("#playerDiv").css({ width:w+"px",top:pt+"px"});						// Set player pos
-		$("#slideDiv").css({ left:(sd.width-w2+8)+"px",width:(w2)+"px",top:pt+"px"}); // Set slider pos/size
+		$("#slideDiv").css({ left:(wid-w2+8)+"px",width:(w2)+"px",top:pt+"px"}); // Set slider pos/size
 		var h=Math.max($("#playerDiv").height(),$("#slideDiv").height());		// Player height
 		$("#playerSiz").css({ left:(w+8)+"px",height:h+"px",top:pt+"px"});		// Set sizer pos
 		h+=pt;																	// Point at top of control bar
@@ -298,12 +302,12 @@
 		$("#contentDiv").css({ top:ct+"px",height:sd.transHgt+"px"});			// Position/size contents
 		var cw=$("#contentDiv").width()+8;										// Get width of content panel
 		$("#controlDiv").css({ top:h+"px" });									// Position control slider
-		$("#slider").width(sd.width-210);										// Slider width
-		w=sd.width*sd.transInfoRatio;											// Transcript width
+		$("#slider").width(wid-210);											// Slider width
+		w=wid*sd.transInfoRatio;												// Transcript width
 		$("#transDiv").css({ left:cw+"px",width:(w-cw-8)+"px",height:sd.transHgt+"px",top:ct+"px"});
 		$("#transSiz").css({ left:(w+4)+"px",height:sd.transHgt+"px",top:(ct)+"px"});// Pos transcript sizer
-		w=sd.width*(1-sd.transInfoRatio)-8;											// Info window width
-		$("#infoDiv").css({ left:(sd.width-w+8)+"px",width:Math.max(w,0)+"px",height:sd.transHgt+"px",top:ct+"px"});
+		w=wid*(1-sd.transInfoRatio)-8;											// Info window width
+		$("#infoDiv").css({ left:(wid-w+8)+"px",width:Math.max(w,0)+"px",height:sd.transHgt+"px",top:ct+"px"});
 		$("#transHgt").css({ top:ct+sd.transHgt+"px"});							// Set transcript height
 		$("#transSearchDiv").css("left",$("#transDiv").width()-104)+"px";		// Search div width
 		RunPlayer("resize");													// Resize player
@@ -316,7 +320,7 @@
 		var start;
 		if (which == slidePane) 	 start=sd.playerSlideRatio;					// Get current player ratio
 		else if (which == infoPane)  start=sd.transInfoRatio;					// Get current transcript ratio
-		if (start == end) 														// Already there
+		if ((Math.abs(end-start) < .1) || (paneAnimationTimer))					// Already there
 			return;																// Quit
 		clearInterval(paneAnimationTimer);										// Kill timer
 		var startTime=new Date().getTime();										// Set start
@@ -330,11 +334,15 @@
 			now=1.0-((Math.cos(3.1414*now)+1)/2.0);								// Full cosine curve
 			now=Math.min(now,1);												// Cap
 			var pos=start+(end-start)*now;										// Get val
+			if (now > .99)	{													// If done
+				clearInterval(paneAnimationTimer);								// Kill timer
+				pos=end;														// Force to end
+				paneAnimationTimer=null;										// Null it out
+				}
 			if (which == slidePane) 	 	sd.playerSlideRatio=pos;			// Set player ratio
 			else if (which == infoPane) 	sd.transInfoRatio=pos;				// Set transcript ratio
 			ResizePanes();														// Resize
-			if (now > .99)														// If done
-				clearInterval(paneAnimationTimer);								// Kill timer
+					
 			}
 	}
 
@@ -453,7 +461,8 @@
 			cursor: "col-resize", axis:"x",										// X-only
 			stop: ResizePanes,													// Resize panes when done
 			drag: function(event, ui) {											// On drag
-			 	sd.transInfoRatio=Math.max(0,Math.min(1,(event.clientX)/sd.width)); // Set ratio between windows
+				var wid=Math.min($("body").width(),sd.width);					// Cap at screen size
+			 	sd.transInfoRatio=Math.max(0,Math.min(1,(event.clientX)/wid));	// Set ratio between windows
 				ResizePanes();													// Resize panes
 				}
 			});
@@ -489,7 +498,6 @@
 
     function onYouTubeIframeAPIReady() 										// YOUTUBE PLAYER READY
     {   
-		trace(33)
 		RunPlayer("init");														// Init player								
  	}
 
@@ -503,12 +511,12 @@
 
 	function OnPlayerTimer()												// GET TIME FROM CHARPOS IN TRANSCRIPT
 	{
-		if (!player) 															// No player yet
+		if ((!player) || (playerMode != "play"))								// Not playing
 			return;																// Quit
-		if (playerType == "youtube") {											// If  YouTube
-			if ((player.getPlayerState) && (player.getPlayerState() == 1)) 		// If in play
-				playerCurTime=player.getCurrentTime();							// Get cur time
-				}
+		if (playerType == "youtube") 											// If YouTube
+			playerCurTime=player.getCurrentTime();								// Get cur time
+		else if (playerType == "html5") 										// If  HTML5
+			playerCurTime=player.currentTime;									// Get cur time
 		if (playerCurTime >= sd.playerStop)										// Past end
 			RunPlayer("pause");													// Pause
 		playerNow=Math.min(playerCurTime,sd.playerStop);						// Get capped time
@@ -597,6 +605,11 @@
 				if (playerMode == "pause")										// Pause
 					player.contentWindow.postMessage("{\"method\":\"pause\"}","*");	// Send
  				}
+			else if (playerType == "html5") {									// If HTML5
+				player.currentTime=playerNow;									// Cue
+				if (playerMode == "play")  	player.play(); 						// Play
+				if (playerMode == "pause")	player.pause();						// Pause
+				}
 			RunPlayer("show");													// Show where we're at
 			}
 		else if (what == "scrub") {												// Scrub
@@ -608,6 +621,8 @@
 				player.sendNotification("doSeek",playerNow);					// Cue			
 			else if (playerType == "vimeo") 									// If Vimeo
 				player.contentWindow.postMessage("{\"method\":\"seekTo\",\"value\":\""+playerNow+"\"}","*");
+			else if (playerType == "html5") 									// If HTML5
+				player.currentTime=playerNow;									// Cue
 			RunPlayer("show",param2);											// Show where we're at
 			}
 		else if (what == "pause") {												// Pause
@@ -620,7 +635,9 @@
 				player.sendNotification("doSeek",playerNow);					// Cue			
 			else if (playerType == "vimeo") 									// If Vimeo
 				player.contentWindow.postMessage("{\"method\":\"pause\"}","*");	// Send
- 			}
+ 			else if (playerType == "html5") 									// If HTML5
+				player.pause(); 												// Pause
+			}
 		else if (what == "show") {												// Scrub
 			var str=SecondsToTimecode(playerNow)+" / ";							// Cur time
 			str+=SecondsToTimecode(sd.playerStop);								// End time
@@ -638,7 +655,7 @@
 		if (!player)	return;													// If no player yet, quit
 			if (playerType == "youtube") {										// If YouTube
 				var o={ Default:"default", Good:"small", Better:"medium", Best:"large"};	// Choices
-				player.setPlaybackQuality(o[playerQuality]);					// Set quality
+				player.setPlaybackQuality(o[sd.playerQuality]);					// Set quality
 				}
 			}
 		else if (what == "volume") {											// Volume
@@ -647,19 +664,23 @@
 				player.setVolume(sd.playerVolume);								// Set volume
 			else if (playerType == "vimeo") 									// If Vimeo
 				player.contentWindow.postMessage("{\"method\":\"setVolume\",\"value\":\""+sd.playerVolume/100+"\"}","*"); // Send
+			else if (playerType == "html5") 									// If HTML5
+				player.volume=sd.playerVolume/100;								// Volume
 			}
 		else if (what == "speed") {												// Speed
 			if (!player)	return;												// If no player yet, quit
 			s=Math.max(.25,sd.playerSpeed/50);									// Speed set .25 to 2
 			if (playerType == "youtube") 										// If initted YouTube
 				player.setPlaybackRate(s);										// Set speed
+			else if (playerType == "html5") 									// If HTML5
+				player.playbackRate=s;											// Set speed
 			}
 		else if (what == "resize") {											// Resize
 			if (!player)	return;												// If no player yet, quit
 			var w=$("#playerDiv").width();										// Get width
 			if (playerType == "youtube") 										// If initted YouTube
 				player.setSize(w,w*playerAspect);								// Resize
-			else if (playerType == "vimeo") {									// If Vimeo
+			else if ((playerType == "vimeo") || (playerType == "html5")) {		// If Vimeo or HTML5
 				$("#vplayer").width(w);											// Set width
 				$("#vplayer").height(w*playerAspect);							// Set height
 				}
@@ -686,6 +707,7 @@
 	         	 	events:{													// Add event handlers
 	            		"onStateChange": function(s) {							// Change of state
 		         			if (s.data == 1) {
+								playerTRT=player.getDuration();					// Set TRT
 								$("#playBut").attr("src","images/pausebut.gif");// Show pause but
 								playerMode="play";								// Set mode
        							}
@@ -722,7 +744,30 @@
 		       	player=$("#vplayer")[0];										// Point to iframe
 				}
 			else if (playerType == "html5") {									// If HTML5
-		    	}
+				var base=sd.playerSource.match(/(.*)\.[^.]+$/i)[1];				// Extract base
+				str="<video id='vplayer' width='100%' height='100%'>";			// Video tag
+				if (sd.playerSource.match(/\.mp3/i)) {							// If audio
+					str+="<source src='"+base+".mp3' type='audio/mp3'>";		// MP3 Source
+					str+="<source src='"+base+".ogg' type='audio/ogg'>";		// OGG Source
+					}
+				else{															// VIDEO
+					str+="<source src='"+base+".mp4' type='video/mp4'>";		// MP4 Source
+					str+="<source src='"+base+".ogg' type='video/ogg'>";		// OGG Source
+					}
+				str+="</video>"
+				$("#playerDiv").html(str);										// Add video tag
+				$("#vplayer")[0].addEventListener("canplay", function() {		// When ready
+					if (player) 												// Already initted
+						return;													// Quit
+       				playerApect=$("#vplayer").height()/$("#vplayer").width();	// Set aspect
+       				player=$("#vplayer")[0];									// Point to player
+       				playerTRT=player.duration;									// Set TRT
+					RunPlayer("ready");											// Set up player
+					});
+				$("#vplayer")[0].addEventListener("ended", function() {			// When done
+					RunPlayer("pause");											// Pause
+					});
+	    	}
 			}																	// End init
  	}																			// End closure
 
@@ -789,8 +834,8 @@
 			o.pd=rlc[i+1].a-rlc[i].a;											// Set time duration
 			if (!isNaN(o.cs))													// If numeric content
 				o.cd=rlc[i+1].b-rlc[i].b;										// Set content duration
-			if (rlc[i].d)	o.d=rlc[i].d;										// Add param if set
-			if (rlc[i].e)	o.e=rlc[i].e;										// Add param if set
+			if (rlc[i].d != undefined)	o.d=rlc[i].d;							// Add param if set
+			if (rlc[i].e != undefined)	o.e=rlc[i].e;							// Add param if set
 			showVectors[pane].push(o);											// Add to vector list
 			}
 	}
@@ -877,8 +922,9 @@
 		playerStop:367,
 //		playerSource:"7100569",
 		playerSource:"ft24bHtNJwY",
-//		playerSource:"kaltura_c4n6wmeu",
+//		playerSource:"kaltura_player_1_uyp6bkha"",
 //		playerSource:"//primaryaccess.org/narration.mp3",
+//		playerSource:"http://www.w3schools.com/html/mov_bbb.mp4",
 		playerAuto:"false",
 		playerAspect:.5625,
 		playerSlideRatio:.5,
