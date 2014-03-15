@@ -7,6 +7,8 @@
  	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>	
 	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+   	<script type="text/javascript" src="http://html5video.org/kaltura-player/mwEmbedLoader.php"></script>
+
 	<style type="text/css">
 		body { 			font-family:Verdana,Geneva,sans-serif; font-size:xx-small; }
 		.rounded-corners { -moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;}
@@ -112,7 +114,6 @@
 	var	playerTRT=0;															// Total running time
 	var playerHgt=0,playerWid=0;												// Source height/width
 	var playerAspect=.5625;														// Player aspect ratio
-	var kpid=381832,kconf=2389012;												// Kaltura ids
 		
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,11 +133,7 @@
 			showCurSource[i]="";												// No source yet
 			}
 		LoadContent(sd);														// Load show content
-		RunPlayer("scrub",0);													// Show start/end times
-		ResizePanes();															// Resize panes
-		$("#showDiv").show(1000);												// Show interface
-		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
-
+	
 		$("#slider").slider({ value:playerNow, max:sd.playerStop,				// Init slider
 			slide: function(event,ui ) {										// Handle change
 				RunPlayer("scrub",ui.value);									// Show
@@ -208,6 +205,11 @@
 
 			});																	// End settings
 		
+		RunPlayer("scrub",0);													// Show start/end times
+		ResizePanes();															// Resize panes
+		$("#showDiv").show(1000);												// Show interface
+		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
+
 	});
 
 	function LoadContent(show)												// LOAD SHOW CONTENT
@@ -220,31 +222,25 @@
 		MakeTOC(show.toc);														// Fill TOC contents
 		MakeTranscript();														// Load transcript
 		var tag=document.createElement('script');								// Create script
-		if (show.playerSource.match(/kaltura_player/i)) {						// If Kaltura 
+		if (show.playerSource.match(/kaltura/i)) {								// If Kaltura 
 			playerType="kaltura";												// Set type
-//			tag.src="//cdnapi.kaltura.com/p/381832/sp/38183200/embedIframeJs/uiconf_id/2389012/partner_id/2389012";															// Set api url
-			tag.src="";															// No api url
 			RunPlayer("init");
 			}
 		else if (show.playerSource.match(/\/\//i)) {							// If HTML5
 			playerType="html5";													// Set type
 			RunPlayer("init");
-			tag.src="";															// No api url
 			}
 		else if (!isNaN(show.playerSource)) {									// If Vimeo
 			playerType="vimeo";													// Set type
 			RunPlayer("init");
 			}
-		else{																	// If youtube
+		else{																	// If YouTube
 			playerType="youtube";												// Set type
+			var tag=document.createElement('script');							// Create script
 			tag.src="//www.youtube.com/iframe_api";								// Set api url
-			}
-		if (tag.src) {															// If a valid player
 			var firstScriptTag=document.getElementsByTagName('script')[0];		// Find 1st script
 			firstScriptTag.parentNode.insertBefore(tag,firstScriptTag);			// Load
 			}
-		else 
-			ResizePanes();														// Resize panes
 	}
 
 
@@ -500,14 +496,6 @@
 		RunPlayer("init");														// Init player								
  	}
 
-	function jsCallbackReady(objectId) 										// KALTURA PLAYER READY
-	{
-		
-		player=document.getElementById(objectId);								// Set player var
-		trace('kplayer')
-		RunPlayer("init");														// Init player								
-	}   
-
 	function OnPlayerTimer()												// GET TIME FROM CHARPOS IN TRANSCRIPT
 	{
 		if ((!player) || (playerMode != "play"))								// Not playing
@@ -526,7 +514,7 @@
 	{
 		if (e.origin.match(/vimeo/i)) {											// From vimeo
     		var ev=$.parseJSON(e.data);											// Parse json
- 			if (ev.event == "playProgress") {									// If playing			
+  			if (ev.event == "playProgress") {									// If playing			
 				playerCurTime=ev.data.seconds;									// Set current time
 				}
 			else if (ev.event == "play") {										// If play			
@@ -593,7 +581,7 @@
 				if (playerMode == "pause")	player.pauseVideo();				// Pause
 				}
 			else if (playerType == "kaltura") {									// If Kaltura
-				sendNotification("seekTo",playerNow);							// Cue
+				player.sendNotification("seekTo",playerNow);					// Cue
 				if (playerMode == "play")  	player.sendNotification("doPlay"); 	// Play
 				if (playerMode == "pause")	player.sendNotification("doPause");	// Pause
 				}
@@ -660,11 +648,13 @@
 		else if (what == "volume") {											// Volume
 			if (!player)	return;												// If no player yet, quit
 			if (playerType == "youtube") 										// If YouTube
-				player.setVolume(sd.playerVolume);								// Set volume
+				player.setVolume(sd.playerVolume);								// Set it
 			else if (playerType == "vimeo") 									// If Vimeo
 				player.contentWindow.postMessage("{\"method\":\"setVolume\",\"value\":\""+sd.playerVolume/100+"\"}","*"); // Send
 			else if (playerType == "html5") 									// If HTML5
-				player.volume=sd.playerVolume/100;								// Volume
+				player.volume=sd.playerVolume/100;								// Set
+			else if (playerType == "kaltura") 									// If Kaltura
+				player.sendNotification("changeVolume",sd.playerVolume);		// Set it			
 			}
 		else if (what == "speed") {												// Speed
 			if (!player)	return;												// If no player yet, quit
@@ -683,6 +673,8 @@
 				$("#vplayer").width(w);											// Set width
 				$("#vplayer").height(w*playerAspect);							// Set height
 				}
+			else if (playerType == "kaltura") 									// If Kaltura
+		        $("#playerDiv").height($("#playerDiv").width()*playerAspect)+2;	// Set height
 			}
 		else if (what == "load") {												// Volume
 			if (!player)	return;												// If no player yet, quit
@@ -690,22 +682,21 @@
 				player.loadVideoById(param);									// Load video
 			}
 		else if (what == "ready") {												// When ready
-			RunPlayer("play",sd.playerStart);									// Play
 			RunPlayer("resize");												// Resize player
  			ResizePanes();														// Resize panes
-			RunPlayer("pause");													// Pause
 			if (sd.playerAuto == "true")										// If autoplay
 				RunPlayer("play",sd.playerStart);								// Play
+			RunPlayer("show");													// Show
 			}
 		else if (what == "init") {												// Init player
- 			if (playerType == "youtube") {										// If YouTube
+			if (playerType == "youtube") {										// If YouTube
 	       		player=new YT.Player("playerDiv", {								// Init player
 					playerVars:{ modestbranding:1, controls:0, 					// Settings
-						disablekb:1, rel:0, showinfo:0, autoplay:1 },
+						disablekb:1, rel:0, showinfo:0,},
 	          		videoId: sd.playerSource,									// Set source
 	         	 	events:{													// Add event handlers
 	            		"onStateChange": function(s) {							// Change of state
-		         			if (s.data == 1) {
+		         			if (s.data == 1) {									// In play
 								playerTRT=player.getDuration();					// Set TRT
 								$("#playBut").attr("src","images/pausebut.gif");// Show pause but
 								playerMode="play";								// Set mode
@@ -719,21 +710,41 @@
 		 	   			}});
 					}
 			else if (playerType == "kaltura") {									// If Kaltura
-				str=sd.playerSource;											// Copy source
-				if (str.match(/id=/i))											// If is embed code
-					str=str.match(/id="(kaltura_[^"]+)"/i)[1];					// Strip id out
-				kWidget.embed({ targetId: 'playerDiv',							// Container
-				     			wid: kpid,										// Partner id
-				         		uiconf_id: kconf,								// Conf id
-				         		entry_id: str.replace(/kaltura/i,""),			// Source id
-				         		params:{  'wmode': 'transparent'      },		// Params
-				        		readyCallback: function(playerId){				// On ready
-				             		player=$('#'+playerId)[0];
- 									console.log( 'Player:' + playerId + ' is ready '); 
-				        			}	
-				        	});
+				var v=sd.playerSource.split("|");								// Split parts
+				mw.setConfig("KalturaSupport.LeadWithHTML5",true);				// Try using HTML5 player first
+				kWidget.embed({	targetId: "playerDiv",							// Embed
+					wid:v[2], uiconf_id:v[3], entry_id:v[1],					// PartnerIid, confId, clipId
+					flashvars:{ externalInterfaceDisabled:false	},				// Enable control
+		        	readyCallback: function(playerId){							// On ready
+						if (!player) {											// Not initted yet
+							player=$('#'+playerId)[0];							// Set player
+							player.sendNotification("enableGui",{ guiEnabled:false, enableType: "controls" });// No controls
+										
+							player.addJsListener("playerStateChange",function(e) {	// Player state change
+								if (e == "playing")	{							// On playing														
+									$("#playBut").attr("src","images/pausebut.gif");// Show pause but
+									playerMode="play";							// Set mode
+									}
+								else if (e == "paused")	{						// On pause														
+									$("#playBut").attr("src","images/playbut.gif");	// Show play but
+									playerMode="pause";							// Set mode	
+       								}
+								});
+ 							player.addJsListener("playbackComplete",function(e){// On done
+								$("#playBut").attr("src","images/playbut.gif");	// Show play but
+								playerMode="pause";								// Set mode	
+								});
+							player.addJsListener("durationChange",function(e) {	// On duration change
+								playerTRT=e;									// Set TRT
+								});
+							player.addJsListener("playerUpdatePlayhead",function(e) {	// On duration change
+								playerCurTime=e;								// Swt current time
+								});
+							RunPlayer("ready");									// Set up player
+			        		}
+			        	}	
+				     });
 		    	
-		    	trace(kWidget)
 		    	}
 			else if (playerType == "vimeo") {									// If Vimeo
 				str="<iframe id='vplayer' src='//player.vimeo.com/video/";		// Iframe start
@@ -755,18 +766,21 @@
 					}
 				str+="</video>"
 				$("#playerDiv").html(str);										// Add video tag
-				$("#vplayer")[0].addEventListener("canplay", function() {		// When ready
-					if (player) 												// Already initted
+  			
+  				$("#vplayer")[0].oncanplay= function() {						// When ready
+ 					if (player) 												// Already initted
 						return;													// Quit
        				playerApect=$("#vplayer").height()/$("#vplayer").width();	// Set aspect
        				player=$("#vplayer")[0];									// Point to player
        				playerTRT=player.duration;									// Set TRT
+					trace(1)
 					RunPlayer("ready");											// Set up player
-					});
-				$("#vplayer")[0].addEventListener("ended", function() {			// When done
-					RunPlayer("pause");											// Pause
-					});
-	    	}
+					};
+
+				$("#vplayer")[0].onended= function() {							// When ready
+  					RunPlayer("pause");											// Pause
+					};
+	    		}
 			}																	// End init
  	}																			// End closure
 
@@ -921,7 +935,7 @@
 		playerStop:367,
 //		playerSource:"7100569",
 		playerSource:"ft24bHtNJwY",
-//		playerSource:"kaltura_player_1_uyp6bkha"",
+//		playerSource:"kaltura|0_un4gy128|_322481|8145862",
 //		playerSource:"//primaryaccess.org/narration.mp3",
 //		playerSource:"http://www.w3schools.com/html/mov_bbb.mp4",
 		playerAuto:"false",
