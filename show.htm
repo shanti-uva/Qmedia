@@ -51,7 +51,8 @@
  	</style>
 </head>
 <body>
-<div id="showDiv" style="padding:0px;margin:0px;display:none">
+<div id="splashDiv" style="text-align:center;position:absolute;top:100px;left:200px"><img src="qlogo.png"></div>
+<div id="showDiv" style="padding:0px;margin:0px;opacity:0;">
 	<div id="titleDiv" style="position:absolute;" class="title unselectable"></div>
 	<div id="playerDiv" style="position:absolute" class="unselectable"></div>
 	<div id="slideDiv" style="position:absolute" class="slide unselectable"></div>
@@ -67,10 +68,10 @@
 		<div style="position:absolute;width:80px;height:100%;left:-40px" class="unselectable"></div>
 	</div>
 	<div id="contentDiv" style="position:absolute" class="contents unselectable">
-		<span class="labels">Contents</span><div id="contentsText" style="height:100%;overflow:auto;margin-top:16px"></div>
+		<span id="contentsLab" class="labels"></span><div id="contentsText" style="height:100%;overflow:auto;margin-top:16px"></div>
 	</div>
 	<div id="transDiv" style="position:absolute" class="trans">
-		<span class="labels">Transcript</span>
+		<span id="transLab" class="labels"></span>
 		<div id="transSearchDiv" style='position:absolute;top:0px;white-space:nowrap'> 
 			<input style='width:100px;font-size:small;border:1px solid #ddd' id='transSearch'>
   			<img src="images/settingsbut.gif" id="transSettings" title="Transcript menu" style="vertical-align:-2px;cursor:pointer">
@@ -78,7 +79,7 @@
   		<div id="transcriptText" style="height:90%;overflow:auto;margin-top:16px;padding-right:8px"></div>
  	</div>
 	<div id="infoDiv" style="position:absolute" class="info">
-		<span class="labels">More information</span><div id="informationText" style="height:100%;overflow:hidden;margin-top:16px"></div>
+		<span id="infoLab" class="labels"></span><div id="informationText" style="height:100%;overflow:hidden;margin-top:16px"></div>
 	</div>
 	<div id="transHgt" style="position:absolute;width:1000px;height:16px;cursor:row-resize;border-bottom:3px solid #ccc" class="unselectable" title="Change transcript height">
 			<br><br><br>
@@ -127,18 +128,11 @@
 			window.addEventListener("message",shivaEventHandler,false);			// Add event handler
 		else																	// Use other method
 			window.attachEvent("message",shivaEventHandler);					// Add handler
-		
-		for (i=0;i<showPanes;++i) {												// For each show pane
-			showVectors[i]=[];													// Create timing vector arrays 
-			showCurSource[i]="";												// No source yet
-			}
-		LoadContent(sd);														// Load show content
-	
-		$("#slider").slider({ value:playerNow, max:sd.playerStop,				// Init slider
-			slide: function(event,ui ) {										// Handle change
-				RunPlayer("scrub",ui.value);									// Show
-				}
-			});
+
+		var url=window.location.search.substring(1);							// Get query string
+		if (!url)																// Nothing on command line
+			url="defaultshow.txt";												// Use default
+		$.ajax({ url: url, dataType:'jsonp' });									// Get jsonp and call LoadShow() from it
 
 		$("#playerSiz").draggable({												// DRAG PLAYER WIDTH HANDLER
 			cursorAt:{left:16},													// Cursor offext
@@ -204,35 +198,39 @@
 				});
 
 			});																	// End settings
-		
-		RunPlayer("scrub",0);													// Show start/end times
-		ResizePanes();															// Resize panes
-		$("#showDiv").show(1000);												// Show interface
 		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
-
 	});
 
-	function LoadContent(show)												// LOAD SHOW CONTENT
+
+	function LoadShow(show)													// LOAD SHOW CONTENT
 	{
+		sd=show;
+		for (i=0;i<showPanes;++i) {												// For each show pane
+			showVectors[i]=[];													// Create timing vector arrays 
+			showCurSource[i]="";												// No source yet
+			}
 		$("#playerDiv").html("<img width='100%' src='video.jpg'onload='ResizePanes()'>");
 		MakeVectors(1,show.slideVectors);										// Make slides timing list
 		MakeVectors(2,show.transVectors);										// Make transcript timing list
 		MakeVectors(3,show.infoVectors);										// Make info timing list
 		$("#titleDiv").html(show.title);										// Set title
+		$("#contentsLab").html(show.contentsLab);								// Set label
+		$("#transLab").html(show.transLab);										// Set label
+		$("#infoLab").html(show.infoLab);										// Set label
 		MakeTOC(show.toc);														// Fill TOC contents
 		MakeTranscript();														// Load transcript
 		var tag=document.createElement('script');								// Create script
-		if (show.playerSource.match(/kaltura/i)) {								// If Kaltura 
-			playerType="kaltura";												// Set type
-			RunPlayer("init");
-			}
-		else if (show.playerSource.match(/\/\//i)) {							// If HTML5
+		if (sd.playerSource.match(/\/\//i)) {									// If HTML5
 			playerType="html5";													// Set type
-			RunPlayer("init");
+			RunPlayer("init");													// Init player
 			}
-		else if (!isNaN(show.playerSource)) {									// If Vimeo
+		else if (show.playerSource.match(/kaltura/i)) {							// If Kaltura 
+			playerType="kaltura";												// Set type
+			RunPlayer("init");													// Init player
+			}
+		else if (!isNaN(sd.playerSource)) {										// If Vimeo
 			playerType="vimeo";													// Set type
-			RunPlayer("init");
+			RunPlayer("init");													// Init player
 			}
 		else{																	// If YouTube
 			playerType="youtube";												// Set type
@@ -241,6 +239,13 @@
 			var firstScriptTag=document.getElementsByTagName('script')[0];		// Find 1st script
 			firstScriptTag.parentNode.insertBefore(tag,firstScriptTag);			// Load
 			}
+		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
+
+		$("#slider").slider({ value:playerNow, max:sd.playerStop,				// Init slider
+			slide: function(event,ui ) {										// Handle change
+				RunPlayer("scrub",ui.value);									// Show
+				}
+			});
 	}
 
 
@@ -273,13 +278,13 @@
 							$("#cache"+pane).html("<img src='"+oo.cs+"'>"); 	// Load as image
 						}
 					}						
-				break;															// Stop looking
 				}																	
 			}
 	}
 
 	function ResizePanes()													// RESIZE PANES
 	{ 
+		var pt=8;
 		var wid=Math.min($("body").width(),sd.width);							// Cap at screen size
 		$("#showDiv").width(wid);												// Set show width
 		$("#titleDiv").width(wid-16);											// Set title width
@@ -287,7 +292,10 @@
 		var w2=wid-w-8;															// Slide width
 		if (w <= 0)				w=0,w2=wid;										// Full slide											
 		else if (w2 <= 0)		w2=0,w=wid;										// Full video											
-		var pt=$("#titleDiv").height()+32;										// Top of player
+		if (sd.title)															// If a title defined
+			pt+=$("#titleDiv").height()+24;										// Top of player
+		else																	// No title
+			$("#titleDiv").css("display","none")								// Hide bar
 		$("#playerDiv").css({ width:w+"px",top:pt+"px"});						// Set player pos
 		$("#slideDiv").css({ left:(wid-w2+8)+"px",width:(w2)+"px",top:pt+"px"}); // Set slider pos/size
 		var h=Math.max($("#playerDiv").height(),$("#slideDiv").height());		// Player height
@@ -295,7 +303,9 @@
 		h+=pt;																	// Point at top of control bar
 		var ct=h+$("#controlDiv").height()+24;									// Contents top
 		$("#contentDiv").css({ top:ct+"px",height:sd.transHgt+"px"});			// Position/size contents
-		var cw=$("#contentDiv").width()+8;										// Get width of content panel
+		var cw=$("#contentDiv").width()-8;										// Get width of content panel
+		if (sd.toc)																// If a TOC
+			cw+=16;																// Pad it out
 		$("#controlDiv").css({ top:h+"px" });									// Position control slider
 		$("#slider").width(wid-210);											// Slider width
 		w=wid*sd.transInfoRatio;												// Transcript width
@@ -337,7 +347,6 @@
 			if (which == slidePane) 	 	sd.playerSlideRatio=pos;			// Set player ratio
 			else if (which == infoPane) 	sd.transInfoRatio=pos;				// Set transcript ratio
 			ResizePanes();														// Resize
-					
 			}
 	}
 
@@ -350,6 +359,8 @@
 	function GetCharPosTimeFrom(t)											// GET CHARPOS IN TRANSCRIPT FROM TIME
 	{
 		var i,o,cp={};
+		if (!sd.transText)														// No transcript
+			return { pos:0,pos2:0,line:0 };										// Not found
 		var n=showVectors[transPane].length-1;									// Last vector
 		for (i=n;i>=0;i--) {													// For each vector
 			o=showVectors[transPane][i];										// Point at vector
@@ -380,6 +391,8 @@
 	function HighlightText(start, end)										// HGHLIGHT SELECTED CHARS
 	{
 		var tran=sd.transText;													// Copy original
+		if (!sd.transText)														// No transcript
+			return;																// Quit
 		if (start != end) {														// If something to highlight
 			var str=tran.substring(0,start);									// Pre highlight
 			str+="<span style='color:#009900'>";								// Add style
@@ -687,6 +700,9 @@
 			if (sd.playerAuto == "true")										// If autoplay
 				RunPlayer("play",sd.playerStart);								// Play
 			RunPlayer("show");													// Show
+			$("#splashDiv").animate({ opacity:0},400);							// Hide logo
+			$("#showDiv").animate({ opacity:1},1500);							// Show interface
+			ResizePanes();														// Resize panes
 			}
 		else if (what == "init") {												// Init player
 			if (playerType == "youtube") {										// If YouTube
@@ -754,7 +770,7 @@
 		       	player=$("#vplayer")[0];										// Point to iframe
 				}
 			else if (playerType == "html5") {									// If HTML5
-				var base=sd.playerSource.match(/(.*)\.[^.]+$/i)[1];				// Extract base
+ 				var base=sd.playerSource.match(/(.*)\.[^.]+$/i)[1];				// Extract base
 				str="<video id='vplayer' width='100%' height='100%'>";			// Video tag
 				if (sd.playerSource.match(/\.mp3/i)) {							// If audio
 					str+="<source src='"+base+".mp3' type='audio/mp3'>";		// MP3 Source
@@ -766,21 +782,21 @@
 					}
 				str+="</video>"
 				$("#playerDiv").html(str);										// Add video tag
-  			
-  				$("#vplayer")[0].oncanplay= function() {						// When ready
+  				var myVid=document.getElementById("vplayer");					// Point ar player
+ 				
+ 				myVid.oncanplay= function() {									// When ready
  					if (player) 												// Already initted
 						return;													// Quit
        				playerApect=$("#vplayer").height()/$("#vplayer").width();	// Set aspect
        				player=$("#vplayer")[0];									// Point to player
        				playerTRT=player.duration;									// Set TRT
-					trace(1)
 					RunPlayer("ready");											// Set up player
 					};
 
-				$("#vplayer")[0].onended= function() {							// When ready
+				myVid.onended= function() {										// When done
   					RunPlayer("pause");											// Pause
 					};
-	    		}
+ 	    		}
 			}																	// End init
  	}																			// End closure
 
@@ -912,83 +928,6 @@
 			console.log(msg);
 		
 	}
-	
-	
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// DEMO DATA
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-	sd={title:"Bill Clinton speaks at TED Conference",
-		contentLab:"Contents",
-		transLab:"Transcript",
-		infoLab:"Transcript",
-		transInfoRatio:.5,
-		transHgt:400,
-		transLanguage:"English",	
-		transLangs:"None|English|Spanish|French|Tibetan",
-		transText:"I thought in getting up to my TED wish I would try to begin by putting in perspective what I try to do and how it fits with what they try to do. We live in a world that everyone knows is interdependent, but insufficient in three major ways. It is, first of all, profoundly unequal: half the world's people still living on less than two dollars a day; a billion people with no access to clean water; two and a half billion no access to sanitation; a billion going to bed hungry every night; one in four deaths every year from AIDS, TB, malaria and the variety of infections associated with dirty water -- 80 percent of them under five years of age. Even in wealthy countries it is common now to see inequality growing. In the United States, since 2001 we've had five years of economic growth, five years of productivity growth in the workplace, but median wages are stagnant and the percentage of working families dropping below the poverty line is up by four percent. The percentage of working families without health care up by four percent. So this interdependent world which has been pretty good to most of us -- which is why we're all here in Northern California doing what we do for a living, enjoying this evening -- is profoundly unequal. It is also unstable. Unstable because of the threats of terror, weapons of mass destruction, the spread of global disease and a sense that we are vulnerable to it in a way that we weren't not so many years ago. And perhaps most important of all, it is unsustainable because of climate change, resource depletion and species destruction.\n\nWhen I think about the world I would like to leave to my daughter and the grandchildren I hope to have, it is a world that moves away from unequal, unstable, unsustainable interdependence to integrated communities -- locally, nationally and globally -- that share the characteristics of all successful communities: a broadly shared, accessible set of opportunities, a shared sense of responsibility for the success of the common enterprise and a genuine sense of belonging. All easier said than done. When the terrorist incidents occurred in the United Kingdom a couple of years ago, I think even though they didn't claim as many lives as we lost in the United States on 9/11, I think the thing that troubled the British most was that the perpetrators were not invaders, but homegrown citizens whose religious and political identities were more important to them than the people they grew up with, went to school with, worked with, shared weekends with, shared meals with. In other words, they thought their differences were more important than their common humanity. It is the central psychological plague of humankind in the 21st century.\n\nInto this mix, people like us, who are not in public office, have more power to do good than at any time in history, because more than half the world\'s people live under governments they voted in and can vote out. And even non-democratic governments are more sensitive to public opinion. Because primarily of the power of the Internet, people of modest means can band together and amass vast sums of money that can change the world for some public good if they all agree. When the tsunami hit South Asia, the United States contributed 1.2 billion dollars. 30 percent of our households gave. Half of them gave over the Internet. The median contribution was somewhere around 57 dollars. And thirdly, because of the rise of non-governmental organizations. They, businesses, other citizens' groups, have enormous power to affect the lives of our fellow human beings. When I became president in 1993, there were none of these organizations in Russia. There are now a couple of hundred thousand. None in India. There are now at least a half a million active. None in China. There are now 250,000 registered with the government, probably twice again that many who are not registered for political reasons.\n\nWhen I organized my foundation, and I thought about the world as it is and the world that I hope to leave to the next generation, and I tried to be realistic about what I had cared about all my life that I could still have an impact on. I wanted to focus on activities that would help to alleviate poverty, fight disease, combat climate change, bridge the religious, racial and other divides that torment the world, but to do it in a way that would either use whatever particular skills we could put together in our group to change the way some public good function was performed so that it would sweep across the world more.",
-		playerQuality:"Default",
-		playerVolume:75,
-		playerSpeed:50,
-		playerStart:0,
-		playerStop:367,
-//		playerSource:"7100569",
-		playerSource:"ft24bHtNJwY",
-//		playerSource:"kaltura|0_un4gy128|_322481|8145862",
-//		playerSource:"//primaryaccess.org/narration.mp3",
-//		playerSource:"http://www.w3schools.com/html/mov_bbb.mp4",
-		playerAuto:"false",
-		playerAspect:.5625,
-		playerSlideRatio:.5,
-		width:1000,
-		toc:[ 
-			{start:"00:00",title:"Opening credits"},
-			{start:"00:26",title:"My TED wish"},
-			{start:"00:54",title:"An unequal world"},
-			{start:"01:23",title:"An unstable world"},
-			{start:"02:23",title:"The world I want to see"},
-			{start:"03:08",title:"London"},
-			{start:"03:50",title:"Power of people"},
-			{start:"05:14",title:"Clinton foundation"},
-			{start:"06:01",title:"Closing remarks"} 
-			],
-		transVectors: [
-			{ a:0,   b:0, c:0 },
-			{ a:26,  b:0, c:60 },	
-			{ a:54,  b:262  },	
-			{ a:78,  b:648  },	
-			{ a:120, b:1246 },	
-			{ a:143, b:1584 },	
-			{ a:169, b:1899 },	
-			{ a:188, b:2085 },	
-			{ a:230, b:2736 },	
-			{ a:314, b:3926 },	
-			{ a:367, b:4554 } 
-			],	
-		slideVectors: [ 
-			{ a:0,   b:"//www.viseyes.org/shiva/qmedia/clinton01.jpg", d:.5 },
-			{ a:26,  b:"//www.viseyes.org/shiva/qmedia/clinton02.jpg", d:.8 },	
-			{ a:54,  b:"//www.viseyes.org/shiva/qmedia/clinton03.jpg", d:.5 },	
-			{ a:78,  b:"//www.viseyes.org/shiva/qmedia/clinton04.jpg" },	
-			{ a:120, b:"//www.viseyes.org/shiva/qmedia/clinton05.jpg" },	
-			{ a:143, b:"//www.viseyes.org/shiva/qmedia/clinton06.jpg" },	
-			{ a:169, b:"//www.viseyes.org/shiva/qmedia/clinton07.jpg" },	
-			{ a:188, b:"//www.viseyes.org/shiva/go.htm?e=1103" },	
-			{ a:230, b:"//www.viseyes.org/shiva/qmedia/clinton09.jpg" },	
-			{ a:314, b:"//www.viseyes.org/shiva/qmedia/clinton10.jpg" },	
-			{ a:367, b:"" }
-			],	
-		infoVectors: [ 
-			{ a:0,   b:"info.jpg" },
-			{ a:93,  b:"//www.viseyes.org/shiva/go.htm?e=375" },	
-			{ a:108, b:"info.jpg" },	
-			{ a:188, b:"//www.viseyes.org/shiva/qmedia/clinton08.jpg" },	
-			{ a:314, b:"//www.clintonfoundation.org", c:"scroll" },	
-			{ a:367, b:"" } 
-			]	
-		}	
-
 	
 </script>
 </body></html>
