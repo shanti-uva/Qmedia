@@ -90,7 +90,7 @@
 	</div>
 	<div id="cache0" style="display:none"></div><div id="cache1" style="display:none"></div><div id="cache2" style="display:none"></div><div id="cache3" style="display:none"></div>
 </div>
- 
+<div id="overlayDiv" style="position:absolute;pointer-events: none"</div>
 <script>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -216,6 +216,7 @@
 			showCurSource[i]="";												// No source yet
 			}
 		$("#playerDiv").html("<img width='100%' src='video.jpg'onload='ResizePanes()'>");
+		MakeVectors(0,show.playerVectors);										// Make player timing list
 		MakeVectors(1,show.slideVectors);										// Make slides timing list
 		MakeVectors(2,show.transVectors);										// Make transcript timing list
 		MakeVectors(3,show.infoVectors);										// Make info timing list
@@ -308,6 +309,7 @@
 		else																	// No title
 			$("#titleDiv").css("display","none")								// Hide bar
 		$("#playerDiv").css({ width:w+"px",top:pt+"px"});						// Set player pos
+		$("#overlayDiv").css({ width:w+"px",top:pt+"px",height:$("#playerDiv").height()+"px"});	// Set overlay
 		$("#slideDiv").css({ left:(wid-w2+8)+"px",width:(w2)+"px",top:pt+"px"}); // Set slider pos/size
 		var h=Math.max($("#playerDiv").height(),$("#slideDiv").height());		// Player height
 		$("#playerSiz").css({ left:(w+8)+"px",height:h+"px",top:pt+"px"});		// Set sizer pos
@@ -669,6 +671,7 @@
 				$("#transcriptText").scrollTop(cp.pct*max-$("#transcriptText").height()/4);	// Set scroll
 			HighlightText(cp.pos,cp.pos2);										// Highlight area
 			RunSlide("show",param);												// Show slide, with param to/not resize
+			RunOverlay("show");													// Show overlay
 			RunInfo("show");													// Show Info
 			}
 		else if (what == "quality") {											// Quality
@@ -731,14 +734,14 @@
 			}
 		else if (what == "init") {												// Init player
 			if (playerType == "youtube") {										// If YouTube
-	       		player=new YT.Player("playerDiv", {								// Init player
-					playerVars:{ modestbranding:1, controls:0, 					// Settings
-						disablekb:1, rel:0, showinfo:0,},
+				$("#playerDiv").html("<div id='vplayer'></div>");				// Ad holder div
+	       		player=new YT.Player("vplayer", {								// Init player
+					playerVars:{ modestbranding:1, controls:0, 					// Settings	
+						disablekb:1, rel:0, showinfo:0},						// Settings
 	          		videoId: sd.playerSource,									// Set source
 	         	 	events:{													// Add event handlers
 	            		"onStateChange": function(s) {							// Change of state
 		         			if (s.data == 1) {									// In play
-								playerTRT=player.getDuration();					// Set TRT
 								$("#playBut").attr("src","images/pausebut.gif");// Show pause but
 								playerMode="play";								// Set mode
        							}
@@ -858,6 +861,23 @@
 			$("#infoDivIF").height($("#informationText").height()-2);			// Set iframe height, if any
 	}																			// End closure
 
+	function RunOverlay(what, param)										// OVERLAY ACTIONS
+	{
+		var i,o;
+		var n=showVectors[playerPane].length-1;									// Last vector
+		for (i=n;i>=0;i--) {													// For each vector
+			o=showVectors[playerPane][i];										// Point at player overlay action
+			if (playerNow >= o.ps) {											// In this one
+				if (showCurSource[playerPane] != o.cs) {						// A new item
+					$("#overlayDiv").html(o.cs);								// Populate overlay
+					showCurSource[playerPane]=o.cs;								// Then is now
+					}
+				break;															// Stop looking	
+				}
+			}
+	}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // HELPERS
@@ -877,6 +897,8 @@
 	function MakeVectors(pane, rlc)											// CREATE TIMIMG VECTOR ARRAY
 	{
 		var i,o,c="";
+		if (!rlc)																// No run length data
+			return;																// Quit		
 		for (i=0;i<rlc.length-1;++i) {											// For each run length
 			o={};																// New obj
 			o.ps=rlc[i].a;														// Time start
