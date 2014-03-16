@@ -53,10 +53,10 @@
 <body>
 <div id="splashDiv" style="text-align:center;position:absolute;top:100px;left:200px"><img src="qlogo.png"></div>
 <div id="showDiv" style="padding:0px;margin:0px;opacity:0;">
-	<div id="titleDiv" style="position:absolute;" class="title unselectable"></div>
-	<div id="playerDiv" style="position:absolute" class="unselectable"></div>
-	<div id="slideDiv" style="position:absolute" class="slide unselectable"></div>
-	<div id="controlDiv" style="position:absolute" class="control unselectable">
+	<div id="titleDiv" style="position:absolute;opacity:inherit" class="title unselectable"></div>
+	<div id="playerDiv" style="position:absolute;opacity:inherit" class="unselectable"></div>
+	<div id="slideDiv" style="position:absolute;opacity:inherit" class="slide unselectable"></div>
+	<div id="controlDiv" style="position:absolute;opacity:inherit" class="control unselectable">
 	  	<img id="playBut" src="images/playbut.gif" onclick="RunPlayer('play')" title="Play video" style="vertical-align:-4px;cursor:pointer">
    		<div id="timeDisp" class="timeDisp unselectable"></div>
    		<div style="display:inline-block" id="slider"></div>&nbsp;&nbsp;
@@ -64,28 +64,28 @@
   		<img src="images/startdot.gif" onclick="RunSlide('last')" title="Go to previous slide" style="vertical-align:-2px;cursor:pointer"><span style="vertical-align:1px">&nbsp;&nbsp;|&nbsp;</span>
    		<img src="images/enddot.gif" onclick="RunSlide('next')" title="Go to next slide" style="vertical-align:-2px;cursor:pointer">
 	</div>
-	<div id="playerSiz" style="position:absolute;width:8px;cursor:col-resize" class="unselectable" title="Resize player">
-		<div style="position:absolute;width:80px;height:100%;left:-40px" class="unselectable"></div>
+	<div id="playerSiz" style="position:absolute;width:8px;cursor:col-resize;opacity:inherit" class="unselectable" title="Resize player">
+		<div id="playerSiz1" style="position:absolute;width:40px;height:100%;left:-16px" class="unselectable"></div>
 	</div>
-	<div id="contentDiv" style="position:absolute" class="contents unselectable">
-		<span id="contentsLab" class="labels"></span><div id="contentsText" style="height:100%;overflow:auto;margin-top:16px"></div>
+	<div id="contentDiv" style="position:absolute;opacity:inherit" class="contents unselectable">
+		<span id="contentsLab" class="labels"></span><div id="contentsText" style="height:100%;overflow:auto;margin-top:16px;opacity:inherit"></div>
 	</div>
-	<div id="transDiv" style="position:absolute" class="trans">
+	<div id="transDiv" style="position:absolute;opacity:inherit" class="trans">
 		<span id="transLab" class="labels"></span>
-		<div id="transSearchDiv" style='position:absolute;top:0px;white-space:nowrap'> 
+		<div id="transSearchDiv" style='position:absolute;top:0px;white-space:nowrap;opacity:inherit'> 
 			<input style='width:100px;font-size:small;border:1px solid #ddd' id='transSearch'>
   			<img src="images/settingsbut.gif" id="transSettings" title="Transcript menu" style="vertical-align:-2px;cursor:pointer">
 	  	</div>
-  		<div id="transcriptText" style="height:90%;overflow:auto;margin-top:16px;padding-right:8px"></div>
+  		<div id="transcriptText" style="height:90%;overflow:auto;margin-top:16px;padding-right:8px;opacity:inherit"></div>
  	</div>
-	<div id="infoDiv" style="position:absolute" class="info">
-		<span id="infoLab" class="labels"></span><div id="informationText" style="height:100%;overflow:hidden;margin-top:16px"></div>
+	<div id="infoDiv" style="position:absolute;opacity:inherit" class="info">
+		<span id="infoLab" class="labels"></span><div id="informationText" style="height:100%;overflow:hidden;margin-top:16px;opacity:inherit"></div>
 	</div>
 	<div id="transHgt" style="position:absolute;width:1000px;height:16px;cursor:row-resize;border-bottom:3px solid #ccc" class="unselectable" title="Change transcript height">
 			<br><br><br>
 			Click <a href="//docs.google.com/presentation/d/18LLvvy3rMbRexOj_UmPI3JBhcymq5Ok1w7swoKeb50c/pub" target="_blank"> here </a> for a short slide show about Qmedia
 	</div>
-	<div id="transSiz" style="position:absolute;width:8px;cursor:col-resize" class="unselectable" title="Resize transcript">
+	<div id="transSiz" style="position:absolute;width:8px;cursor:col-resize;opacity:inherit" class="unselectable" title="Resize transcript">
 		<div style="position:absolute;width:80px;height:100%;top:32pxleft:-40px" class="unselectable"></div>
 	</div>
 	<div id="cache0" style="display:none"></div><div id="cache1" style="display:none"></div><div id="cache2" style="display:none"></div><div id="cache3" style="display:none"></div>
@@ -135,12 +135,18 @@
 		$.ajax({ url: url, dataType:'jsonp' });									// Get jsonp and call LoadShow() from it
 
 		$("#playerSiz").draggable({												// DRAG PLAYER WIDTH HANDLER
-			cursorAt:{left:16},													// Cursor offext
+			cursorAt:{left:16},	iframeFix:true,									// Cursor offset
 			cursor: "col-resize", axis:"x",										// X-only
-			stop: ResizePanes,													// Resize panes when done
+			start: function(event, ui) {										// On drag start
+				$("#playerSiz1").css({ width:"1000px", left:"-500px" });		// Widen hiding div
+				},
 			drag: function(event, ui) {											// On drag
 				var wid=Math.min($("body").width(),sd.width);					// Cap at screen size
 			 	sd.playerSlideRatio=Math.max(0,Math.min(1,(event.clientX-8)/(wid+16)));	// Set ratio between windows
+				ResizePanes();													// Resize panes
+				},
+			stop: function(event, ui) {											// On drag end
+				$("#playerSiz1").css({ width:"40px", left:"-16px" });			// Constract hiding div
 				ResizePanes();													// Resize panes
 				}
 			});
@@ -241,8 +247,12 @@
 			}
 		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
 
-		$("#slider").slider({ value:playerNow, max:sd.playerStop,				// Init slider
+		$("#slider").slider({ value:playerNow, max:sd.playerStop, iframeFix:true, // Init slider
 			slide: function(event,ui ) {										// Handle change
+				RunPlayer("scrub",ui.value,true);								// Show
+				},
+			stop: function(event,ui ) {											// Handle stop
+				showCurSource[slidePane]="reload";								// Force reload
 				RunPlayer("scrub",ui.value);									// Show
 				}
 			});
@@ -254,7 +264,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	function ShowContent(pane, div)											// SHOW IMAGE OR IFRAME
+	function ShowContent(pane, div, dontResize)								// SHOW IMAGE OR IFRAME
 	{
 		var i,o,oo,extra="scrolling='no'";
 		var n=showVectors[pane].length-1;										// Last vector
@@ -262,7 +272,6 @@
 			o=showVectors[pane][i];												// Point at slide
 			if (playerNow >= o.ps) {											// In this one
 				if (showCurSource[pane] != o.cs) {								// A new item
-					trace(i,pane)
 					if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))					// An image
 						$("#"+div).html("<img width='100%' src='"+o.cs+"'>"); 	// Load as image
 					else{														// An iframe
@@ -270,7 +279,7 @@
 						if ((o.c) && (o.c.match(/scroll/i))) 	extra="";		// Add scroll bars
 						$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+o.cs+"'></iframe>");	// Load in iframe
 						}
-					if (o.d != undefined) 										// If changing ratios
+					if ((o.d != undefined) && (!dontResize))					// If changing ratios (not in a manual scrub)
 						AnimatePanes(o.d,o.e,pane);								// Animate transition
 					showCurSource[pane]=o.cs;									// Then is now
 					oo=showVectors[pane][i+1];									// Point at next slide
@@ -650,7 +659,7 @@
 			if (!param)															// If not inhibiting scroll
 				$("#transcriptText").scrollTop(cp.pct*max-$("#transcriptText").height()/4);	// Set scroll
 			HighlightText(cp.pos,cp.pos2);										// Highlight area
-			RunSlide("show");													// Show slide
+			RunSlide("show",param);												// Show slide, with param to/not resize
 			RunInfo("show");													// Show Info
 			}
 		else if (what == "quality") {											// Quality
@@ -702,9 +711,14 @@
 			if (sd.playerAuto == "true")										// If autoplay
 				RunPlayer("play",sd.playerStart);								// Play
 			RunPlayer("show");													// Show
-			$("#splashDiv").animate({ opacity:0},400);							// Hide logo
-			$("#showDiv").animate({ opacity:1},1500);							// Show interface
 			ResizePanes();														// Resize panes
+			$("#splashDiv").animate({ opacity:0},400);							// Hide logo
+			$("#showDiv").animate({ opacity:1},1500, function() {				// Shoe interface
+					$("#transcriptText").css("opacity",1);						// Force visible in Safari 
+					$("#informationText").css("opacity",1);						// Force visible in Safari 
+					$("#contentsText").css("opacity",1);						// Force visible in Safari 
+					ResizePanes();
+					});				
 			}
 		else if (what == "init") {												// Init player
 			if (playerType == "youtube") {										// If YouTube
@@ -802,11 +816,11 @@
 			}																	// End init
  	}																			// End closure
 
-	function RunSlide(what )												// SLIDE ACTIONS
+	function RunSlide(what, dontResize )									// SLIDE ACTIONS
 	{
 		var i,str;
 		if (what == "show") 													// Show
-			ShowContent(slidePane,"slideDiv");									// Show content
+			ShowContent(slidePane,"slideDiv", dontResize);						// Show content
 		else if (what == "last") { 												// Go to previous slide
 			var n=showVectors[slidePane].length-1;								// Last vector
 			for (i=n;i>0;i--) 													// For each vector
