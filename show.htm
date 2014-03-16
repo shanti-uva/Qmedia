@@ -336,9 +336,18 @@
 		var start;
 		if (which == slidePane) 	 start=sd.playerSlideRatio;					// Get current player ratio
 		else if (which == infoPane)  start=sd.transInfoRatio;					// Get current transcript ratio
-		if ((Math.abs(end-start) < .1) || (paneAnimationTimer))					// Already there
+		var dif=Math.abs(end-start);											// Difference
+		if ((dif < .05) || (paneAnimationTimer)) {								// If close enough or animating alredy
+			clearInterval(paneAnimationTimer);									// Kill timer
+			paneAnimationTimer=null;											// Clear timer var
+			if (which == slidePane) 	 	sd.playerSlideRatio=end;			// Set player ratio
+			else if (which == infoPane) 	sd.transInfoRatio=end;				// Set transcript ratio
+			if (dif)															// If not there yet
+				ResizePanes();													// Resize
 			return;																// Quit
+			}
 		clearInterval(paneAnimationTimer);										// Kill timer
+		paneAnimationTimer=null;												// Clear timer var
 		var startTime=new Date().getTime();										// Set start
 		if (dur == undefined)													// If no duration set
 			dur=.5;																// Set default
