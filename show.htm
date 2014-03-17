@@ -117,8 +117,7 @@
 	var	playerCurTime=0;														// Current time
 	var	playerTRT=0;															// Total running time
 	var playerHgt=0,playerWid=0;												// Source height/width
-	var playerAspect=.5625;														// Player aspect ratio
-		
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INIT
@@ -577,12 +576,12 @@
  			else if (ev.method == "getVideoHeight") {							// If height	
  				playerHgt=ev.value;												// Set it
  				if (playerWid)													// If have both parts
- 					playerAspect=playerHgt/playerWid;							// Calc asp		
+ 					sd.playerAspect=playerHgt/playerWid;						// Calc asp		
 				}
 			else if (ev.method == "getVideoWidth") {							// If width	
  				playerWid=ev.value;												// Set it
  				if (playerHgt)													// If have both parts
- 					playerAspect=playerHgt/playerWid;							// Calc asp		
+ 					sd.playerAspect=playerHgt/playerWid;						// Calc asp		
 				}
  			else if (ev.event == "ready"){										// If ready			
 	 			var f=$("#vplayer");											// Point at iframe
@@ -721,13 +720,13 @@
 			if (!player)	return;												// If no player yet, quit
 			var w=$("#playerDiv").width();										// Get width
 			if (playerType == "youtube") 										// If initted YouTube
-				player.setSize(w,w*playerAspect);								// Resize
+				player.setSize(w,w*sd.playerAspect);							// Resize
 			else if ((playerType == "vimeo") || (playerType == "html5")) {		// If Vimeo or HTML5
 				$("#vplayer").width(w);											// Set width
-				$("#vplayer").height(w*playerAspect);							// Set height
+				$("#vplayer").height(w*sd.playerAspect);						// Set height
 				}
 			else if (playerType == "kaltura") 									// If Kaltura
-		        $("#playerDiv").height($("#playerDiv").width()*playerAspect)+2;	// Set height
+		        $("#playerDiv").height($("#playerDiv").width()*sd.playerAspect)+2;	// Set height
 			}
 		else if (what == "load") {												// Volume
 			if (!player)	return;												// If no player yet, quit
@@ -833,10 +832,10 @@
  				myVid.oncanplay= function() {									// When ready
  					if (player) 												// Already initted
 						return;													// Quit
-       				playerApect=$("#vplayer").height()/$("#vplayer").width();	// Set aspect
+       				sd.playerAspect=$("#vplayer").height()/$("#vplayer").width();	// Set aspect
        				player=$("#vplayer")[0];									// Point to player
        				playerTRT=player.duration;									// Set TRT
-					RunPlayer("ready");											// Set up player
+					RunPlayer("ready");											// Set up player		
 					};
 
 				myVid.onended= function() {										// When done
