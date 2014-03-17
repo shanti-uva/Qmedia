@@ -13,6 +13,7 @@ LoadShow({
 		playerSpeed:50,
 		playerStart:0,
 		playerStop:367,
+		playerControls:"false",
 //		playerSource:"7100569",
 		playerSource:"ft24bHtNJwY",
 //		playerSource:"kaltura|0_un4gy128|_322481|8145862",
@@ -35,9 +36,9 @@ LoadShow({
 			{start:"06:01",title:"Closing remarks"} 
 			],
 		playerVectors: [
-			{ a:0,   b:""  },
-			{ a:50,  b:"<svg width='100%' height='100%'><text x='53%' y='95%' fill='yellow' font-size='20px' opacity='.8' font-family='sans-serif' text-anchor='middle'>A graphics highlight</text><circle cx='53%' cy='46%' r='30%' fill='white' opacity='.2'></svg>" },
-			{ a:54, b:"" },
+			{ a:0,   b:"" },
+			{ a:50,  b:"<svg width='100%' height='100%'><text x='53%' y='95%' fill='yellow' font-size='18px' opacity='.8' font-family='sans-serif' text-anchor='middle'>A highlight on top of video</text><circle cx='53%' cy='46%' r='30%' fill='white' opacity='.2'></svg>", d:"svg" },
+			{ a:54,  b:"" },
 			{ a:367, b:"" }
 			],	
 		transVectors: [

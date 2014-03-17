@@ -34,7 +34,7 @@
 		.slide { 		overflow:hidden;
 						}
 		.control { 		padding:4px;margin:0px;margin-top:6px;margin-bottom:6px;
-						-moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;
+						-moz-border-radius:6px;-webkit-border-radius:6px;-khtml-border-radius:6px;border-radius:6px;
 						background-color:#ccc;
 						} 
 		.info { 		font-family:Verdana,Geneva,sans-serif; font-size:small;
@@ -60,9 +60,11 @@
 	  	<img id="playBut" src="images/playbut.gif" onclick="RunPlayer('play')" title="Play video" style="vertical-align:-4px;cursor:pointer">
    		<div id="timeDisp" class="timeDisp unselectable"></div>
    		<div style="display:inline-block" id="slider"></div>&nbsp;&nbsp;
-   		<img src="images/settingsbut.gif" id="settings" title="Settings menu" style="vertical-align:-2px;cursor:pointer"><span style="vertical-align:1px">&nbsp;&nbsp;</span>
-  		<img src="images/startdot.gif" onclick="RunSlide('last')" title="Go to previous slide" style="vertical-align:-2px;cursor:pointer"><span style="vertical-align:1px">&nbsp;&nbsp;|&nbsp;</span>
-   		<img src="images/enddot.gif" onclick="RunSlide('next')" title="Go to next slide" style="vertical-align:-2px;cursor:pointer">
+	   	<img src="images/settingsbut.gif" id="settings" title="Settings menu" style="vertical-align:-2px;cursor:pointer"><span style="vertical-align:1px">&nbsp;&nbsp;</span>
+   		<span id='slideControlsDiv'>
+	  		<img src="images/startdot.gif" onclick="RunSlide('last')" title="Go to previous slide" style="vertical-align:-2px;cursor:pointer"><span style="vertical-align:1px">&nbsp;&nbsp;|&nbsp;</span>
+	   		<img src="images/enddot.gif" onclick="RunSlide('next')" title="Go to next slide" style="vertical-align:-2px;cursor:pointer">&nbsp;
+		</span>
 	</div>
 	<div id="playerSiz" style="position:absolute;width:8px;cursor:col-resize;opacity:inherit" class="unselectable" title="Resize player">
 		<div id="playerSiz1" style="position:absolute;width:40px;height:100%;left:-16px" class="unselectable"></div>
@@ -90,7 +92,8 @@
 	</div>
 	<div id="cache0" style="display:none"></div><div id="cache1" style="display:none"></div><div id="cache2" style="display:none"></div><div id="cache3" style="display:none"></div>
 </div>
-<div id="overlayDiv" style="position:absolute;pointer-events: none"</div>
+<div id="overlayDiv" style="position:absolute;left:0px;pointer-events:none"></div>
+
 <script>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,6 +136,16 @@
 		if (!url)																// Nothing on command line
 			url="defaultshow.txt";												// Use default
 		$.ajax({ url: url, dataType:'jsonp' });									// Get jsonp and call LoadShow() from it
+
+		$("#slider").slider({													// Init slider
+			slide: function(event,ui ) {										// Handle change
+				RunPlayer("scrub",ui.value,true);								// Show
+				},
+			stop: function(event,ui ) {											// Handle stop
+				showCurSource[slidePane]="reload";								// Force reload
+				RunPlayer("scrub",ui.value);									// Show
+				}
+			});
 
 		$("#playerSiz").draggable({												// DRAG PLAYER WIDTH HANDLER
 			cursorAt:{left:16},	iframeFix:true,									// Cursor offset
@@ -211,11 +224,10 @@
 	function LoadShow(show)													// LOAD SHOW CONTENT
 	{
 		sd=show;
-		for (i=0;i<showPanes;++i) {												// For each show pane
+		for (i=0;i<4;++i) {														// For each show pane
 			showVectors[i]=[];													// Create timing vector arrays 
 			showCurSource[i]="";												// No source yet
 			}
-		$("#playerDiv").html("<img width='100%' src='video.jpg'onload='ResizePanes()'>");
 		MakeVectors(0,show.playerVectors);										// Make player timing list
 		MakeVectors(1,show.slideVectors);										// Make slides timing list
 		MakeVectors(2,show.transVectors);										// Make transcript timing list
@@ -224,10 +236,16 @@
 		$("#contentsLab").html(show.contentsLab);								// Set label
 		$("#transLab").html(show.transLab);										// Set label
 		$("#infoLab").html(show.infoLab);										// Set label
+		$("#slider").slider("option","max",show.playerStop);					// Set timeline end
+		
 		MakeTOC(show.toc);														// Fill TOC contents
 		MakeTranscript();														// Load transcript
+		if (!show.slideVectors)													// If no slides
+			$("#slideControlsDiv").css("display","none");						// Hide controls
 		var tag=document.createElement('script');								// Create script
-		if (sd.playerSource.match(/\/\//i)) {									// If HTML5
+		if (!sd.playerSource)													// No scribbable media
+			RunPlayer("ready");													// Init show
+		else if (sd.playerSource.match(/\/\//i)) {								// If HTML5
 			playerType="html5";													// Set type
 			RunPlayer("init");													// Init player
 			}
@@ -247,16 +265,6 @@
 			firstScriptTag.parentNode.insertBefore(tag,firstScriptTag);			// Load
 			}
 		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
-
-		$("#slider").slider({ value:playerNow, max:sd.playerStop, iframeFix:true, // Init slider
-			slide: function(event,ui ) {										// Handle change
-				RunPlayer("scrub",ui.value,true);								// Show
-				},
-			stop: function(event,ui ) {											// Handle stop
-				showCurSource[slidePane]="reload";								// Force reload
-				RunPlayer("scrub",ui.value);									// Show
-				}
-			});
 	}
 
 
@@ -320,7 +328,10 @@
 		if (sd.toc)																// If a TOC
 			cw+=16;																// Pad it out
 		$("#controlDiv").css({ top:h+"px" });									// Position control slider
-		$("#slider").width(wid-210);											// Slider width
+		var sw=164;																// Account for t/c & play but												
+		if (sd.slideVectors)													// If slides
+			sw+=$("#slideControlsDiv").width();									// Room for controls
+		$("#slider").width(wid-sw);												// Slider width
 		w=wid*sd.transInfoRatio;												// Transcript width
 		$("#transDiv").css({ left:cw+"px",width:(w-cw-8)+"px",height:sd.transHgt+"px",top:ct+"px"});
 		$("#transSiz").css({ left:(w+4)+"px",height:sd.transHgt+"px",top:(ct)+"px"});// Pos transcript sizer
@@ -609,7 +620,10 @@
 					param=TimecodeToSeconds(param);								// Convert to secs
 				playerCurTime=playerNow=Math.max(Math.min(param,sd.playerStop),0);	// Set cur time
 				}	
-			if (!player)	return;												// If no player yet, quit
+			if (!player) {														// If no player yet
+				RunPlayer("show");												// Show where we're at
+				return;															// Quit
+				}
 			if (playerType == "youtube") {										// If YouTube
 				player.seekTo(playerNow,true);									// Cue
 				if (playerMode == "play")	player.playVideo();					// Play
@@ -636,7 +650,10 @@
 			}
 		else if (what == "scrub") {												// Scrub
 			playerCurTime=playerNow=Math.max(Math.min(param,sd.playerStop),0)	// Set now
-			if (!player)	return;												// If no player yet, quit
+			if (!player) {														// If no player yet
+				RunPlayer("show",param2);										// Show
+				return;															// Quit
+				}
 			if (playerType == "youtube") 										// If YouTube
 				player.seekTo(playerNow,true);									// Cue
 			else if (playerType == "kaltura") 									// If Kaltura
@@ -735,9 +752,10 @@
 		else if (what == "init") {												// Init player
 			if (playerType == "youtube") {										// If YouTube
 				$("#playerDiv").html("<div id='vplayer'></div>");				// Ad holder div
+	       		var pc=sd.playerControls == "true" ? 1 : 0;						// Set player controls?
 	       		player=new YT.Player("vplayer", {								// Init player
-					playerVars:{ modestbranding:1, controls:0, 					// Settings	
-						disablekb:1, rel:0, showinfo:0},						// Settings
+					playerVars:{ modestbranding:1, controls:pc, 				// Settings	
+						disablekb:1, rel:0, showinfo:0, html5:1 },				// Settings
 	          		videoId: sd.playerSource,									// Set source
 	         	 	events:{													// Add event handlers
 	            		"onStateChange": function(s) {							// Change of state
@@ -758,12 +776,9 @@
 				mw.setConfig("KalturaSupport.LeadWithHTML5",true);				// Try using HTML5 player first
 				kWidget.embed({	targetId: "playerDiv",							// Embed
 					wid:v[2], uiconf_id:v[3], entry_id:v[1],					// PartnerIid, confId, clipId
-					flashvars:{ externalInterfaceDisabled:false	},				// Enable control
 		        	readyCallback: function(playerId){							// On ready
 						if (!player) {											// Not initted yet
 							player=$('#'+playerId)[0];							// Set player
-							player.sendNotification("enableGui",{ guiEnabled:false, enableType: "controls" });// No controls
-										
 							player.addJsListener("playerStateChange",function(e) {	// Player state change
 								if (e == "playing")	{							// On playing														
 									$("#playBut").attr("src","images/pausebut.gif");// Show pause but
@@ -799,7 +814,10 @@
 				}
 			else if (playerType == "html5") {									// If HTML5
  				var base=sd.playerSource.match(/(.*)\.[^.]+$/i)[1];				// Extract base
-				str="<video id='vplayer' width='100%' height='100%'>";			// Video tag
+				str="<video id='vplayer' width='100%' height='100%'";			// Video tag
+				if (sd.playerControls == "true")								// If has controls
+					str+= " controls";											// Add option
+				str+=">";														// Close tag
 				if (sd.playerSource.match(/\.mp3/i)) {							// If audio
 					str+="<source src='"+base+".mp3' type='audio/mp3'>";		// MP3 Source
 					str+="<source src='"+base+".ogg' type='audio/ogg'>";		// OGG Source
