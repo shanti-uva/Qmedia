@@ -14,7 +14,6 @@ LoadShow({
 		playerQuality:"Default",
 //		playerSource:"7100569",
 		playerSource:"ft24bHtNJwY",
-//		playerSource:"kaltura|0_un4gy128|_322481|8145862",
 //		playerSource:"//primaryaccess.org/narration.mp3",
 //		playerSource:"http://www.w3schools.com/html/mov_bbb.mp4",
 //		playerSource:"http://www.kaltura.com/p/2003471/sp/0/playManifest/entryId/1_rcit0qgs/format/url/flavorParamId/301971/video.mp4",	
@@ -71,6 +70,8 @@ LoadShow({
 			{ a:0,   b:"info.jpg" },
 			{ a:93,  b:"//www.viseyes.org/shiva/go.htm?e=375" },	
 			{ a:108, b:"info.jpg" },	
+			{ a:143, b:"//www.viseyes.org/shiva/go.htm?e=1121" },	
+			{ a:160, b:"info.jpg" },	
 			{ a:188, b:"//www.viseyes.org/shiva/qmedia/clinton08.jpg" },	
 			{ a:314, b:"//www.clintonfoundation.org", c:"scroll" },	
 			{ a:367, b:"" } 

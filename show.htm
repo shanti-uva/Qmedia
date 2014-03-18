@@ -7,7 +7,6 @@
  	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>	
 	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
-   	<script type="text/javascript" src="http://html5video.org/kaltura-player/mwEmbedLoader.php"></script>
 
 	<style type="text/css">
 		body { 			font-family:Verdana,Geneva,sans-serif; font-size:xx-small; }
@@ -116,6 +115,7 @@
 	var playerType="";															// Type of player
 	var	playerCurTime=0;														// Current time
 	var	playerTRT=0;															// Total running time
+	var playerZen=false;														// Zen mode
 	var playerHgt=0,playerWid=0;												// Source height/width
 
 
@@ -190,9 +190,11 @@
 			str+="<td><div style='display:inline-block;width:100px' id='pSpeed'></div></td></tr>"
 			str+="<tr height='18'><td>Quality</td><td>";
 			str+=MakeSelect("pQuality",false,["Default","Good","Better","Best"],sd.playerQuality,"style='font-size:x-small'")+"</td></tr>";
+			str+="<tr><td>Zen mode</td><td><input id='pZen' type='checkbox'></td></tr>";
 			str+="</table>";
 			$("body").append("<div id='setpopup' style='display:none;position:absolute;width:"+w+"px;height:auto;background-color:#f8f8f8;left:"+x+"px;top:"+y+"px;border:1px solid #ccc;padding:8px' class='rousnded-corners'>"+str+"</div>");
 			var y=$("#controlDiv").css("top").replace(/px/,"")-$("#setpopup").height()-11;			
+			$("#pZen").prop("checked",playerZen);								// Set Zen box
 			$("#setpopup").css("top",y);										// Position above control bat
 			$("#setpopup").show('slide',{direction:'down'},300);				// Show it
 			
@@ -213,6 +215,12 @@
 			$("#pQuality").on("change", function(e) {							// VIDEO QUALITY HANDLER
 				sd.playerQuality=$("#pQuality").val();							// Set param
 				RunPlayer("quality",sd.playerQuality);							// Do it
+				});
+
+			$("#pZen").on("click", function(e) {								// ZEN MODE HANDLER
+				playerZen=$("#pZen").prop("checked");							// Set Zen mode
+				$("#setpopup").remove();										// Remove it
+				ResizePanes();													// Redraw
 				});
 
 			});																	// End settings
@@ -246,10 +254,6 @@
 			RunPlayer("ready");													// Init show
 		else if (sd.playerSource.match(/\/\//i)) {								// If HTML5
 			playerType="html5";													// Set type
-			RunPlayer("init");													// Init player
-			}
-		else if (show.playerSource.match(/kaltura/i)) {							// If Kaltura 
-			playerType="kaltura";												// Set type
 			RunPlayer("init");													// Init player
 			}
 		else if (!isNaN(sd.playerSource)) {										// If Vimeo
@@ -304,10 +308,25 @@
 	function ResizePanes()													// RESIZE PANES
 	{ 
 		var pt=8;
+		var r1=sd.playerSlideRatio;												// Ratio 1
+		var r2=sd.transInfoRatio;												// Ratio 2
+		if (playerZen) {														// In Zen mode
+			r1=r2=1;															// Make screen full
+			$("#infoDiv").css("display","none");								// Hide info	
+			$("#contentDiv").css("display","none");								// Contents
+			$("#transDiv").css("display","none");								// Transcript
+			$("#titleDiv").css("display","none");								// Title
+			}
+		else{																	// Normal mode
+			$("#infoDiv").css("display","initial");								// Show info
+			$("#contentDiv").css("display","initial");							// Contents
+			$("#transDiv").css("display","initial");							// Transcript
+			$("#titleDiv").css("display","initial");							// Title
+			}
 		var wid=Math.min($("body").width(),sd.width);							// Cap at screen size
 		$("#showDiv").width(wid);												// Set show width
 		$("#titleDiv").width(wid-16);											// Set title width
-		var w=wid*sd.playerSlideRatio-4;										// Player width
+		var w=wid*r1-4;															// Player width
 		var w2=wid-w-8;															// Slide width
 		if (w <= 0)				w=0,w2=wid;										// Full slide											
 		else if (w2 <= 0)		w2=0,w=wid;										// Full video											
@@ -318,7 +337,7 @@
 		$("#playerDiv").css({ width:w+"px",top:pt+"px"});						// Set player pos
 		$("#overlayDiv").css({ width:w+"px",top:pt+"px",height:$("#playerDiv").height()+"px"});	// Set overlay
 		$("#slideDiv").css({ left:(wid-w2+8)+"px",width:(w2)+"px",top:pt+"px"}); // Set slider pos/size
-		var h=Math.max($("#playerDiv").height(),$("#slideDiv").height());		// Player height
+		var h=Math.max(w*sd.playerAspect,$("#slideDiv").height());		// Player height
 		$("#playerSiz").css({ left:(w+8)+"px",height:h+"px",top:pt+"px"});		// Set sizer pos
 		h+=pt;																	// Point at top of control bar
 		var ct=h+$("#controlDiv").height()+24;									// Contents top
@@ -331,7 +350,7 @@
 		if (sd.slideVectors)													// If slides
 			sw+=$("#slideControlsDiv").width();									// Room for controls
 		$("#slider").width(wid-sw);												// Slider width
-		w=wid*sd.transInfoRatio;												// Transcript width
+		w=wid*r2;												// Transcript width
 		$("#transDiv").css({ left:cw+"px",width:(w-cw-8)+"px",height:sd.transHgt+"px",top:ct+"px"});
 		$("#transSiz").css({ left:(w+4)+"px",height:sd.transHgt+"px",top:(ct)+"px"});// Pos transcript sizer
 		w=wid*(1-sd.transInfoRatio)-8;											// Info window width
@@ -628,11 +647,6 @@
 				if (playerMode == "play")	player.playVideo();					// Play
 				if (playerMode == "pause")	player.pauseVideo();				// Pause
 				}
-			else if (playerType == "kaltura") {									// If Kaltura
-				player.sendNotification("seekTo",playerNow);					// Cue
-				if (playerMode == "play")  	player.sendNotification("doPlay"); 	// Play
-				if (playerMode == "pause")	player.sendNotification("doPause");	// Pause
-				}
 			else if (playerType == "vimeo") {									// If Vimeo
 				player.contentWindow.postMessage("{\"method\":\"seekTo\",\"value\":\""+playerNow+"\"}","*");
 				if (playerMode == "play")										// Play
@@ -655,8 +669,6 @@
 				}
 			if (playerType == "youtube") 										// If YouTube
 				player.seekTo(playerNow,true);									// Cue
-			else if (playerType == "kaltura") 									// If Kaltura
-				player.sendNotification("doSeek",playerNow);					// Cue			
 			else if (playerType == "vimeo") 									// If Vimeo
 				player.contentWindow.postMessage("{\"method\":\"seekTo\",\"value\":\""+playerNow+"\"}","*");
 			else if (playerType == "html5") 									// If HTML5
@@ -669,8 +681,6 @@
 			if (!player)	return;												// If no player yet, quit
 			if (playerType == "youtube") 										// If YouTube
 				player.pauseVideo();											// Pause
-			if (playerType == "kaltura") 										// If Kaltura
-				player.sendNotification("doSeek",playerNow);					// Cue			
 			else if (playerType == "vimeo") 									// If Vimeo
 				player.contentWindow.postMessage("{\"method\":\"pause\"}","*");	// Send
  			else if (playerType == "html5") 									// If HTML5
@@ -705,8 +715,6 @@
 				player.contentWindow.postMessage("{\"method\":\"setVolume\",\"value\":\""+sd.playerVolume/100+"\"}","*"); // Send
 			else if (playerType == "html5") 									// If HTML5
 				player.volume=sd.playerVolume/100;								// Set
-			else if (playerType == "kaltura") 									// If Kaltura
-				player.sendNotification("changeVolume",sd.playerVolume);		// Set it			
 			}
 		else if (what == "speed") {												// Speed
 			if (!player)	return;												// If no player yet, quit
@@ -725,8 +733,6 @@
 				$("#vplayer").width(w);											// Set width
 				$("#vplayer").height(w*sd.playerAspect);						// Set height
 				}
-			else if (playerType == "kaltura") 									// If Kaltura
-		        $("#playerDiv").height($("#playerDiv").width()*sd.playerAspect)+2;	// Set height
 			}
 		else if (what == "load") {												// Volume
 			if (!player)	return;												// If no player yet, quit
@@ -770,40 +776,6 @@
 	            		"onReady": function(s) { RunPlayer("ready") }			// When ready
 		 	   			}});
 					}
-			else if (playerType == "kaltura") {									// If Kaltura
-				var v=sd.playerSource.split("|");								// Split parts
-				mw.setConfig("KalturaSupport.LeadWithHTML5",true);				// Try using HTML5 player first
-				kWidget.embed({	targetId: "playerDiv",							// Embed
-					wid:v[2], uiconf_id:v[3], entry_id:v[1],					// PartnerIid, confId, clipId
-		        	readyCallback: function(playerId){							// On ready
-						if (!player) {											// Not initted yet
-							player=$('#'+playerId)[0];							// Set player
-							player.addJsListener("playerStateChange",function(e) {	// Player state change
-								if (e == "playing")	{							// On playing														
-									$("#playBut").attr("src","images/pausebut.gif");// Show pause but
-									playerMode="play";							// Set mode
-									}
-								else if (e == "paused")	{						// On pause														
-									$("#playBut").attr("src","images/playbut.gif");	// Show play but
-									playerMode="pause";							// Set mode	
-       								}
-								});
- 							player.addJsListener("playbackComplete",function(e){// On done
-								$("#playBut").attr("src","images/playbut.gif");	// Show play but
-								playerMode="pause";								// Set mode	
-								});
-							player.addJsListener("durationChange",function(e) {	// On duration change
-								playerTRT=e;									// Set TRT
-								});
-							player.addJsListener("playerUpdatePlayhead",function(e) {	// On duration change
-								playerCurTime=e;								// Swt current time
-								});
-							RunPlayer("ready");									// Set up player
-			        		}
-			        	}	
-				     });
-		    	
-		    	}
 			else if (playerType == "vimeo") {									// If Vimeo
 				str="<iframe id='vplayer' src='//player.vimeo.com/video/";		// Iframe start
 				str+=sd.playerSource;											// Add source
