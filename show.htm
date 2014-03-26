@@ -768,18 +768,16 @@
 				player.loadVideoById(param);									// Load video
 			}
 		else if (what == "ready") {												// When ready
-			RunPlayer("resize");												// Resize player
- 			ResizePanes();														// Resize panes
 			if (sd.playerAuto == "true")										// If autoplay
 				RunPlayer("play",sd.playerStart);								// Play
-			RunPlayer("show");													// Show
 			ResizePanes();														// Resize panes
 			$("#splashDiv").animate({ opacity:0},400);							// Hide logo
 			$("#showDiv").animate({ opacity:1},1500, function() {				// Shoe interface
 					$("#transcriptText").css("opacity",1);						// Force visible in Safari 
 					$("#informationText").css("opacity",1);						// Force visible in Safari 
 					$("#contentsText").css("opacity",1);						// Force visible in Safari 
-					ResizePanes();
+					ResizePanes();												// Resize panes
+					RunPlayer("show");											// Show
 					});				
 			}
 		else if (what == "init") {												// Init player
