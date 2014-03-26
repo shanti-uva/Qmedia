@@ -126,7 +126,9 @@
 	var	playerCurTime=0;														// Current time
 	var	playerTRT=0;															// Total running time
 	var playerZen=false;														// Zen mode
+	var playerNotes=false;														// Annotator
 	var playerHgt=0,playerWid=0;												// Source height/width
+	var notesText="";															// No notes
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -200,11 +202,13 @@
 			str+="<td><div style='display:inline-block;width:100px' id='pSpeed'></div></td></tr>"
 			str+="<tr height='18'><td>Quality</td><td>";
 			str+=MakeSelect("pQuality",false,["Default","Good","Better","Best"],sd.playerQuality,"style='font-size:x-small'")+"</td></tr>";
+			str+="<tr><td>Take notes</td><td><input id='pNotes' type='checkbox'></td></tr>";
 			str+="<tr><td>Zen mode</td><td><input id='pZen' type='checkbox'></td></tr>";
 			str+="</table>";
 			$("body").append("<div id='setpopup' style='display:none;position:absolute;width:"+w+"px;height:auto;background-color:#f8f8f8;left:"+x+"px;top:"+y+"px;border:1px solid #ccc;padding:8px' class='rousnded-corners'>"+str+"</div>");
 			var y=$("#controlDiv").css("top").replace(/px/,"")-$("#setpopup").height()-11;			
 			$("#pZen").prop("checked",playerZen);								// Set Zen box
+			$("#pNotes").prop("checked",playerNotes);							// Set Notes box
 			$("#setpopup").css("top",y);										// Position above control bat
 			$("#setpopup").show('slide',{direction:'down'},300);				// Show it
 			
@@ -232,6 +236,11 @@
 				$("#setpopup").remove();										// Remove it
 				ResizePanes();													// Redraw
 				});
+			$("#pNotes").on("click", function(e) {								// NOTES MODE HANDLER
+				playerNotes=$("#pNotes").prop("checked");						// Set  mode
+				$("#setpopup").remove();										// Remove it
+				VideoNotes();													// Hide/show notes				
+				});
 
 			});																	// End settings
 		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
@@ -254,6 +263,7 @@
 		$("#transLab").html(show.transLab);										// Set label
 		$("#infoLab").html(show.infoLab);										// Set label
 		$("#slider").slider("option","max",show.playerStop);					// Set timeline end
+		notesText="";															// No notes
 		
 		MakeTOC(show.toc);														// Fill TOC contents
 		MakeTranscript();														// Load transcript
@@ -588,6 +598,7 @@
 			RunPlayer("pause");													// Pause
 		playerNow=Math.min(playerCurTime,sd.playerStop);						// Get capped time
 		RunPlayer("show");														// Show status
+		$("#slider ui-slider-handle").focus();									// Focus on slider
 	}
 
 	function shivaEventHandler(e)											// ON SHIVA EVENT
@@ -980,6 +991,137 @@
 			console.log(msg);
 		
 	}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NOTES
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	function VideoNotes() 													//	ADD NOTES TO VIDEO
+	{
+		var i,str,v;
+		if ($("#notesDiv").length) {											// If some notes there already
+			notesText="";														// Clear
+			for (i=0;i<$("#notesTbl tr").length;++i) 							// For each row
+				if ($("#ntx-"+i).val())											// If something there
+					notesText+=$("#ntc-"+i).text()+$("#ntx-"+i).val()+"|"; 		// Add row
+			}
+		$("#notesDiv").remove();												// Clear it
+		if (!playerNotes) 														// If not visible
+			return;																// Turn it off
+		var ts="color:#009900;cursor:pointer";									// Timecode style
+		var ns="font-size:small;border:none;background:none;width:100%;padding:0px;margin:0px"; // Note style	
+		str="<div class='rounded-corners' id='notesDiv' style='position:absolute;padding:8px;overflow-y:auto;overflow-x:hidden;";	// Div
+		str+="width:"+sd.width/2+"px;height:"+($("#infoDiv").height()-16)+"px;";	// Set sizing
+		str+="background-color:#f8f8f8;border:1px solid #ccc;box-shadow:4px 4px 8px #ccc;";	// Set coloring
+		str+="top:"+$("#infoDiv").offset().top+"px;left:"+sd.width/4+"px;'>";	// Set position
+		str+="<table id='notesTbl' width='100%'>";								// Table
+		str+="<div style='text-align:center;font-size:medium;'>Personal notes</div><hr>";
+		str+="<div style='position:absolute;top:-2px;left:0px;width:100%;text-align:right;color:#999'><br/>Find: <input type='input' id='notesSearch' style='height:12px;width:60px;font-size:x-small;padding:0px;margin:0px;border:1px solid #ccc'/>&nbsp; &nbsp;</div>"
+		str+="<tr><td width='38' id='ntc-0' style='"+ts+"'>Type:</td><td><input id='ntx-0' type='input' style='"+ns+"'/></td></tr>";
+		str+="</table>";														// End
+		if (1) {																// If notes enabled
+			str+="<div style='text-align:right'><br/>________________________________<br/><br/>Pause video while typing?<input type='checkbox' id='notesPause' style='height:11px'>";
+			str+="<br/>Save notes: <img src='images/savedot.gif' id='notesSave' title='Save notes' width='15' style='vertical-align:bottom'>";
+			}
+		$('body').append(str+"</div>");											// Add to dom								
+	
+		if (notesText) {														// If notes
+			v=notesText.split("|");												// Divide into lines
+			for (i=0;i<v.length;++i) {											// For each line
+				if (!v[i])	continue;											// Ignore blanks
+				str="<tr><td id='ntc-"+i+"' style='"+ts+"'>Type:</td><td><input id='ntx-"+i+"' type='input' style='"+ns+"'/></td></tr>";
+				if (i)															// 1st row is already there
+					$("#notesTbl").append(str);									// Add row
+				$("#ntc-"+i).text(v[i].substring(0,5));							// Set timecode	
+				$("#ntx-"+i).val(v[i].substr(5));								// Set text	
+	
+				$("#ntc-"+i).click(function(e){									// Add click handler
+					   	var time=$("#"+e.target.id).text();						// Get time
+						if (e.shiftKey)											// If shift key pressed
+							$("#"+e.target.id).text(SecondsToTimecode(playerNow));	// Set new time
+						else
+							RunPlayer("scrub",TimecodeToSeconds(time));			// Cue player
+						});
+				$("#ntc-"+i).dblclick(function(e){								// Add d-click handler
+					   	var time=$("#"+e.target.id).text();						// Get time
+						RunPlayer("play",time);									// Play
+						});
+				}
+			}
+		
+		$("#notesDiv").draggable();												// Make draggable
+		$("#ntx-0").focus();													// Focus on first one
+		
+		$("#notesSearch").on("keydown", function(e) {							// Handle filter
+					var n=$("#notesTbl tr").length;								// Number of rows
+					var patt=new RegExp($("#notesSearch").val());				// Pattern to find
+					for (var i=0;i<n;++i) {										// For each row
+						$("#ntx-"+i).css("color","black");						// Clear it
+						if (($("#ntx-"+i).val()) && ($("#ntx-"+i).val().match(patt))) // If in there
+							$("#ntx-"+i).css("color","red");					// Highlight it
+						}
+					});			
+			
+		$("#notesSave").on("click", function(e) {								// Handle save
+					var str="";
+					var n=$("#notesTbl tr").length;								// Number of rows
+					for (var i=0;i<n;++i) 										// For each row
+						if ($("#ntx-"+i).val())									// If something there
+							str+=$("#ntc-"+i).text()+"\t"+$("#ntx-"+i).val()+"\n";	// Add row
+		 			 	window.prompt ("To copy your Notes to the clipboard:\nType Ctrl+C or Cmd+C and click  OK button.",str);	// Copy to clipboard
+					});			
+	
+		
+	
+		$("#notesTbl").on("keydown", function(e) {								// Handle key down
+			var cap=false;														// Don't cap
+			var rowNum=e.target.id.split("-")[1];								// Get rownum
+			if ($("#"+e.target.id).val().length > 80)							// If past limit
+				cap=true;														// Let's cap line
+			if ((e.keyCode == 13) || (cap)) {									// Enter on capping a line
+				var ts="color:#009900;cursor:pointer";							// Timecode style
+				var ns="font-size:small;border:none;background:none;width:100%;padding:0px;margin:0px";	// Note style	
+				var id=$("#notesTbl tr").length;								// If of next row
+				var str="<tr><td id='ntc-"+id+"' style='"+ts+"'>Type:</td><td><input id='ntx-"+id+"' type='input' style='"+ns+"'/></td></tr>";
+				$("#notesTbl").append(str);										// Add row
+				$("#ntx-"+id).focus();											// Focus on new one
+				if ($("#notesPause").prop('checked') && !cap) 					// If checked and not capped
+					RunPlayer("play");											// Resume player
+				if (cap)														// If line is capped
+					$("#ntc-"+id).text($("#ntc-"+rowNum).text());				// Set to same time
+				}
+			else if ((e.keyCode == 8) || (e.keyCode == 46)) {					// Delete
+				var id="#"+e.target.id;											// Get id
+				if ((!$(id).val()) && (id != "#ntx-0")) {						// No more chars left sand not 1st row
+					id="ntx-"+(id.substr(5)-1);									// Last row										
+					$("#"+id).focus();											// Focus there to prevent page back action
+					$("#"+e.target.id).parent().parent().remove();				// Delete
+					}			
+				}
+			else if (!$("#ntx-"+rowNum).val()) {								// A key and nothing in the field yet
+				$("#ntc-"+rowNum).text(SecondsToTimecode(playerNow));			// Set new time
+				if ($("#notesPause").prop('checked')) 							// If checked
+					RunPlayer("pause");											// Pause player
+				
+				$("#ntc-"+rowNum).click(function(e){							// Add click handler
+					   	var time=$("#"+e.target.id).text();						// Get time
+						if (e.shiftKey)											// If shift key pressed
+							$("#"+e.target.id).text(SecondsToTimecode(playerNow));	// Set new time
+						else
+							RunPlayer("play",TimecodeToSeconds(time));			// Cue player
+						});
+				
+				$("#ntc-"+rowNum).dblclick(function(e){							// Add  d-click handler
+					   	var time=$("#"+e.target.id).text();						// Get time
+						RunPlayer("play",TimecodeToSeconds(time));				// Cue player
+						})
+				}
+			});
+	};
+
+
 	
 </script>
 </body></html>
