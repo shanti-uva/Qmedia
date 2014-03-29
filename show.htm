@@ -146,9 +146,9 @@
 
 		var url=window.location.search.substring(1);							// Get query string
 		if ((url) && (!url.match(/\./)))										// No file extension
-			url+=".txt";														// Add txt
+			url+=".json";														// Add txt
 		if (!url)																// Nothing on command line
-			url="defaultshow.txt";												// Use default
+			url="defaultshow.json";												// Use default
 		$.ajax({ url: url, dataType:'jsonp' });									// Get jsonp and call LoadShow() from it
 
 		$("#slider").slider({													// Init slider
@@ -314,7 +314,6 @@
 						if ((o.c) && (o.c.match(/scroll/i))) 	extra="";		// Add scroll bars
 						$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+o.cs+"'></iframe>");	// Load in iframe
 						}
-					trace(o)
 					if ((o.d != undefined) && (!dontResize))					// If changing ratios (not in a manual scrub)
 						AnimatePanes(o.d,o.e,pane);								// Animate transition
 					if (o.player)												// If a player command
