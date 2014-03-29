@@ -145,6 +145,8 @@
 			window.attachEvent("message",shivaEventHandler);					// Add handler
 
 		var url=window.location.search.substring(1);							// Get query string
+		if ((url) && (!url.match(/\./)))										// No file extension
+			url+=".txt";														// Add txt
 		if (!url)																// Nothing on command line
 			url="defaultshow.txt";												// Use default
 		$.ajax({ url: url, dataType:'jsonp' });									// Get jsonp and call LoadShow() from it
@@ -271,8 +273,7 @@
 		if (!show.slideVectors)													// If no slides
 			$("#slideControlsDiv").css("display","none");						// Hide controls
 		var tag=document.createElement('script');								// Create script
-		if (!sd.playerSource)								
-							// No scribbable media
+		if (!sd.playerSource)													// No scrubbable media
 			RunPlayer("ready");													// Init show
 		else if (sd.playerSource.match(/\/\//i)) {								// If HTML5
 			playerType="html5";													// Set type
@@ -313,8 +314,11 @@
 						if ((o.c) && (o.c.match(/scroll/i))) 	extra="";		// Add scroll bars
 						$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+o.cs+"'></iframe>");	// Load in iframe
 						}
+					trace(o)
 					if ((o.d != undefined) && (!dontResize))					// If changing ratios (not in a manual scrub)
 						AnimatePanes(o.d,o.e,pane);								// Animate transition
+					if (o.player)												// If a player command
+						RunPlayer(o.player.split(":")[0],o.player.split(":")[1]);  // Send command to player
 					showCurSource[pane]=o.cs;									// Then is now
 					oo=showVectors[pane][i+1];									// Point at next slide
 					if (oo) {													// If not penulitimate image
@@ -484,7 +488,7 @@
 
 	function MakeTOC(toc)
 	{
-		var i,t;
+		var i,j,t;
 		if (!toc) {																// No toc
 			$("#contentDiv").css("display","none");								// Hide it
 			$("#contentDiv").width(0);											// Squeeze
@@ -495,7 +499,12 @@
 			t=TimecodeToSeconds(toc[i].start);									// Get time
 			str+="<div onclick='RunPlayer(\"play\","+t+")'";					// Add handler						
 			str+="title='"+toc[i].start+"'>";									// Add timecode tooltip
-			str+="<span style='color:#aaa'><b>&bull; </b></span>"; 				// Add bullet
+			for (j=0;j<toc[i].lev;++j) 											// Tab in based on level					
+				str+="&nbsp;&nbsp;&nbsp;"										// Add spaces
+			if (!toc[i].lev)													// Top level
+				str+="<span style='color:#aaa'><b>&bull; </b></span>"; 			// Add bullet
+			else 																// Sub-level
+				str+="<span style='color:#aaa'><b>- </b></span>"; 				// Add d
 			str+=toc[i].title+"</div>";											// Add title
 			}
 		$("#contentsText").html(str+"</div>");									// Set div contents
@@ -529,6 +538,7 @@
 	  		var s=window.getSelection();										// Get selection
  			var y=sd.transText.indexOf(s.focusNode.textContent);				// Char pos of paragraph
 	 		y=y+s.anchorOffset;													// Position in text
+trace(y)
  			RunPlayer("scrub",GetTimeFromCharPos(y),true);						// Show
  			});
 
@@ -770,6 +780,10 @@
 		else if (what == "ready") {												// When ready
 			if (sd.playerAuto == "true")										// If autoplay
 				RunPlayer("play",sd.playerStart);								// Play
+			else if (sd.playerStart) {											// Normal pause start
+				RunPlayer("scrub",sd.playerStart);								// Seek
+				RunPlayer("pause");												// Pause
+				}
 			ResizePanes();														// Resize panes
 			$("#splashDiv").animate({ opacity:0},400);							// Hide logo
 			$("#showDiv").animate({ opacity:1},1500, function() {				// Shoe interface
@@ -925,8 +939,9 @@
 			o.pd=rlc[i+1].a-rlc[i].a;											// Set time duration
 			if (!isNaN(o.cs))													// If numeric content
 				o.cd=rlc[i+1].b-rlc[i].b;										// Set content duration
-			if (rlc[i].d != undefined)	o.d=rlc[i].d;							// Add param if set
-			if (rlc[i].e != undefined)	o.e=rlc[i].e;							// Add param if set
+			if (rlc[i].d != undefined)			o.d=rlc[i].d;					// Add param if set
+			if (rlc[i].e != undefined)			o.e=rlc[i].e;					// Add param if set
+			if (rlc[i].player != undefined)		o.player=rlc[i].player;			// Add player command if set
 			showVectors[pane].push(o);											// Add to vector list
 			}
 	}
