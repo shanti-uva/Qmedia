@@ -1030,12 +1030,13 @@ trace(y)
 		str+="top:"+$("#infoDiv").offset().top+"px;left:"+sd.width/4+"px;'>";	// Set position
 		str+="<table id='notesTbl' width='100%'>";								// Table
 		str+="<div style='text-align:center;font-size:medium;'>Personal notes</div><hr>";
-		str+="<div style='position:absolute;top:-2px;left:0px;width:100%;text-align:right;color:#999'><br/>Find: <input type='input' id='notesSearch' style='height:12px;width:60px;font-size:x-small;padding:0px;margin:0px;border:1px solid #ccc'/>&nbsp; &nbsp;</div>"
+		str+="<div style='position:absolute;top:-2px;left:0px;width:100%;text-align:right;color:#999'><br/>Find: <input type='input' id='notesSearch' style='height:12px;width:60px;font-size:x-small;padding:0px;margin:0px;border:1px solid #ccc'/>"
+		str+=" <img src='images/closedot.gif' id='nCloser' title='Close notes' style='vertical-align:bottom'>&nbsp; &nbsp;</div>";
 		str+="<tr><td width='38' id='ntc-0' style='"+ts+"'>Type:</td><td><input id='ntx-0' type='input' style='"+ns+"'/></td></tr>";
 		str+="</table>";														// End
 		if (1) {																// If notes enabled
-			str+="<div style='text-align:right'><br/>________________________________<br/><br/>Pause video while typing?<input type='checkbox' id='notesPause' style='height:11px'>";
-			str+="<br/>Save notes: <img src='images/savedot.gif' id='notesSave' title='Save notes' width='15' style='vertical-align:bottom'>";
+			str+="<div style='text-align:right;color:#666'><br>Pause video while typing?<input type='checkbox' id='notesPause' style='height:11px'>";
+			str+="<br/>Save notes: <img src='images/savedot.gif' id='notesSave' title='Save notes' width='15' style='vertical-align:bottom'>&nbsp;";
 			}
 		$('body').append(str+"</div>");											// Add to dom								
 	
@@ -1083,6 +1084,11 @@ trace(y)
 						if ($("#ntx-"+i).val())									// If something there
 							str+=$("#ntc-"+i).text()+"\t"+$("#ntx-"+i).val()+"\n";	// Add row
 		 			 	window.prompt ("To copy your Notes to the clipboard:\nType Ctrl+C or Cmd+C and click  OK button.",str);	// Copy to clipboard
+					});			
+
+		$("#nCloser").on("click", function(e) {									// Handle close
+					playerNotes=false;											// Set flag
+					VideoNotes();												// Save notes and kill dialog
 					});			
 	
 		
