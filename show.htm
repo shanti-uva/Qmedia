@@ -311,11 +311,11 @@
 						$("#"+div).html("<img width='100%' src='"+o.cs+"'>"); 	// Load as image
 					else{														// An iframe
 						$("#"+div+"IF").remove();								// Remove any existing iframes
-						if ((o.c) && (o.c.match(/scroll/i))) 	extra="";		// Add scroll bars
+						if ((o.d) && (o.c.match(/scroll/i))) 	extra="";		// Add scroll bars
 						$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+o.cs+"'></iframe>");	// Load in iframe
 						}
-					if ((o.d != undefined) && (!dontResize))					// If changing ratios (not in a manual scrub)
-						AnimatePanes(o.d,o.e,pane);								// Animate transition
+					if ((o.r != undefined) && (!dontResize))					// If changing ratios (not in a manual scrub)
+						AnimatePanes(o.r,o.d,pane);								// Animate transition
 					if (o.player)												// If a player command
 						RunPlayer(o.player.split(":")[0],o.player.split(":")[1]);  // Send command to player
 					showCurSource[pane]=o.cs;									// Then is now
@@ -447,7 +447,7 @@
 			o=showVectors[transPane][i];										// Point at vector
 			if (t >= o.ps) {													// In this one
 				cp.pos=(t-o.ps)/o.pd*o.cd+o.cs;									// Get char pos
-				cp.pos2=cp.pos+o.c;												// End
+				cp.pos2=cp.pos+o.d;												// End
 				cp.pct=cp.pos/sd.transText.length;								// Percentage
 				return cp;														// Return pos
 				}																// Ratio into				
@@ -487,7 +487,7 @@
 
 	function MakeTOC(toc)
 	{
-		var i,j,t;
+		var i,j;
 		if (!toc) {																// No toc
 			$("#contentDiv").css("display","none");								// Hide it
 			$("#contentDiv").width(0);											// Squeeze
@@ -495,16 +495,15 @@
 			}
 		var str="<div style='cursor:pointer;padding-left:12px'>"				// Set up
 		for (i=0;i<toc.length;++i) {											// For each title
-			t=TimecodeToSeconds(toc[i].start);									// Get time
-			str+="<div onclick='RunPlayer(\"play\","+t+")'";					// Add handler						
-			str+="title='"+toc[i].start+"'>";									// Add timecode tooltip
-			for (j=0;j<toc[i].lev;++j) 											// Tab in based on level					
+			str+="<div onclick='RunPlayer(\"play\","+toc[i].t+")'";				// Add handler						
+			str+="title='"+SecondsToTimecode(toc[i].t)+"'>";					// Add timecode tooltip
+			for (j=0;j<toc[i].l;++j) 											// Tab in based on level					
 				str+="&nbsp;&nbsp;&nbsp;"										// Add spaces
-			if (!toc[i].lev)													// Top level
+			if (!toc[i].l)														// Top level
 				str+="<span style='color:#aaa'><b>&bull; </b></span>"; 			// Add bullet
 			else 																// Sub-level
 				str+="<span style='color:#aaa'><b>- </b></span>"; 				// Add d
-			str+=toc[i].title+"</div>";											// Add title
+			str+=toc[i].c+"</div>";												// Add title
 			}
 		$("#contentsText").html(str+"</div>");									// Set div contents
 	}
@@ -924,23 +923,23 @@ trace(y)
 
 	function MakeVectors(pane, rlc)											// CREATE TIMIMG VECTOR ARRAY
 	{
-		var i,o,c="";
+		var i,o,d="";
 		if (!rlc)																// No run length data
 			return;																// Quit		
 		for (i=0;i<rlc.length-1;++i) {											// For each run length
 			o={};																// New obj
-			o.ps=rlc[i].a;														// Time start
-			o.cs=rlc[i].b;														// Content start
-			if (rlc[i].c)														// If a width set
-				c=rlc[i].c;														// Use it
-			if (c)																// If something there							
-				o.c=c;															// Set 3rd param
-			o.pd=rlc[i+1].a-rlc[i].a;											// Set time duration
+			o.ps=rlc[i].t;														// Time start
+			o.cs=rlc[i].c;														// Content start
+			if (rlc[i].d)														// If a width set
+				d=rlc[i].d;														// Use it
+			if (d)																// If something there							
+				o.d=d;															// Set 3rd param
+			o.pd=rlc[i+1].t-rlc[i].t;											// Set time duration
 			if (!isNaN(o.cs))													// If numeric content
-				o.cd=rlc[i+1].b-rlc[i].b;										// Set content duration
-			if (rlc[i].d != undefined)			o.d=rlc[i].d;					// Add param if set
+				o.cd=rlc[i+1].c-rlc[i].c;										// Set content duration
+			if (rlc[i].r != undefined)			o.r=rlc[i].r;					// Add param if set
 			if (rlc[i].e != undefined)			o.e=rlc[i].e;					// Add param if set
-			if (rlc[i].player != undefined)		o.player=rlc[i].player;			// Add player command if set
+			if (rlc[i].p != undefined)			o.player=rlc[i].p;				// Add player command if set
 			showVectors[pane].push(o);											// Add to vector list
 			}
 	}
