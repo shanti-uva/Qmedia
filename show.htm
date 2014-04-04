@@ -79,8 +79,9 @@
 	<div id="playerSiz" style="position:absolute;width:8px;cursor:col-resize;opacity:inherit" class="unselectable" title="Resize player">
 		<div id="playerSiz1" style="position:absolute;width:40px;height:100%;left:-16px" class="unselectable"></div>
 	</div>
-	<div id="contentDiv" style="position:absolute;opacity:inherit" class="contents unselectable">
-		<span id="contentsLab" class="labels"></span><div id="contentsText" style="height:100%;overflow:auto;margin-top:16px;opacity:inherit"></div>
+	<div id="contentDiv" style="position:absolute;top:0px;opacity:inherit" class="contents unselectable">
+		<span id="contentsLab" class="labels"></span>
+		<div id="contentsText" style="height:90%;overflow:auto;margin-top:16px;opacity:inherit"></div>
 	</div>
 	<div id="transDiv" style="position:absolute;opacity:inherit" class="trans">
 		<span id="transLab" class="labels"></span>
@@ -93,7 +94,7 @@
 	<div id="infoDiv" style="position:absolute;opacity:inherit" class="info">
 		<span id="infoLab" class="labels"></span><div id="informationText" style="height:100%;overflow:hidden;margin-top:16px;opacity:inherit"></div>
 	</div>
-	<div id="transHgt" style="position:absolute;width:1000px;height:16px;cursor:row-resize;border-bottom:3px solid #ccc" class="unselectable" title="Change transcript height">
+	<div id="transHgt" style="position:absolute;width:1000px;height:7px;cursor:row-resize;border-bottom:3px solid #ccc" class="unselectable" title="Change transcript height">
 			<br><br><br>
 			Click <a href="//docs.google.com/presentation/d/18LLvvy3rMbRexOj_UmPI3JBhcymq5Ok1w7swoKeb50c/pub" target="_blank"> here </a> for a short slide show about Qmedia
 	</div>
@@ -377,7 +378,7 @@
 		$("#slider").width(wid-sw);												// Slider width
 		w=wid*r2;																// Transcript width
 		$("#transDiv").css({ left:cw+"px",width:(w-cw-8)+"px",height:sd.transHgt+"px",top:ct+"px"});
-		$("#transSiz").css({ left:(w+4)+"px",height:sd.transHgt+"px",top:(ct)+"px"});// Pos transcript sizer
+		$("#transSiz").css({ left:(w+8)+"px",height:sd.transHgt+"px",top:(ct)+"px"});// Pos transcript sizer
 		w=wid*(1-sd.transInfoRatio)-8;											// Info window width
 		if (w > wid-50) {														// All info
 			w+=8;																// Remove border
@@ -839,11 +840,11 @@ trace(y)
 				$("#playerDiv").html(str);										// Add video tag
   				var myVid=document.getElementById("vplayer");					// Point ar player
  				
- 				myVid.oncanplay= function() {									// When ready
- 					if (player) 												// Already initted
+ 				myVid.oncanplay=function() {									// When ready
+   					if (player) 												// Already initted
 						return;													// Quit
-       				sd.playerAspect=$("#vplayer").height()/$("#vplayer").width();	// Set aspect
        				player=$("#vplayer")[0];									// Point to player
+      				sd.playerAspect=player.videoHeight/player.videoWidth;		// Set aspect 				
        				playerTRT=player.duration;									// Set TRT
 					RunPlayer("ready");											// Set up player		
 					};
@@ -851,6 +852,9 @@ trace(y)
 				myVid.onended= function() {										// When done
   					RunPlayer("pause");											// Pause
 					};
+  		 		
+  		 		myVid.addEventListener("canplay",myVid.oncanplay);	 			// Add listener for safari
+			  	myVid.addEventListener("ended",myVid.onended);	 				// Add listener for safari
  	    		}
 			}																	// End init
  	}																			// End closure
