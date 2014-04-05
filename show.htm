@@ -92,7 +92,11 @@
   		<div id="transcriptText" style="height:90%;overflow:auto;margin-top:16px;padding-right:8px;opacity:inherit"></div>
  	</div>
 	<div id="infoDiv" style="position:absolute;opacity:inherit" class="info">
-		<span id="infoLab" class="labels"></span><div id="informationText" style="height:100%;overflow:hidden;margin-top:16px;opacity:inherit"></div>
+		<span id="infoLab" class="labels"></span>
+		<div id="infoMapDiv" style='position:absolute;top:0px;white-space:nowrap;opacity:inherit'> 
+ 			<img src="images/mapbut.gif" id="infomap" title="Show content map" style="vertical-align:-2px;cursor:pointer">
+	  	</div>
+		<div id="informationText" style="height:100%;overflow:hidden;margin-top:16px;opacity:inherit"></div>
 	</div>
 	<div id="transHgt" style="position:absolute;width:1000px;height:7px;cursor:row-resize;border-bottom:3px solid #ccc" class="unselectable" title="Change transcript height">
 			<br><br><br>
@@ -388,6 +392,7 @@
 		$("#infoDiv").css({ left:(wid-w+8)+"px",width:Math.max(w,0)+"px",height:sd.transHgt+"px",top:ct+"px"});
 		$("#transHgt").css({ top:ct+sd.transHgt+"px"});							// Set transcript height
 		$("#transSearchDiv").css("left",$("#transDiv").width()-104)+"px";		// Search div width
+		$("#infoMapDiv").css("left",$("#infoDiv").width()-16)+"px";		// Search div width
 		RunPlayer("resize");													// Resize player
 		RunSlide("resize");														// Resize slides
 		RunInfo("resize");														// Resize info
@@ -585,6 +590,16 @@ trace(y)
 				});
 
 			});																	// End transcript settings
+	
+		$("#infomap").on("click", function(e) {									// INFOMAP HANDLER
+			if ($("#informationText"+"IF").length) {							// If already there
+				$("#informationText"+"IF").remove();							// Remove any existing iframes
+				RunInfo("show");												// Restor old info contents
+				return;															// Quit
+				}
+			$("#informationText").html("<iframe id='informationTextIF' scrolling='no' frameborder='0' height='"+$("#informationText").height()+"' width='100%' src='"+sd.infoMapSource+"'></iframe>");	// Load in iframe
+			showCurSource[infoPane]=sd.infoMapSource;							// Set current source
+		});
 	}
 
 
@@ -652,6 +667,14 @@ trace(y)
  				RunPlayer("ready");												// Show status
 				}
 		}	
+	
+	 else if (e.data && e.data.match(/Shiva/)) {								// A SHIVA message
+	 	if (sd.infoMapSource && e.data.match(/click/)) {						// If infomap is open and clicked on
+			var t=e.data.split("|")[3];											// Get time
+			t=Math.min(t/10*sd.playerStop);										// Calc time
+			RunPlayer("scrub",t,true);											// Go there, but inhibit scale/info
+			}
+		}
 	}
 
 
@@ -732,12 +755,13 @@ trace(y)
 			$("#slider").slider("value",playerNow);								// Set slider
 			var max=$("#transcriptText")[0].scrollHeight;						// Max
 			var cp=GetCharPosTimeFrom(playerNow);								// Get char pos in transcript
-			if (!param)															// If not inhibiting scroll
+			if (!param)	{														// If not inhibiting scroll
 				$("#transcriptText").scrollTop(cp.pct*max-$("#transcriptText").height()/4);	// Set scroll
+				RunInfo("show");												// Show Info
+				}
+			RunOverlay("show");													// Show overlay
 			HighlightText(cp.pos,cp.pos2);										// Highlight area
 			RunSlide("show",param);												// Show slide, with param to/not resize
-			RunOverlay("show");													// Show overlay
-			RunInfo("show");													// Show Info
 			}
 		else if (what == "quality") {											// Quality
 		if (!player)	return;													// If no player yet, quit
