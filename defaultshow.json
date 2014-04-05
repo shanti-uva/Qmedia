@@ -1,6 +1,7 @@
 LoadShow({
 		"title":"Bill Clinton speaks at TED Conference",
-		"contentsLab":"Contents",
+        "contentsLab":"Contents",
+        "contentsPlayOnClick":"true",
 		"infoLab":"More information",
 		"transHgt":400,
 		"transInfoRatio":0.5,

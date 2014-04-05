@@ -1,6 +1,7 @@
 LoadShow({
     "title": "Assessing Concept of Word",
     "contentsLab": "Index",
+    "contentsPlayOnClick":"true",
     "infoLab": "More information",
     "transHgt": 400,
     "transInfoRatio": 0.5,

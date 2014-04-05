@@ -488,7 +488,7 @@
 
 	function MakeTOC(toc)
 	{
-		var i,j;
+		var i,j,ply;
 		if (!toc) {																// No toc
 			$("#contentDiv").css("display","none");								// Hide it
 			$("#contentDiv").width(0);											// Squeeze
@@ -496,7 +496,9 @@
 			}
 		var str="<div style='cursor:pointer;padding-left:12px'>"				// Set up
 		for (i=0;i<toc.length;++i) {											// For each title
-			str+="<div onclick='RunPlayer(\"play\","+toc[i].t+")'";				// Add handler						
+			ply="play";															// Assume click to play
+			if (sd.contentsPlayOnClick == "false")	ply="scrub";				// Otherwise seek when clicked
+			str+="<div onclick='RunPlayer(\""+ply+"\","+toc[i].t+")'";			// Add handler						
 			str+="title='"+SecondsToTimecode(toc[i].t)+"'>";					// Add timecode tooltip
 			for (j=0;j<toc[i].l;++j) 											// Tab in based on level					
 				str+="&nbsp;&nbsp;&nbsp;"										// Add spaces
