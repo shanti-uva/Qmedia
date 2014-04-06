@@ -1,5 +1,6 @@
 LoadShow({
     "title": "Assessing Concept of Word",
+    "initialPrompt":"&copy;2014 The University of Virginia",
     "contentsLab": "Index",
     "contentsPlayOnClick":"true",
     "infoLab": "More information",
