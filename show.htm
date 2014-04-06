@@ -600,8 +600,8 @@ trace(y)
 			});																	// End transcript settings
 	
 		$("#infomap").on("click", function(e) {									// INFOMAP HANDLER
-			if ($("#informationText"+"IF").length) {							// If already there
-				$("#informationText"+"IF").remove();							// Remove any existing iframes
+			if ($("#infoMapIF").length) {										// If already there
+				$("#infoMapIF").remove();										// Remove any existing iframes
 				RunInfo("show");												// Restor old info contents
 				$("#infoLab").html(sd.infoLab);									// Set proper label
 				Prompt(sd.initialPrompt);										// Restore old prompt
@@ -610,7 +610,7 @@ trace(y)
 			$("#infoLab").html("Content map");									// Set label
 			sd.initialPrompt=$("#prompt").html();								// Save old prompt
 			Prompt("Click on labels to navigate through media and the dots open and close nodes.");	// Show prompt
-			$("#informationText").html("<iframe id='informationTextIF' scrolling='no' frameborder='0' height='"+$("#informationText").height()+"' width='100%' src='"+sd.infoMapSource+"'></iframe>");	// Load in iframe
+			$("#informationText").html("<iframe id='infoMapIF' scrolling='no' frameborder='0' height='"+$("#informationText").height()+"' width='100%' src='"+sd.infoMapSource+"'></iframe>");	// Load in iframe
 			showCurSource[infoPane]=sd.infoMapSource;							// Set current source
 			});
 	}
@@ -682,7 +682,7 @@ trace(y)
 		}	
 	
 	 else if (e.data && e.data.match(/Shiva/)) {								// A SHIVA message
-	 	if (sd.infoMapSource && e.data.match(/click/)) {						// If infomap is open and clicked on
+	 	if ($("#infoMapIF").length && e.data.match(/click/)) {					// If infomap is open and clicked on
 			var t=e.data.split("|")[3];											// Get time
 			t=Math.min(t/10*sd.playerStop);										// Calc time
 			RunPlayer("scrub",t,true);											// Go there, but inhibit scale/info
