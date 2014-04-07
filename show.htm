@@ -102,7 +102,7 @@
 		<div id="informationText" style="height:100%;overflow:hidden;margin-top:16px;opacity:inherit"></div>
 	</div>
 	<div id="transHgt" style="position:absolute;width:1000px;height:7px;cursor:row-resize;border-bottom:3px solid #ccc" class="unselectable" title="Change transcript height">
-			<p id="prompt" class="prompt">&copy;2014 The University of Virginia</p><br>
+			<p id="prompt" class="prompt">The University of Virginia</p><br>
 			Click <a href="//docs.google.com/presentation/d/18LLvvy3rMbRexOj_UmPI3JBhcymq5Ok1w7swoKeb50c/pub" target="_blank"> here </a> for a short slide show about Qmedia
 	</div>
 	<div id="transSiz" style="position:absolute;width:8px;cursor:col-resize;opacity:inherit" class="unselectable" title="Resize transcript">
@@ -311,7 +311,7 @@
 
 	function ShowContent(pane, div, dontResize)								// SHOW IMAGE OR IFRAME
 	{
-		var i,o,oo,extra="scrolling='no'";
+		var i,o,oo={},extra="scrolling='no'";
 		var n=showVectors[pane].length-1;										// Last vector
 		for (i=n;i>=0;i--) {													// For each vector
 			o=showVectors[pane][i];												// Point at slide
@@ -331,6 +331,12 @@
 					showCurSource[pane]=o.cs;									// Then is now
 					if (o.m != undefined)										// If a prompt
 						Prompt(o.m);											// Show it
+					if (o.s != undefined) {										// If a prompt
+						var v=o.s.split("|");									// Get list of css commands
+						for (j=0;j<v.length;++j) 								// For each one
+							oo[v[j].split(":")[0]]=v[j].split(":")[1];			// Set
+						$("#"+div).css(oo);										// Set css
+						}
 					oo=showVectors[pane][i+1];									// Point at next slide
 					if (oo) {													// If not penulitimate image
 						if (oo.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))			// If an image				
@@ -607,9 +613,10 @@ trace(y)
 				Prompt(sd.initialPrompt);										// Restore old prompt
 				return;															// Quit
 				}
+			RunPlayer("pause");													// Pause player
 			$("#infoLab").html("Content map");									// Set label
 			sd.initialPrompt=$("#prompt").html();								// Save old prompt
-			Prompt("Click on labels to navigate through media and the dots open and close nodes.");	// Show prompt
+			Prompt("<b>Drag map to view more. Click on labels to navigate through media and the dots open and close nodes.</b>");	// Show prompt
 			$("#informationText").html("<iframe id='infoMapIF' scrolling='no' frameborder='0' height='"+$("#informationText").height()+"' width='100%' src='"+sd.infoMapSource+"'></iframe>");	// Load in iframe
 			showCurSource[infoPane]=sd.infoMapSource;							// Set current source
 			});
@@ -981,8 +988,9 @@ trace(y)
 			o.pd=rlc[i+1].t-rlc[i].t;											// Set time duration
 			if (!isNaN(o.cs))													// If numeric content
 				o.cd=rlc[i+1].c-rlc[i].c;										// Set content duration
-			if (rlc[i].r != undefined)			o.r=rlc[i].r;					// Add param if set
+			if (rlc[i].r != undefined)			o.r=rlc[i].r;					// Add ratio if set
 			if (rlc[i].e != undefined)			o.e=rlc[i].e;					// Add param if set
+			if (rlc[i].s != undefined)			o.s=rlc[i].s;					// Add style if set
 			if (rlc[i].p != undefined)			o.player=rlc[i].p;				// Add player command if set
 			if (rlc[i].m != undefined)			o.m=rlc[i].m;					// Add param if set
 			showVectors[pane].push(o);											// Add to vector list
@@ -1142,8 +1150,6 @@ trace(y)
 					playerNotes=false;											// Set flag
 					VideoNotes();												// Save notes and kill dialog
 					});			
-	
-		
 	
 		$("#notesTbl").on("keydown", function(e) {								// Handle key down
 			var cap=false;														// Don't cap
