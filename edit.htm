@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<link REL="SHORTCUT ICON" HREF="qlogo.ico">
+	<title>Qmedia Editor</title>
+ 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>	
+	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<script src="jquery.ui.touch-punch.min.js"></script>
+
+	<style type="text/css">
+		body { 			font-family:Verdana,Geneva,sans-serif; font-size:xx-small}
+		.rounded-corners { -moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;}
+		tr.odd { 		background-color:#e0e0e0; }
+		.ui-autocomplete { max-height: 300px; overflow-y: auto; }
+	
+ 		.unselectable { -moz-user-select: none;     -khtml-user-select: none;
+		   			 	-webkit-user-select: none;  -ms-user-select: none;   user-select: none;
+		   				}
+ 	 	.player { 		display:inline-block;margin:0px;border:none;padding:0px		}
+
+ 	
+ 	</style>
+	<script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+	  ga('create', 'UA-49268159-1', 'qmediaplayer.com');
+	  ga('send', 'pageview');
+	</script>
+</head>
+
+	<iframe class="player" id="playerIF" src="show.htm" height="100%" scrolling="no"></iframe>
+	<div id="editDiv" style="position:absolute;top:16px">
+		<div id="binDiv" style="opacity:inherit" class="bin unselectable"></div><br>
+		<div id="propDiv" style="opacity:inherit" class="prop unselectable">sdf</div>
+		<p><button type="button">Preview show</button> <button type="button">Save show</button></p>
+	</div>
+
+
+<body>
+
+<script>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	
+	var width=1000;
+	
+	$(document).ready(function() {											// WHEN PAGE LOADED
+		if (window.addEventListener) 											// If supported this way
+			window.addEventListener("message",shivaEventHandler,false);			// Add event handler
+		else																	// Use other method
+			window.attachEvent("message",shivaEventHandler);					// Add handler
+
+		$("#playerIF").prop("width",width);										// Player wid
+		$("#playerIF").prop("height",window.innerHeight-24);					// Hgt
+		$("#editDiv").css({"width":window.innerWidth-width-32+"px",left:width+16+"px"});// Position edit window
+
+		var str="<ul>";
+		str+="<li><a href='#bdiv'>Player</a></li>";
+		str+="<li><a href='#bdiv'>Slides</a></li>";
+		str+="<li><a href='#bdiv'>Contents</a></li>";
+		str+="<li><a href='#bdiv'>Transcript</a></li>";
+		str+="<li><a href='#bdiv'>Innformation</a></li>";
+		str+="<li><a href='#bdiv'>Settings</a></li>";
+		str+="</ul>";
+		str+="<div id='bdiv' style='height:"+window.innerHeight*.66+"px'>";
+		str+="Type script here:<br><textarea style='width:"+(window.innerWidth-width-80)+"px;height:"+(window.innerHeight*.66-32)+"px;font-size:small;padding:8px'></textarea></div>";
+		$('#binDiv').html(str);	
+		$('#binDiv').tabs();
+		str="<ul>";
+		str+="<li><a href='#pdiv'>Information</a></li>";
+		str+="<li><a href='#pdiv'>Properties</a></li>";
+		str+="<li><a href='#pdiv'>Tools</a></li>";
+		str+="</ul>";
+		str+="<div id='pdiv'><br><br>This area will contain ways to edit elements<br><br><br><br><br></div>";
+		$('#propDiv').html(str);	
+		$('#propDiv').tabs();
+											
+	
+		});	
+		
+	function shivaEventHandler(e)											// ON SHIVA EVENT
+	{
+	}	
+	
+		function trace(msg, p1, p2, p3, p4)										// CONSOLE 
+	{
+		if (p4 != undefined)
+			console.log(msg,p1,p2,p3,p4);
+		else if (p3 != undefined)
+			console.log(msg,p1,p2,p3);
+		else if (p2 != undefined)
+			console.log(msg,p1,p2);
+		else if (p1 != undefined)
+			console.log(msg,p1);
+		else
+			console.log(msg);
+	}
+	
+	
+</script>
+</body></html>
