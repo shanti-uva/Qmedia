@@ -36,7 +36,7 @@
 	<div id="editDiv" style="position:absolute;top:16px">
 		<div id="binDiv" style="opacity:inherit" class="bin unselectable"></div><br>
 		<div id="propDiv" style="opacity:inherit" class="prop unselectable">sdf</div>
-		<p><button type="button">Preview show</button> <button type="button">Save show</button></p>
+		<p style="text-align:right"><button type="button">Preview show</button> <button type="button">Save show</button></p>
 	</div>
 
 
@@ -62,15 +62,16 @@
 		$("#editDiv").css({"width":window.innerWidth-width-32+"px",left:width+16+"px"});// Position edit window
 
 		var str="<ul>";
+		str+="<li><a href='#bdiv'>Script Editor</a></li>";
 		str+="<li><a href='#bdiv'>Player</a></li>";
 		str+="<li><a href='#bdiv'>Slides</a></li>";
 		str+="<li><a href='#bdiv'>Contents</a></li>";
 		str+="<li><a href='#bdiv'>Transcript</a></li>";
-		str+="<li><a href='#bdiv'>Innformation</a></li>";
+		str+="<li><a href='#bdiv'>Information</a></li>";
 		str+="<li><a href='#bdiv'>Settings</a></li>";
 		str+="</ul>";
-		str+="<div id='bdiv' style='height:"+window.innerHeight*.66+"px'>";
-		str+="Type script here:<br><textarea style='width:"+(window.innerWidth-width-80)+"px;height:"+(window.innerHeight*.66-32)+"px;font-size:small;padding:8px'></textarea></div>";
+		str+="<div id='bdiv' style='height:"+window.innerHeight*.66+"px;padding:6px'>";
+		str+="<textarea style='width:"+(window.innerWidth-width-68)+"px;height:"+(window.innerHeight*.66-20)+"px;font-size:small;padding:8px'></textarea></div>";
 		$('#binDiv').html(str);	
 		$('#binDiv').tabs();
 		str="<ul>";
@@ -81,15 +82,15 @@
 		str+="<div id='pdiv'><br><br>This area will contain ways to edit elements<br><br><br><br><br></div>";
 		$('#propDiv').html(str);	
 		$('#propDiv').tabs();
-											
-	
+ 		$('#saveBut').button()
+		$('#previewBut').button()
 		});	
 		
 	function shivaEventHandler(e)											// ON SHIVA EVENT
 	{
 	}	
 	
-		function trace(msg, p1, p2, p3, p4)										// CONSOLE 
+	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{
 		if (p4 != undefined)
 			console.log(msg,p1,p2,p3,p4);
