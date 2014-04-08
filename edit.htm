@@ -35,11 +35,10 @@
 	<iframe class="player" id="playerIF" src="show.htm" height="100%" scrolling="no"></iframe>
 	<div id="editDiv" style="position:absolute;top:16px">
 		<div id="binDiv" style="opacity:inherit" class="bin unselectable"></div><br>
-		<div id="propDiv" style="opacity:inherit" class="prop unselectable">sdf</div>
+		<div id="propDiv" style="opacity:inherit" class="prop unselectable"></div>
+		<div id="tresizer" style="position:absolute;width:100%;height:10px;cursor:row-resize;solid #fff" class="unselectable" title="Change height"></div>
 		<p style="text-align:right"><button type="button">Preview show</button> <button type="button">Save show</button></p>
 	</div>
-
-
 <body>
 
 <script>
@@ -50,6 +49,7 @@
 	
 	
 	var width=1000;
+	var topBotRatio=.66;
 	
 	$(document).ready(function() {											// WHEN PAGE LOADED
 		if (window.addEventListener) 											// If supported this way
@@ -59,33 +59,62 @@
 
 		$("#playerIF").prop("width",width);										// Player wid
 		$("#playerIF").prop("height",window.innerHeight-24);					// Hgt
-		$("#editDiv").css({"width":window.innerWidth-width-32+"px",left:width+16+"px"});// Position edit window
 
 		var str="<ul>";
-		str+="<li><a href='#bdiv'>Script Editor</a></li>";
-		str+="<li><a href='#bdiv'>Player</a></li>";
-		str+="<li><a href='#bdiv'>Slides</a></li>";
-		str+="<li><a href='#bdiv'>Contents</a></li>";
-		str+="<li><a href='#bdiv'>Transcript</a></li>";
-		str+="<li><a href='#bdiv'>Information</a></li>";
-		str+="<li><a href='#bdiv'>Settings</a></li>";
+		str+="<li><a href='#tdiv'>Script Editor</a></li>";
+		str+="<li><a href='#tdiv'>Player</a></li>";
+		str+="<li><a href='#tdiv'>Slides</a></li>";
+		str+="<li><a href='#tdiv'>Contents</a></li>";
+		str+="<li><a href='#tdiv'>Assessment</a></li>";
+		str+="<li><a href='#tdiv'>Transcript</a></li>";
+		str+="<li><a href='#tdiv'>Information</a></li>";
+		str+="<li><a href='#tdiv'>Settings</a></li>";
 		str+="</ul>";
-		str+="<div id='bdiv' style='height:"+window.innerHeight*.66+"px;padding:6px'>";
-		str+="<textarea style='width:"+(window.innerWidth-width-68)+"px;height:"+(window.innerHeight*.66-20)+"px;font-size:small;padding:8px'></textarea></div>";
+		str+="<div id='tdiv' style='height:"+window.innerHeight*.66+"px;padding:6px'>";
+		str+="<textarea style='width:"+(window.innerWidth-width-68)+"px;height:95%;font-size:small;padding:8px'></textarea></div>";
 		$('#binDiv').html(str);	
 		$('#binDiv').tabs();
 		str="<ul>";
-		str+="<li><a href='#pdiv'>Information</a></li>";
-		str+="<li><a href='#pdiv'>Properties</a></li>";
-		str+="<li><a href='#pdiv'>Tools</a></li>";
+		str+="<li><a href='#bdiv'>Resources</a></li>";
+		str+="<li><a href='#bdiv'>Properties</a></li>";
+		str+="<li><a href='#bdiv'>Tools</a></li>";
 		str+="</ul>";
-		str+="<div id='pdiv'><br><br>This area will contain ways to edit elements<br><br><br><br><br></div>";
+		str+="<div id='bdiv'><br><br>This area will contain ways to edit elements<br><br><br><br><br></div>";
 		$('#propDiv').html(str);	
 		$('#propDiv').tabs();
  		$('#saveBut').button()
 		$('#previewBut').button()
+
+		$("#tresizer").hover(													// Resizer
+			function(){ $(this).css("background-color","#acc3db")},				// Highlight
+			function(){ $(this).css("background-color","transparent")			// Hide
+		});
+
+		$("#tresizer").draggable({												// DRAG HEIGHT HANDLER		
+			cursor: "row-resize", axis:"y",										// Y-only
+			stop: ResizePanes,													// Resize panes when done
+			drag: function(event, ui) {											// On drag
+				var h=window.innerHeight-32;
+				topBotRatio=Math.max(.1,Math.min((event.clientY-70)/h,.8))
+				ResizePanes();													// Resize panes
+				}
+			});
+
+		
+		ResizePanes();
+		
 		});	
 		
+	function ResizePanes()													// RESIZE PANES
+	{ 
+		var h=window.innerHeight-32;
+		$("#editDiv").css({"width":window.innerWidth-width-32+"px",left:width+16+"px"});// Position edit window
+		$("#tdiv").height(h*topBotRatio);										// Set height
+		$("#bdiv").height(h*(1-topBotRatio)-150);								// Set height
+		$("#tresizer").css({ top:$("#binDiv").height()+6+"px"});				// Position resizer
+	}
+	
+	
 	function shivaEventHandler(e)											// ON SHIVA EVENT
 	{
 	}	
