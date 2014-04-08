@@ -71,13 +71,12 @@
 		str+="<li><a href='#tdiv'>Settings</a></li>";
 		str+="</ul>";
 		str+="<div id='tdiv' style='height:"+window.innerHeight*.66+"px;padding:6px'>";
-		str+="<textarea style='width:"+(window.innerWidth-width-68)+"px;height:95%;font-size:small;padding:8px'></textarea></div>";
+		str+="<textarea style='width:"+(window.innerWidth-width-68)+"px;height:95%;border:none;font-size:small;padding:8px'></textarea></div>";
 		$('#binDiv').html(str);	
 		$('#binDiv').tabs();
 		str="<ul>";
-		str+="<li><a href='#bdiv'>Resources</a></li>";
 		str+="<li><a href='#bdiv'>Properties</a></li>";
-		str+="<li><a href='#bdiv'>Tools</a></li>";
+		str+="<li><a href='#bdiv'>Resources</a></li>";
 		str+="</ul>";
 		str+="<div id='bdiv'><br><br>This area will contain ways to edit elements<br><br><br><br><br></div>";
 		$('#propDiv').html(str);	
@@ -113,7 +112,6 @@
 		$("#bdiv").height(h*(1-topBotRatio)-150);								// Set height
 		$("#tresizer").css({ top:$("#binDiv").height()+6+"px"});				// Position resizer
 	}
-	
 	
 	function shivaEventHandler(e)											// ON SHIVA EVENT
 	{
