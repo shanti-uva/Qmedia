@@ -320,9 +320,11 @@
 					if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))					// An image
 						$("#"+div).html("<img width='100%' src='"+o.cs+"'>"); 	// Load as image
 					else{														// An iframe
-						$("#"+div+"IF").remove();								// Remove any existing iframes
-						if ((o.d) && (o.c.match(/scroll/i))) 	extra="";		// Add scroll bars
-						$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+o.cs+"'></iframe>");	// Load in iframe
+						if (o.cs.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
+							$("#"+div+"IF").remove();							// Remove any existing iframes
+							if ((o.d) && (o.c.match(/scroll/i))) 	extra="";	// Add scroll bars
+							$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+o.cs+"'></iframe>");	// Load in iframe
+							}
 						}
 					if ((o.r != undefined) && (!dontResize))					// If changing ratios (not in a manual scrub)
 						AnimatePanes(o.r,o.d,pane);								// Animate transition
@@ -331,7 +333,11 @@
 					showCurSource[pane]=o.cs;									// Then is now
 					if (o.m != undefined)										// If a prompt
 						Prompt(o.m);											// Show it
-					if (o.s != undefined) {										// If a prompt
+					if (o.h != undefined) {										// If a shivamessage
+						var win=document.getElementById(div+"IF").contentWindow;// Point at iFrame	
+						win.postMessage("ShivaAct="+o.h,"*");					// Send message to container
+						}
+					if (o.s != undefined) {										// If a style list
 						var v=o.s.split("|");									// Get list of css commands
 						for (j=0;j<v.length;++j) 								// For each one
 							oo[v[j].split(":")[0]]=v[j].split(":")[1];			// Set
@@ -992,6 +998,7 @@ trace(y)
 			if (rlc[i].r != undefined)			o.r=rlc[i].r;					// Add ratio if set
 			if (rlc[i].e != undefined)			o.e=rlc[i].e;					// Add param if set
 			if (rlc[i].s != undefined)			o.s=rlc[i].s;					// Add style if set
+			if (rlc[i].h != undefined)			o.h=rlc[i].h;					// Add hrml5 msg if set
 			if (rlc[i].p != undefined)			o.player=rlc[i].p;				// Add player command if set
 			if (rlc[i].m != undefined)			o.m=rlc[i].m;					// Add param if set
 			showVectors[pane].push(o);											// Add to vector list
