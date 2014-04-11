@@ -845,7 +845,7 @@ trace(y)
 	       		var pc=sd.playerControls == "true" ? 1 : 0;						// Set player controls?
 	       		player=new YT.Player("vplayer", {								// Init player
 					playerVars:{ modestbranding:1, controls:pc, 				// Settings	
-						disablekb:1, rel:0, showinfo:0, html5:1 },				// Settings
+						disablekb:1, rel:0, showinfo:0, html5:1, autoPlay:0 },
 	          		videoId: sd.playerSource,									// Set source
 	         	 	events:{													// Add event handlers
 	            		"onStateChange": function(s) {							// Change of state
