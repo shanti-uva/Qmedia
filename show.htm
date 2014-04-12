@@ -422,6 +422,8 @@
 	function AnimatePanes(end, dur, which)									// ANIMATE CHANGE OF PANE RATIO
 	{
 		var start;
+		if ((navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false) && (playerMode == "play") && (playerType == "youtube"))// Playing on ipad 
+			return;																// Don't resize
 		if (which == slidePane) 	 start=sd.playerSlideRatio;					// Get current player ratio
 		else if (which == infoPane)  start=sd.transInfoRatio;					// Get current transcript ratio
 		var dif=Math.abs(end-start);											// Difference
@@ -734,7 +736,7 @@ trace(y)
 			if (playerType == "youtube") {										// If YouTube
 				player.seekTo(playerNow,true);									// Cue
 				if (playerMode == "play")	player.playVideo();					// Play
-				if (playerMode == "pause")	player.pauseVideo();				// Pause
+				else if (playerMode == "pause")	player.pauseVideo();			// Pause
 				}
 			else if (playerType == "vimeo") {									// If Vimeo
 				player.contentWindow.postMessage("{\"method\":\"seekTo\",\"value\":\""+playerNow+"\"}","*");
@@ -851,12 +853,14 @@ trace(y)
 	       		var pc=sd.playerControls == "true" ? 1 : 0;						// Set player controls?
 	       		player=new YT.Player("vplayer", {								// Init player
 					playerVars:{ modestbranding:1, controls:pc, 				// Settings	
-						disablekb:1, rel:0, showinfo:0, html5:1, autoPlay:0 },
+						disablekb:1, rel:0, showinfo:0, html5:1, autoplay:1 },
 	          		videoId: sd.playerSource,									// Set source
 	         	 	events:{													// Add event handlers
 	            		"onStateChange": function(s) {							// Change of state
 		         			if (s.data == 1) {									// In play
 								$("#playBut").attr("src","images/pausebut.gif");// Show pause but
+       							if (playerMode == "empty")						// If first time
+       								player.pauseVideo();						// Pause
 								playerMode="play";								// Set mode
        							}
        						else if ((s.data == 2) || (s.data == 0)) {			// In pause

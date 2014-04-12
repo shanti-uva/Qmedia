@@ -65,10 +65,10 @@ LoadShow({
 			{ "t":110, "c":"//www.viseyes.org/shiva/qmedia/clinton05.jpg" },	
 			{ "t":133, "c":"//www.viseyes.org/shiva/qmedia/clinton06.jpg" },	
 			{ "t":159, "c":"//www.viseyes.org/shiva/qmedia/clinton07.jpg" },	
-            { "t":177, "c":"//www.viseyes.org/shiva/go.htm?e=1103", "m":"This is a live map" }, 
+            { "t":177, "c":"//www.viseyes.org/shiva/go.htm?e=1103", "m":"This is a live map", "r":0.3 }, 
             { "t":184, "c":"//www.viseyes.org/shiva/go.htm?e=1103#1", "m":"We zoomed in", "h":"goto|51.513149|-0.077955|16" }, 
             { "t":196, "c":"//www.viseyes.org/shiva/go.htm?e=1103#2", "m":"To another spot", "h":"goto|51.5131494459|-0.077955722808|18" }, 
-            { "t":205, "c":"//www.viseyes.org/shiva/go.htm?e=1103#3", "m":"And back again", "h":"goto|51.5292513551|-0.1311492919921875|11" }, 
+            { "t":205, "c":"//www.viseyes.org/shiva/go.htm?e=1103#3", "m":"And back again", "h":"goto|51.5292513551|-0.1311492919921875|11", "r":0.5 }, 
  			{ "t":220, "c":"//www.viseyes.org/shiva/qmedia/clinton09.jpg", "m":""},	
 			{ "t":304, "c":"//www.viseyes.org/shiva/qmedia/clinton10.jpg" },	
 			{ "t":357, "c":"" }
