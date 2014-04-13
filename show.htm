@@ -138,6 +138,7 @@
 	var playerNotes=false;														// Annotator
 	var playerHgt=0,playerWid=0;												// Source height/width
 	var notesText="";															// No notes
+	var isMobile=false;															// Flag for mobile devices
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,6 +153,7 @@
 		else																	// Use other method
 			window.attachEvent("message",shivaEventHandler);					// Add handler
 
+		isMobile=navigator.userAgent.match(/(ipad|iphone|ipod|android)/i) ? true : false; // Set mobile flag
 		var url=window.location.search.substring(1);							// Get query string
 		if ((url) && (!url.match(/\./)))										// No file extension
 			url+=".json";														// Add txt
@@ -422,7 +424,7 @@
 	function AnimatePanes(end, dur, which)									// ANIMATE CHANGE OF PANE RATIO
 	{
 		var start;
-		if ((navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false) && (playerMode == "play") && (playerType == "youtube"))// Playing on ipad 
+		if (isMobile && (playerMode == "play") && (playerType == "youtube"))	// Playing on ipad 
 			return;																// Don't resize
 		if (which == slidePane) 	 start=sd.playerSlideRatio;					// Get current player ratio
 		else if (which == infoPane)  start=sd.transInfoRatio;					// Get current transcript ratio
@@ -716,6 +718,8 @@ trace(y)
 	{
 		var i,str;
 		if (what == "play") {													// Play
+			if ((playerMode == "empty") && isMobile)							// Mobiles need user to initiate touch before controlled play
+				return;															// Quit
 			if ($("#playBut").attr("src") == "images/playbut.gif")	{			// If in pause
 				$("#playBut").attr("src","images/pausebut.gif");				// Show pause but
 				playerMode="play";												// Set mode
@@ -753,6 +757,8 @@ trace(y)
 			RunPlayer("show");													// Show where we're at
 			}
 		else if (what == "scrub") {												// Scrub
+			if ((playerMode == "empty") && isMobile)							// Mobiles need user to initiate touch before controlled play
+				return;															// Quit
 			playerCurTime=playerNow=Math.max(Math.min(param,sd.playerStop),0)	// Set now
 			if (!player) {														// If no player yet
 				RunPlayer("show",param2);										// Show
@@ -859,7 +865,7 @@ trace(y)
 	            		"onStateChange": function(s) {							// Change of state
 		         			if (s.data == 1) {									// In play
 								$("#playBut").attr("src","images/pausebut.gif");// Show pause but
-       							if (playerMode == "empty")						// If first time
+       							if (playerMode == "empty" && !isMobile) 		// If first time
        								player.pauseVideo();						// Pause
 								playerMode="play";								// Set mode
        							}
@@ -881,8 +887,8 @@ trace(y)
 			else if (playerType == "html5") {									// If HTML5
  				var base=sd.playerSource.match(/(.*)\.[^.]+$/i)[1];				// Extract base
 				str="<video id='vplayer' width='100%' height='100%'";			// Video tag
-				if (sd.playerControls == "true")								// If has controls
-					str+= " controls";											// Add option
+				if ((sd.playerControls == "true") || isMobile)					// If has controls or mobile
+					str+= " controls";											// Add native controls to player
 				str+=">";														// Close tag
 				if (sd.playerSource.match(/\.mp3/i)) {							// If audio
 					str+="<source src='"+base+".mp3'  type='audio/mp3'>";		// MP3 Source
@@ -894,23 +900,37 @@ trace(y)
 					}
 				str+="</video>"
 				$("#playerDiv").html(str);										// Add video tag
-  				var myVid=document.getElementById("vplayer");					// Point ar player
+  				var myVid=document.getElementById("vplayer");					// Point ar player	
  				
- 				myVid.oncanplay=function() {									// When ready
-   					if (player) 												// Already initted
-						return;													// Quit
-       				player=$("#vplayer")[0];									// Point to player
-      				sd.playerAspect=player.videoHeight/player.videoWidth;		// Set aspect 				
-       				playerTRT=player.duration;									// Set TRT
-					RunPlayer("ready");											// Set up player		
+ 				myVid.onloadstart=function() {									// When loaded
+ 					player=$("#vplayer")[0];									// Point to player
+ 					RunPlayer("ready");											// Set up player		
+					};
+								
+				myVid.oncanplay=function() {									// When ready
+    				sd.playerAspect=player.videoHeight/player.videoWidth;		// Set aspect 				
+ 					RunPlayer("ready");											// Set up player		
 					};
 
-				myVid.onended= function() {										// When done
+ 				myVid.onended= function() {										// When done
   					RunPlayer("pause");											// Pause
 					};
+
+				myVid.onplay= function() {										// When playing
+					$("#playBut").attr("src","images/pausebut.gif");			// Show pause but
+ 						playerMode="play";										// Set mode
+ 					};
+
+				myVid.onpause= function() {										// When paused
+					$("#playBut").attr("src","images/playbut.gif");				// Show play but
+ 						playerMode="pause";										// Set mode
+  					};
   		 		
-  		 		myVid.addEventListener("canplay",myVid.oncanplay);	 			// Add listener for safari
+ 			  	myVid.addEventListener("loadstart",myVid.onloadstart);	 		// Add listener for safari
+ 		 		myVid.addEventListener("canplay",myVid.oncanplay);	 			// Add listener for safari
 			  	myVid.addEventListener("ended",myVid.onended);	 				// Add listener for safari
+ 			  	myVid.addEventListener("play",myVid.onplay);	 				// Add listener for safari
+ 			  	myVid.addEventListener("pause",myVid.onpause);	 				// Add listener for safari
  	    		}
 			}																	// End init
  	}																			// End closure
