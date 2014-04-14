@@ -427,7 +427,10 @@
 			if (playerNow >= o.ps) {											// In this one
 				if (showCurSource[pane] != o.cs) {								// A new item
 					if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))	{				// An image
-						$("#"+div).html("<img id='"+div+"IM' width='100%' src='"+o.cs+"'>"); 	// Load an image
+						if (o.cs.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0])  		// Bases are different
+							$("#"+div).html("<img id='"+div+"IM' width='100%' src='"+o.cs+"'>"); 	// Load an image
+						else													// Same image base
+							AnimateContent(div+"IM",o);							// Animate image, if set
 						$("#"+div+"IM").on("load",function() {					// On image loaded
 							AnimateContent(this.id,o);							// Animate image, if set
 							})
@@ -438,6 +441,11 @@
 							if ((o.d) && (o.c.match(/scroll/i))) 	extra="";	// Add scroll bars
 							$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+o.cs+"'></iframe>");	// Load in iframe
 							}
+						else													// Same image base
+							AnimateContent(div+"IF",o);							// Animate iframe, if set
+						$("#"+div+"IF").on("load",function() {					// On image loaded
+							AnimateContent(this.id,o);							// Animate image, if set
+							})
 						}
 					if ((o.r != undefined) && (!dontResize))					// If changing ratios (not in a manual scrub)
 						AnimatePanes(o.r,o.d,pane);								// Animate transition
@@ -469,7 +477,7 @@
 
 	function AnimateContent(id, vec)										// ANIMATE IMAGE OR IFRAME
 	{
-		var oh,ow,x,y,z,dur=500;
+		var oh=1000,ow=1000,x,y,z,dur=500;
 		if (!vec.z)																// If not pan and zoom set
 			return;																// Quit
 		var v=vec.z.split("|");													// Get components
@@ -485,8 +493,6 @@
 			ow=document.getElementById(id).naturalWidth;						// Original width
 			oh=document.getElementById(id).naturalHeight;						// Original height
 			}
-		else																	// An iFrame
-			div=div+"IF";														// Point at iFrame
 		x=-ex*ow*ez+(ow/2);														// Pos x
 		y=-ey*oh*ez+(oh/2);														// Pos y
 		z=ez;		
@@ -497,15 +503,16 @@
 			var now=(new Date().getTime()-startTime)/dur;						// Get now
 			now=1.0-((Math.cos(3.1414*now)+1)/2.0);								// Full cosine curve
 			now=Math.min(now,1);												// Cap
+			if (now > .999)	{													// If done
+				clearInterval(imageAnimationTimer);								// Kill timer
+				imageAnimationTimer=null;										// Null it out
+				now=1;															// Force to end
+				}
 			x=(sx-0)+(ex-sx)*now;												// Get x pos
 			y=(sy-0)+(ey-sy)*now;												// Get y
 			z=(sz-0)+(ez-sz)*now;												// Get z
 			x=-x*ow*z+(ow/2);													// Pos x
 			y=-y*oh*z+(oh/2);													// Pos y
-			if (now > .99)	{													// If done
-				clearInterval(imageAnimationTimer);								// Kill timer
-				imageAnimationTimer=null;										// Null it out
-				}
 			$("#"+id).css({	"-webkit-transform-origin":"0 0", 					// Move image
 				"-moz-transform-origin":"0 0",
 				"-ms-transform-origin":"0 0",
