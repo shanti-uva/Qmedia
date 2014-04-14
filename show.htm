@@ -127,6 +127,7 @@
 	var showVectors=new Array();												// Timing vectors
 	var showCurSource=new Array();												// Current sources
 	var paneAnimationTimer=null;												// Times pane animations
+	var imageAnimationTimer=null;												// Times image animations
 	var player=null;															// Holds player object
 	var playerNow=0;															// Current time in secs
 	var playerTime=null;														// Timer
@@ -311,51 +312,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	function ShowContent(pane, div, dontResize)								// SHOW IMAGE OR IFRAME
-	{
-		var i,o,oo={},extra="scrolling='no'";
-		var n=showVectors[pane].length-1;										// Last vector
-		for (i=n;i>=0;i--) {													// For each vector
-			o=showVectors[pane][i];												// Point at slide
-			if (playerNow >= o.ps) {											// In this one
-				if (showCurSource[pane] != o.cs) {								// A new item
-					if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))					// An image
-						$("#"+div).html("<img width='100%' src='"+o.cs+"'>"); 	// Load as image
-					else{														// An iframe
-						if (o.cs.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
-							$("#"+div+"IF").remove();							// Remove any existing iframes
-							if ((o.d) && (o.c.match(/scroll/i))) 	extra="";	// Add scroll bars
-							$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+o.cs+"'></iframe>");	// Load in iframe
-							}
-						}
-					if ((o.r != undefined) && (!dontResize))					// If changing ratios (not in a manual scrub)
-						AnimatePanes(o.r,o.d,pane);								// Animate transition
-					if (o.player)												// If a player command
-						RunPlayer(o.player.split(":")[0],o.player.split(":")[1]);  // Send command to player
-					showCurSource[pane]=o.cs;									// Then is now
-					if (o.m != undefined)										// If a prompt
-						Prompt(o.m);											// Show it
-					if (o.h != undefined) {										// If a shivamessage
-						var win=document.getElementById(div+"IF").contentWindow;// Point at iFrame	
-						win.postMessage("ShivaAct="+o.h,"*");					// Send message to container
-						}
-					if (o.s != undefined) {										// If a style list
-						var v=o.s.split("|");									// Get list of css commands
-						for (j=0;j<v.length;++j) 								// For each one
-							oo[v[j].split(":")[0]]=v[j].split(":")[1];			// Set
-						$("#"+div).css(oo);										// Set css
-						}
-					oo=showVectors[pane][i+1];									// Point at next slide
-					if (oo) {													// If not penulitimate image
-						if (oo.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))			// If an image				
-							$("#cache"+pane).html("<img src='"+oo.cs+"'>"); 	// Load as image
-						}
-					}						
-				break;															// Stop looking
-				}																	
-			}
-	}
-
 	function ResizePanes()													// RESIZE PANES
 	{ 
 		var pt=8;
@@ -462,6 +418,105 @@
 			}
 	}
 
+	function ShowContent(pane, div, dontResize)								// SHOW IMAGE OR IFRAME
+	{
+		var i,o,oo={},extra="scrolling='no'";
+		var n=showVectors[pane].length-1;										// Last vector
+		for (i=n;i>=0;i--) {													// For each vector
+			o=showVectors[pane][i];												// Point at slide
+			if (playerNow >= o.ps) {											// In this one
+				if (showCurSource[pane] != o.cs) {								// A new item
+					if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))	{				// An image
+						$("#"+div).html("<img id='"+div+"IM' width='100%' src='"+o.cs+"'>"); 	// Load an image
+						$("#"+div+"IM").on("load",function() {					// On image loaded
+							AnimateContent(this.id,o);							// Animate image, if set
+							})
+						}
+					else{														// An iframe
+						if (o.cs.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
+							$("#"+div+"IF").remove();							// Remove any existing iframes
+							if ((o.d) && (o.c.match(/scroll/i))) 	extra="";	// Add scroll bars
+							$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+o.cs+"'></iframe>");	// Load in iframe
+							}
+						}
+					if ((o.r != undefined) && (!dontResize))					// If changing ratios (not in a manual scrub)
+						AnimatePanes(o.r,o.d,pane);								// Animate transition
+					if (o.player)												// If a player command
+						RunPlayer(o.player.split(":")[0],o.player.split(":")[1]);  // Send command to player
+					showCurSource[pane]=o.cs;									// Then is now
+					if (o.m != undefined)										// If a prompt
+						Prompt(o.m);											// Show it
+					if (o.h != undefined) {										// If a shivamessage
+						var win=document.getElementById(div+"IF").contentWindow;// Point at iFrame	
+						win.postMessage("ShivaAct="+o.h,"*");					// Send message to container
+						}
+					if (o.s != undefined) {										// If a style list
+						var v=o.s.split("|");									// Get list of css commands
+						for (j=0;j<v.length;++j) 								// For each one
+							oo[v[j].split(":")[0]]=v[j].split(":")[1];			// Set
+						$("#"+div).css(oo);										// Set css
+						}
+					oo=showVectors[pane][i+1];									// Point at next slide
+					if (oo) {													// If not penulitimate image
+						if (oo.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))			// If an image				
+							$("#cache"+pane).html("<img src='"+oo.cs+"'>"); 	// Load as image
+						}
+					}						
+				break;															// Stop looking
+				}																	
+			}
+	}
+
+	function AnimateContent(id, vec)										// ANIMATE IMAGE OR IFRAME
+	{
+		var oh,ow,x,y,z,dur=500;
+		if (!vec.z)																// If not pan and zoom set
+			return;																// Quit
+		var v=vec.z.split("|");													// Get components
+		var sx=v[4],sy=v[5],sz=v[6];											// Start positions
+		var ex=v[0],ey=v[1],ez=v[2];											// End position
+		if (v[3] != undefined)													// If duration set
+			dur=v[3]*1000;														// Set it
+		if (sx == undefined) {													// if start not defined
+			sx=sy=.5;															// Center
+ 			sz=1;																// 100%		
+			}
+		if (id.match(/IM/)) {													// If an image				
+			ow=document.getElementById(id).naturalWidth;						// Original width
+			oh=document.getElementById(id).naturalHeight;						// Original height
+			}
+		else																	// An iFrame
+			div=div+"IF";														// Point at iFrame
+		x=-ex*ow*ez+(ow/2);														// Pos x
+		y=-ey*oh*ez+(oh/2);														// Pos y
+		z=ez;		
+		clearInterval(imageAnimationTimer);										// Kill timer
+		imageAnimationTimer=null;												// Clear timer var
+		var startTime=new Date().getTime();										// Set start
+		imageAnimationTimer=setInterval(function() {							// Set timer
+			var now=(new Date().getTime()-startTime)/dur;						// Get now
+			now=1.0-((Math.cos(3.1414*now)+1)/2.0);								// Full cosine curve
+			now=Math.min(now,1);												// Cap
+			x=(sx-0)+(ex-sx)*now;												// Get x pos
+			y=(sy-0)+(ey-sy)*now;												// Get y
+			z=(sz-0)+(ez-sz)*now;												// Get z
+			x=-x*ow*z+(ow/2);													// Pos x
+			y=-y*oh*z+(oh/2);													// Pos y
+			if (now > .99)	{													// If done
+				clearInterval(imageAnimationTimer);								// Kill timer
+				imageAnimationTimer=null;										// Null it out
+				}
+			$("#"+id).css({	"-webkit-transform-origin":"0 0", 					// Move image
+				"-moz-transform-origin":"0 0",
+				"-ms-transform-origin":"0 0",
+				"transform-origin":"0 0",			
+				"-webkit-transform":"matrix("+z+",0,0,"+z+","+x+","+y+")",
+				"-moz-transform":"matrix("+z+",0,0,"+z+","+x+","+y+")",
+				"-ms-transform":"matrix("+z+",0,0,"+z+","+x+","+y+")",
+	 			"-transform":"matrix("+z+",0,0,"+z+","+x+","+y+")",
+	   		});
+			},24);																// Set timer ~40ps
+	}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TRANSCRIPT
@@ -855,7 +910,7 @@ trace(y)
 			}
 		else if (what == "init") {												// Init player
 			if (playerType == "youtube") {										// If YouTube
-				$("#playerDiv").html("<div id='vplayer'></div>");				// Ad holder div
+				$("#playerDiv").html("<div id='vplayer'></div>");				// Add holder div
 	       		var pc=sd.playerControls == "true" ? 1 : 0;						// Set player controls?
 	       		player=new YT.Player("vplayer", {								// Init player
 					playerVars:{ modestbranding:1, controls:pc, 				// Settings	
@@ -1024,7 +1079,8 @@ trace(y)
 			if (rlc[i].s != undefined)			o.s=rlc[i].s;					// Add style if set
 			if (rlc[i].h != undefined)			o.h=rlc[i].h;					// Add hrml5 msg if set
 			if (rlc[i].p != undefined)			o.player=rlc[i].p;				// Add player command if set
-			if (rlc[i].m != undefined)			o.m=rlc[i].m;					// Add param if set
+			if (rlc[i].m != undefined)			o.m=rlc[i].m;					// Add prompt if set
+			if (rlc[i].z != undefined)			o.z=rlc[i].z;					// Add pan/zoom if set
 			showVectors[pane].push(o);											// Add to vector list
 			}
 	}

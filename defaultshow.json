@@ -58,8 +58,9 @@ LoadShow({
 			{ "t":367, "c":4554 } 
 			],	
 		"slideVectors": [ 
-			{ "t":0,   "c":"//www.viseyes.org/shiva/qmedia/clinton01.jpg", "r":0.5 },
-			{ "t":16,  "c":"//www.viseyes.org/shiva/qmedia/clinton02.jpg", "r":0.8,},	
+            { "t":0,   "c":"//www.viseyes.org/shiva/qmedia/clinton01.jpg", "r":0.5 },
+            { "t":1,   "c":"//www.viseyes.org/shiva/qmedia/clinton01.jpg#1", "r":0.5, z:".53|.4|4|6"  },
+ 			{ "t":16,  "c":"//www.viseyes.org/shiva/qmedia/clinton02.jpg", "r":0.8,},	
 			{ "t":44,  "c":"//www.viseyes.org/shiva/qmedia/clinton03.jpg", "r":0.5 },	
 			{ "t":68,  "c":"//www.viseyes.org/shiva/qmedia/clinton04.jpg" },	
 			{ "t":110, "c":"//www.viseyes.org/shiva/qmedia/clinton05.jpg" },	
