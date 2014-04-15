@@ -70,6 +70,7 @@
 	<div id="playerDiv" style="position:absolute;opacity:inherit" class="unselectable"></div>
 	<div id="slideDiv" style="position:absolute;opacity:inherit" class="slide unselectable"></div>
 	<div id="controlDiv" style="position:absolute;opacity:inherit" class="control unselectable">
+		<div style="width:100%;height:6px;background-color:#fff;position:absolute;top:-6px;"></div>
 	  	<img id="playBut" src="images/playbut.gif" onclick="RunPlayer('play')" title="Play video" style="vertical-align:-4px;cursor:pointer">
    		<div id="timeDisp" class="timeDisp unselectable"></div>
    		<div style="display:inline-block" id="slider"></div>&nbsp;&nbsp;
@@ -427,6 +428,7 @@
 			o=showVectors[pane][i];												// Point at slide
 			if (playerNow >= o.ps) {											// In this one
 				if (showCurSource[pane] != o.cs) {								// A new item
+					clearInterval(imageAnimationTimer);							// Kill image timer
 					if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))	{				// An image
 						if (o.cs.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0])  		// Bases are different
 							$("#"+div).html("<img id='"+div+"IM' width='100%' src='"+o.cs+"'>"); 	// Load an image
@@ -478,7 +480,7 @@
 
 	function AnimateContent(id, vec)										// ANIMATE IMAGE OR IFRAME
 	{
-		var oh=1000,ow=1000,x,y,z,dur=500;
+		var x,y,z,dur=500;
 		if (!vec.z)																// If not pan and zoom set
 			return;																// Quit
 		var v=vec.z.split("|");													// Get components
@@ -490,31 +492,25 @@
 			sx=sy=.5;															// Center
  			sz=1;																// 100%		
 			}
-		if (id.match(/IM/)) {													// If an image				
-			ow=document.getElementById(id).naturalWidth;						// Original width
-			oh=document.getElementById(id).naturalHeight;						// Original height
-			}
-		x=-ex*ow*ez+(ow/2);														// Pos x
-		y=-ey*oh*ez+(oh/2);														// Pos y
-		z=ez;		
+		var pw=$("#"+id).width();												// Width of pane
+		var ph=$("#"+id).height();												// Height of pane
 		clearInterval(imageAnimationTimer);										// Kill timer
-		imageAnimationTimer=null;												// Clear timer var
 		var startTime=new Date().getTime();										// Set start
 		if (playerMode != "play")												// If not playing
 			dur=1;																// Go to end quickly
+		
 		imageAnimationTimer=setInterval(function() {							// Set timer
 			var now=(new Date().getTime()-startTime)/dur;						// Get now
 			now=1.0-((Math.cos(3.1414*Math.min(now,1))+1)/2.0);					// Full cosine curve
 			if (now > .999)	{													// If done
 				clearInterval(imageAnimationTimer);								// Kill timer
-				imageAnimationTimer=null;										// Null it out
 				now=1;															// Force to end
 				}
 			x=(sx-0)+(ex-sx)*now;												// Get x pos
 			y=(sy-0)+(ey-sy)*now;												// Get y
 			z=(sz-0)+(ez-sz)*now;												// Get z
-			x=-x*ow*z+(ow/2);													// Pos x
-			y=-y*oh*z+(oh/2);													// Pos y
+			x=-x*pw*z+(pw/2);													// Pos x
+			y=-y*ph*z+(ph/2);													// Pos y
 			$("#"+id).css({	"-webkit-transform-origin":"0 0", 					// Move image
 				"-moz-transform-origin":"0 0",
 				"-ms-transform-origin":"0 0",
@@ -526,6 +522,7 @@
 	   		});
 			},24);																// Set timer ~40ps
 	}
+	
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TRANSCRIPT
@@ -1007,7 +1004,7 @@ trace(y)
 		if (what == "show") 													// Show
 			ShowContent(slidePane,"slideDiv", dontResize);						// Show content
 		else if (what == "last") { 												// Go to previous slide
-			var n=showVectors[slidePane].length-1;								// Last vector
+		var n=showVectors[slidePane].length-1;									// Last vector
 			for (i=n;i>0;i--) 													// For each vector
 				if (playerNow >= showVectors[slidePane][i].ps) {				// In this one
 					RunPlayer("scrub",showVectors[slidePane][i-1].ps);			// Go there
