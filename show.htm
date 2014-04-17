@@ -141,7 +141,7 @@
 	var playerHgt=0,playerWid=0;												// Source height/width
 	var notesText="";															// No notes
 	var isMobile=false;															// Flag for mobile devices
-
+	var curAssess=-1;															// Currently active assessment						
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INIT
@@ -427,11 +427,17 @@
 		for (i=n;i>=0;i--) {													// For each vector
 			o=showVectors[pane][i];												// Point at slide
 			if (playerNow >= o.ps) {											// In this one
+				if (o.n != undefined) {											// It times counter set
+					if (o.n <= 0)												// No more more views left
+						return;													// Quit
+					o.n=Math.max(o.n-1,0);										// Decrement count
+					}			
 				if (showCurSource[pane] != o.cs) {								// A new item
+					var src=o.cs;												// Point at source
 					clearInterval(imageAnimationTimer);							// Kill image timer
-					if (o.cs.match(/\.png|.gif|\.jpg|\.jpeg/i))	{				// An image
-						if (o.cs.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0])  		// Bases are different
-							$("#"+div).html("<img id='"+div+"IM' width='100%' src='"+o.cs+"'>"); 	// Load an image
+						if (src.match(/\.png|.gif|\.jpg|\.jpeg/i))	{			// An image
+						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0])  		// Bases are different
+							$("#"+div).html("<img id='"+div+"IM' width='100%' src='"+src+"'>"); 	// Load an image
 						else													// Same image base
 							AnimateContent(div+"IM",o);							// Animate image, if set
 						$("#"+div+"IM").on("load",function() {					// On image loaded
@@ -439,10 +445,15 @@
 							})
 						}
 					else{														// An iframe
-						if (o.cs.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
+						if (src.match(/assess=/)) {								// If an assessment
+							RunPlayer("pause");									// Pause player
+							src="assess.htm";									// Point at assess module
+							curAssess=src.split("=")[1];						// Get name
+							}
+						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
 							$("#"+div+"IF").remove();							// Remove any existing iframes
 							if ((o.d) && (o.c.match(/scroll/i))) 	extra="";	// Add scroll bars
-							$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+o.cs+"'></iframe>");	// Load in iframe
+							$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+src+"'></iframe>");	// Load in iframe
 							}
 						else													// Same image base
 							AnimateContent(div+"IF",o);							// Animate iframe, if set
@@ -767,6 +778,15 @@ trace(y)
 			RunPlayer("scrub",t,true);											// Go there, but inhibit scale/info
 			}
 		}
+	else if (e.data && e.data.match(/QmediaAssess/)) {							// An assessment message
+		var v=e.data.split("|");												// Get data
+		if (v[0] == "QmediaAssess=answer") 										// An answer
+			RunPlayer("play");													// Roll player
+		else if (v[0] == "QmediaAssess=ready") {								// Ready
+		// Send CSS
+		// Send assess info
+			}
+		}
 	}
 
 
@@ -1089,6 +1109,7 @@ trace(y)
 			if (rlc[i].p != undefined)			o.player=rlc[i].p;				// Add player command if set
 			if (rlc[i].m != undefined)			o.m=rlc[i].m;					// Add prompt if set
 			if (rlc[i].z != undefined)			o.z=rlc[i].z;					// Add pan/zoom if set
+			if (rlc[i].n != undefined)			o.n=rlc[i].n;					// Add times if set
 			showVectors[pane].push(o);											// Add to vector list
 			}
 	}

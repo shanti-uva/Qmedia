@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<link REL="SHORTCUT ICON" HREF="qlogo.ico">
+	<title>Qmedia assessment</title>
+ 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>	
+	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<script src="jquery.ui.touch-punch.min.js"></script>
+
+	<style type="text/css">
+		body { 			font-family:Verdana,Geneva,sans-serif; font-size:xx-small}
+		.rounded-corners { -moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;}
+		tr.odd { 		background-color:#e0e0e0; }
+		.ui-autocomplete { max-height: 300px; overflow-y: auto; }
+	
+ 		.unselectable { -moz-user-select: none;     -khtml-user-select: none;
+		   			 	-webkit-user-select: none;  -ms-user-select: none;   user-select: none;
+		   				}
+ 		.mainSty { 		font-family:Verdana,Geneva,sans-serif; font-size:12px; 
+						padding:0px; margin:0px;border-radius:18px;
+						}
+		.titleSty { 	font-size:18px; font-weight:bold; text-align:center;padding-bottom:8px;
+						color:#000099
+						} 
+		.textSty { 		padding-left:16px; padding-right:16px;
+						} 
+ 		.promptSty { 	padding-left:40px;padding-right:40px;padding-top:4px;padding-bottom:14px;
+						margin:8px;
+						font-weight:bold;
+						border-bottom:1px solid #ccc;
+						} 
+		.optionsLSty { 	padding-top:4px;display:inline-block;
+						} 
+		.optionsRSty { 	padding-top:4px;padding-left:24px;padding-right:16px;display:inline-block;
+						vertical-align:top;float:center;
+						} 
+ 		.nextbutSty {	border-radius:10px;color:#009900;
+ 						}
+ 	
+ 	</style>
+	<script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+	  ga('create', 'UA-49268159-1', 'qmediaplayer.com');
+	  ga('send', 'pageview');
+	</script>
+</head>
+<body>
+
+<div id="containerDiv" style="position:absolute;top:0px;left:0px;width:100%; height:100%;" class="mainSty">
+	<div id="titleDiv" class="titleSty"></div>
+	<div id="textDiv" class="textSty"></div>
+	<div id="promptDiv" class="promptSty"></div>
+	<div style="text-align:center" >
+		<div id="optionsLDiv" class="optionsLSty"></div>
+		<div id="optionsRDiv" class="optionsRSty"><br>Pic</div>
+	</div>
+</div>
+<script>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	var aData=null;															// Holds assessment data
+		
+	$(document).ready(function() {											// WHEN PAGE LOADED
+		if (window.addEventListener) 											// If supported this way
+			window.addEventListener("message",shivaEventHandler,false);			// Add event handler
+		else																	// Use other method
+			window.attachEvent("message",shivaEventHandler);					// Add handler
+		SendShivaMessage("QmediaAssess=ready","");								// Send ready message
+//////		
+		var e={}
+		e.data="ShivaAct=data|{";
+		e.data+='"title":"The world is unequal"';
+		e.data+=',"text":"President Clinton says that the world is profoundly unqual, with half the world\'s people living onless than two dollars a day."';
+		e.data+=',\"prompt":"What percentage of children under 5 years old live in these unequal conditions?"';
+		e.data+=',"pic":"//sitemaker.umich.edu/356.cho/files/hunger.jpg"';
+		e.data+=',"optionType":"checkbox","options":["10%","*30%","50%","*80%"]';
+		e.data+="}"
+		shivaEventHandler(e);													
+//////	
+	});
+		
+	function shivaEventHandler(e)											// ON SHIVA EVENT
+	{
+		var v=e.data.split("|");												// Split into parts													
+		if (v[0] == "ShivaAct=data") {											// If a data 
+			aData=$.parseJSON(v[1]);											// Convert to obg
+			Draw(aData,true);													// Draw page
+			}												
+	}	
+
+	function Draw(d, showRight)												// DRAW NODE
+	{
+		var i,lab,str="",col="#000";												
+		if (d.title) 	$("#titleDiv").html(d.title);							// Add title
+		if (d.text) 	$("#textDiv").html(d.text);								// Text body
+		if (d.prompt) 	$("#promptDiv").html(d.prompt);							// Prompt
+		if (d.options) {														// Add options
+			for (i=0;i<d.options.length;++i) {									// For each option
+				if (showRight) {												// If showing correct answers
+					if (d.options[i].match(/^\*/)) 	col="#00aa00";				// If a correct one
+					else							col="#aa0000";				// A wrong one
+					}
+				lab=d.options[i].replace(/^\*/,"");								// Remove "correct" dot
+				str+="<span style='color:"+col+"'>";							// Add color span
+			 	str+="<input type='"+d.optionType+"' name='opt' id='opt"+i+"' value='"+lab+"'>"+lab+"<br></span>";	// Add line
+				}
+			str+="<p><input id='nextBut' type='button' style='width:100%' value='Next' class='nextbutSty'></p>"; // Add button
+			$("#optionsLDiv").html(str);										// Set div
+			}
+		if (d.pic) $("#optionsRDiv").html("<img src='"+d.pic+"' height=110>");	// Add pic
+		
+		$("#nextBut").on("click",function() {									// NEXT BUTTON HANDLER
+			var i,correct=0,wrong=0,requiredCorrect=0;
+			var ans="*"+$("input[name='opt']:checked").val();					// Chosen answer
+			for (i=0;i<aData.options.length;++i) {								// For each option
+				if (d.options[i].match(/^\*/))	requiredCorrect++				// Add to required count
+				if (ans == aData.options[i])									// If correct
+					correct++;													// Add to count
+					}
+			if (aData.optionType == "radio")	ans=correct ? "true" : "false"	// If satisfies
+			else {
+				correct=0;														// Restart
+				for (i=0;i<aData.options.length;++i) {							// For each option
+					if ($("#opt"+i).prop("checked"))							// If checked
+						if (d.options[i].match(/^\*/)) 	correct++;				// Add to right count
+						else							wrong++;				// Add to wrong count
+					}
+				ans="false";													// Assume wrong
+				trace(correct,wrong)
+				if ((correct <= requiredCorrect) && wrong) ans="partial"			// If partial
+				else if (correct == requiredCorrect) ans="true";				// All correct
+				}
+			if (ans == "true")													// Correct
+				$("#titleDiv").html("<span style='color:#009900'>That's right!</span>");
+			else if (ans == "partial")											// Partial
+				$("#titleDiv").html("<span style='color:#ff9900'>Sorry, you only got some right..</span>")
+			else																// Wrong
+				$("#titleDiv").html("<span style='color:#990000'>Sorry, that's not the right answer</span>")
+			$("#containerDiv").delay(2000).show(0, function() {					// Wait, then
+					SendShivaMessage("QmediaAssess=answer",""+correct+"|"+ans);	// Send answer message
+					});
+			});
+	
+	}
+	
+	
+	function SendShivaMessage(cmd, msg) 									// SEND SHIVA MESSAGE 
+	{
+		var id=window.name;														// Get from name
+		if (!id) 																// Firefox/IE issue
+			id="posterFrame-"+(""+window.location.search.match(/&if=[0-9A-z]+/)).substr(4);	// Extract id
+		var str=cmd+"|"+id;														// Add src and window						
+		if (msg)																// If more to it
+			str+="|"+msg;														// Add it
+		if (window.parent)														// If has a parent
+			window.parent.postMessage(str,"*");									// Send message to parent wind
+		else																	// Local	
+			window.postMessage(str,"*");										// Send message to wind
+	}
+	
+	
+	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
+	{
+		if (p4 != undefined)
+			console.log(msg,p1,p2,p3,p4);
+		else if (p3 != undefined)
+			console.log(msg,p1,p2,p3);
+		else if (p2 != undefined)
+			console.log(msg,p1,p2);
+		else if (p1 != undefined)
+			console.log(msg,p1);
+		else
+			console.log(msg);
+	}
+	
+	
+</script>
+</body></html>
