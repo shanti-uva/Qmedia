@@ -8,7 +8,8 @@
 	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 	<script src="jquery.ui.touch-punch.min.js"></script>
-
+	<script type="text/javascript" src="//www.viseyes.org/shiva/shivalib-min.js"></script>
+ 
 	<style type="text/css">
 		body { 			font-family:Verdana,Geneva,sans-serif; font-size:xx-small; }
 		.rounded-corners { -moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;}
@@ -142,6 +143,7 @@
 	var notesText="";															// No notes
 	var isMobile=false;															// Flag for mobile devices
 	var curAssess=-1;															// Currently active assessment						
+	var shivaLib=null;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INIT
@@ -154,7 +156,7 @@
 			window.addEventListener("message",shivaEventHandler,false);			// Add event handler
 		else																	// Use other method
 			window.attachEvent("message",shivaEventHandler);					// Add handler
-
+		
 		isMobile=navigator.userAgent.match(/(ipad|iphone|ipod|android)/i) ? true : false; // Set mobile flag
 		var url=window.location.search.substring(1);							// Get query string
 		if ((url) && (!url.match(/\./)))										// No file extension
@@ -259,6 +261,11 @@
 
 			});																	// End settings
 		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
+
+//		shivaLib=new SHIVA_Show("slideDiv");								// Alloc SHIVA_Show
+//		shivaLib.Draw({ shivaGroup:"Draw", height:"0", width:"0" } );		// Draw map
+//		shivaLib.Annotate(1008);	
+	
 	});
 
 
@@ -790,7 +797,7 @@ trace(y)
 			}
 		}
 	}
-/
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ACTIONS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
