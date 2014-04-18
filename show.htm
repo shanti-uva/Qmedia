@@ -435,7 +435,7 @@
 				if (showCurSource[pane] != o.cs) {								// A new item
 					var src=o.cs;												// Point at source
 					clearInterval(imageAnimationTimer);							// Kill image timer
-						if (src.match(/\.png|.gif|\.jpg|\.jpeg/i))	{			// An image
+					if (src.match(/\.png|.gif|\.jpg|\.jpeg/i))	{			// An image
 						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0])  		// Bases are different
 							$("#"+div).html("<img id='"+div+"IM' width='100%' src='"+src+"'>"); 	// Load an image
 						else													// Same image base
@@ -457,6 +457,7 @@
 							}
 						else													// Same image base
 							AnimateContent(div+"IF",o);							// Animate iframe, if set
+						
 						$("#"+div+"IF").on("load",function() {					// On image loaded
 							AnimateContent(this.id,o);							// Animate image, if set
 							})
@@ -780,7 +781,8 @@ trace(y)
 		}
 	else if (e.data && e.data.match(/QmediaAssess/)) {							// An assessment message
 		var v=e.data.split("|");												// Get data
-		if (v[0] == "QmediaAssess=answer") 										// An answer
+		trace(e.data)
+		if (v[0] == "QmediaAssess=done") 										// Done with assessment
 			RunPlayer("play");													// Roll player
 		else if (v[0] == "QmediaAssess=ready") {								// Ready
 		// Send CSS
