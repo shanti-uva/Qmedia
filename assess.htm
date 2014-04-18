@@ -67,6 +67,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	var aData=null;															// Holds assessment data
+	var curPage=0;															// Current page of assessment
 		
 	$(document).ready(function() {											// WHEN PAGE LOADED
 		if (window.addEventListener) 											// If supported this way
@@ -76,13 +77,13 @@
 		SendShivaMessage("QmediaAssess=ready","");								// Send ready message
 //////		
 		var e={}
-		e.data="ShivaAct=data|{";
+		e.data='ShivaAct=data|{"pages":[{';
 		e.data+='"title":"The world is unequal"';
 		e.data+=',"text":"President Clinton says that the world is profoundly unqual, with half the world\'s people living onless than two dollars a day."';
 		e.data+=',\"prompt":"What percentage of children under 5 years old live in these unequal conditions?"';
 		e.data+=',"pic":"//sitemaker.umich.edu/356.cho/files/hunger.jpg"';
-		e.data+=',"optionType":"checkbox","options":["10%","*30%","50%","*80%"]';
-		e.data+="}"
+		e.data+=',"optionType":"radio","options":["10%","30%","50%","*80%"]';
+		e.data+="}]}"
 		shivaEventHandler(e);													
 //////	
 	});
@@ -91,14 +92,16 @@
 	{
 		var v=e.data.split("|");												// Split into parts													
 		if (v[0] == "ShivaAct=data") {											// If a data 
-			aData=$.parseJSON(v[1]);											// Convert to obg
-			Draw(aData,true);													// Draw page
+			aData=$.parseJSON(v[1]);											// Convert to obj
+			Draw(0);															// Draw page
 			}												
 	}	
 
-	function Draw(d, showRight)												// DRAW NODE
+	function Draw(num, showRight)												// DRAW NODE
 	{
 		var i,lab,str="",col="#000";												
+		curPage=num;															// Set curpage
+		var d=aData.pages[num];													// Point at page
 		if (d.title) 	$("#titleDiv").html(d.title);							// Add title
 		if (d.text) 	$("#textDiv").html(d.text);								// Text body
 		if (d.prompt) 	$("#promptDiv").html(d.prompt);							// Prompt
@@ -120,31 +123,34 @@
 		$("#nextBut").on("click",function() {									// NEXT BUTTON HANDLER
 			var i,correct=0,wrong=0,requiredCorrect=0;
 			var ans="*"+$("input[name='opt']:checked").val();					// Chosen answer
-			for (i=0;i<aData.options.length;++i) {								// For each option
+			for (i=0;i<d.options.length;++i) {									// For each option
 				if (d.options[i].match(/^\*/))	requiredCorrect++				// Add to required count
-				if (ans == aData.options[i])									// If correct
+				if (ans == d.options[i])										// If correct
 					correct++;													// Add to count
 					}
-			if (aData.optionType == "radio")	ans=correct ? "true" : "false"	// If satisfies
+			if (d.optionType == "radio")	ans=correct ? "true" : "false"		// If satisfies
 			else {
 				correct=0;														// Restart
-				for (i=0;i<aData.options.length;++i) {							// For each option
+				for (i=0;i<d.options.length;++i) {								// For each option
 					if ($("#opt"+i).prop("checked"))							// If checked
 						if (d.options[i].match(/^\*/)) 	correct++;				// Add to right count
 						else							wrong++;				// Add to wrong count
 					}
 				ans="false";													// Assume wrong
-				trace(correct,wrong)
-				if ((correct <= requiredCorrect) && wrong) ans="partial"			// If partial
-				else if (correct == requiredCorrect) ans="true";				// All correct
-				}
+				if (correct == requiredCorrect  && !wrong) 		ans="true";		// All correct
+				else if (correct < requiredCorrect && !wrong) 	ans="partial"	// If partial
+					}
 			if (ans == "true")													// Correct
 				$("#titleDiv").html("<span style='color:#009900'>That's right!</span>");
 			else if (ans == "partial")											// Partial
 				$("#titleDiv").html("<span style='color:#ff9900'>Sorry, you only got some right..</span>")
 			else																// Wrong
 				$("#titleDiv").html("<span style='color:#990000'>Sorry, that's not the right answer</span>")
-			$("#containerDiv").delay(2000).show(0, function() {					// Wait, then
+			$("#containerDiv").delay(1000).show(0, function() {					// Wait, then
+					if (d.title)												// If a title										
+						$("#titleDiv").html(d.title);							// Restore it
+					else														// Not title
+						$("#titleDiv").html("");								// Remove messge
 					SendShivaMessage("QmediaAssess=answer",""+correct+"|"+ans);	// Send answer message
 					});
 			});
