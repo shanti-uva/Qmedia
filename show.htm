@@ -262,10 +262,6 @@
 			});																	// End settings
 		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
 
-//		shivaLib=new SHIVA_Show("slideDiv");								// Alloc SHIVA_Show
-//		shivaLib.Draw({ shivaGroup:"Draw", height:"0", width:"0" } );		// Draw map
-//		shivaLib.Annotate(1008);	
-	
 	});
 
 
@@ -456,6 +452,11 @@
 							RunPlayer("pause");									// Pause player
 							src="assess.htm";									// Point at assess module
 							curAssess=src.split("=")[1];						// Get name
+		shivaLib=new SHIVA_Show("infoDiv");								// Alloc SHIVA_Show
+		shivaLib.Draw({ shivaGroup:"Draw", height:"400", width:"500" } );		// Draw map
+		shivaLib.Annotate(18,414);
+		trace($("#infoDiv").css("left"));
+return;
 							}
 						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
 							$("#"+div+"IF").remove();							// Remove any existing iframes
