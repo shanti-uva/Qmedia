@@ -350,11 +350,7 @@
 		$("#playerDiv").css({ width:w+"px",top:pt+"px"});						// Set player pos
 		$("#overlayDiv").css({ width:w+"px",top:pt+"px",height:$("#playerDiv").height()+"px"});	// Set overlay
 		$("#slideDiv").css({ left:(wid-w2+8)+"px",width:(w2)+"px",top:pt+"px"}); // Set slider pos/size
-					$("#slideDiv").height("auto")
-
-		var h=Math.max(w*sd.playerAspect,$("#slideDiv").height());		// Player height
-		$("#slideDiv").height(h)
-
+		var h=Math.max(w*sd.playerAspect,$("#slideDiv").height());				// Player height
 		$("#playerSiz").css({ left:(w+8)+"px",height:h+"px",top:pt+"px"});		// Set sizer pos
 		h+=pt;																	// Point at top of control bar
 		var ct=h+$("#controlDiv").height()+14;									// Contents top
@@ -803,15 +799,15 @@ trace(y)
 		trace(e.data)
 		if (v[0] == "QmediaAssess=done") 										// Done with assessment
 			RunPlayer("play");													// Roll player
-		if (v[0] == "QmediaAssess=draw") { 										// Draw assessment
+		else if (v[0] == "QmediaAssess=draw") { 								// Draw assessment
 			if (v[2] == "start") {												// Start
 				if (v[3]) {														// If a size spec'd
 					var t=sd.playerSlideRatio;									// Store old ratio
 					sd.playerSlideRatio=v[3];									// Set ratio
 					ResizePanes();												// Resize
 					sd.playerSlideRatio=t;										// Restore old ratio
-					$("#annotate").trigger("click");							// Open drawing palette
 					}				
+				$("#annotate").trigger("click");								// Open drawing palette
 				}			
 			else if (v[2] == "done") {											// Done
 				shivaLib.dr.SetTool(-1);										// Close palette
