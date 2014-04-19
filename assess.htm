@@ -95,7 +95,7 @@
 		e.data+=',"whyPartial":"Hint: Only two of them in this list were mentioned."';
 		e.data+=',"whyWrong":"Hint: Think of tropical diseases"';
 		e.data+=',"text":"President Clinton says that mentioned a number of diseases affecting children."';
-		e.data+=',\"prompt":"What percentage of children under 5 years old live in these unequal conditions?"';
+		e.data+=',\"prompt":"What are the diseases he taslks about?"';
 		e.data+=',"pic":"//www.bergenhealth.org/communicable/images/Legionnaires-Disease.jpg"';
 		e.data+=',"optionType":"checkbox","options":["*TB","*Malaria","Tetnus","Lyme\'s disease"]}';
 
@@ -105,11 +105,18 @@
 		e.data+=',\"prompt":"Fill in the blanks with the amounts he mentioned"';
 		e.data+=',"optionType":"cloze"';
 		e.data+=',"options":"&quot;It is, first of all, profoundly unequal: @(one half;half;1/2;a half) the world\'s people still living on less than @(two;2) dollars a day; a @(billion) people with no access to clean water&quot;"}';
+
+		e.data+=',{"title":"Draw a concept map"';
+		e.data+=',"text":"President Clinton says the world is interdependent, but insufficient. What does he mean by that?"';
+		e.data+=',\"prompt":"Draw a concept map over the video that illustrates that idea."';
+		e.data+=',"pic":"//upload.wikimedia.org/wikipedia/en/0/08/Integrative_learning_concept_map.gif"';
+		e.data+=',"optionType":"draw"}';
 		
 		e.data+=',{"title":"What do you think?"';
 		e.data+=',"text":"President Clinton says the world is interdependent, but insufficient."';
 		e.data+=',\"prompt":"What does he mean by that?"';
 		e.data+=',"optionType":"write"}';
+
 	
 		e.data+="]}"
 		shivaEventHandler(e);													
@@ -130,7 +137,6 @@
 		var i,lab,str="",col="#000";												
 		if (num >= aData.pages.length) {										// Past last page
 			SendShivaMessage("QmediaAssess=done");								// Send done message
-			trace("done")
 			return;																// Quit
 			}
 		if (curPage != num)														// If a new page
@@ -163,21 +169,32 @@
 			str+="&nbsp;&nbsp;<textarea id='opt' rows=3 placeholder='Write your answer here...' ";		// Text 
 			str+="style='width:"+$("#optionsLDiv").parent().width()*.8+"px'></textarea><br></span>";	// area
 			}	
+
+		if (d.optionType == "draw")	{											// Draw option
+			SendShivaMessage("QmediaAssess=draw","start|.75");					// Send start message
+			if (d.pic) str+="<img src='"+d.pic+"' width=100>";
+			}	
 		str+="<p><input id='nextBut' type='button' value='Next' class='nextbutSty'>"; 	// Add button
 		str+="<input id='skipBut' type='button' value='Skip' class='nextbutSty'></p>"; 	// Add button
 		$("#optionsLDiv").html(str);											// Set div
 	
 		i=$("#optionsLDiv").height()-16;										// Height of options side
-		if (d.pic) $("#optionsRDiv").html("<img src='"+d.pic+"' height="+i+">");// Add pic
-		else	   $("#optionsRDiv").html("");									// Erase it
+		if (d.optionType != "draw")												// Not the draw option
+			if (d.pic) $("#optionsRDiv").html("<img src='"+d.pic+"' height="+i+">");// Add pic
+			else	   $("#optionsRDiv").html("");									// Erase it
 		
 		$("#nextBut").on("click",function() {									// NEXT BUTTON HANDLER
 			++numTries;															// Increment tries
-			if (d.optionType == "write") {										// Write style
+			if (d.optionType == "write") {										// Draw style
 				ans=$("#opt").val();											// Get answer
 				SendShivaMessage("QmediaAssess=answer",curPage+"|"+ans);		// Send answer message
 				if (!d.numTries || ans)											// If requiring an answer
 					Draw(curPage+1);											// Move on
+				return;															// Quit
+				}	
+			else if (d.optionType == "draw") {									// Write style
+				SendShivaMessage("QmediaAssess=draw","done");					// Send done message
+				Draw(curPage+1);												// Move on
 				return;															// Quit
 				}	
 			var i,correct=0,wrong=0,requiredCorrect=0;
@@ -256,6 +273,8 @@
 			});																	// End nextbut
 			
 		$("#skipBut").on("click",function() {									// SKIP BUTTON HANDLER
+			if (d.optionType == "draw") 										// Draw style
+				SendShivaMessage("QmediaAssess=draw","done");					// Send done message
 			SendShivaMessage("QmediaAssess=skip",curPage);						// Send skip message
 			Draw(curPage+1);													// Move on
 			});

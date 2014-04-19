@@ -11,7 +11,7 @@
 	<script type="text/javascript" src="//www.viseyes.org/shiva/shivalib-min.js"></script>
  
 	<style type="text/css">
-		body { 			font-family:Verdana,Geneva,sans-serif; font-size:xx-small; }
+		body { 			font-family:Verdana,Geneva,sans-serif; font-size:9px; }
 		.rounded-corners { -moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;}
 		tr.odd { 		background-color:#e0e0e0; }
 		.ui-autocomplete { max-height: 300px; overflow-y: auto; }
@@ -24,10 +24,10 @@
 						-moz-border-radius:4px;-webkit-border-radius:4px;-khtml-border-radius:4px;border-radius:4px;
 						background-color:#ccc;
 					  	}
-		.contents { 	font-family:Verdana,Geneva,sans-serif; font-size:small; 
+		.contents { 	font-family:Verdana,Geneva,sans-serif; font-size:13px; 
 						padding:0px; margin:0px;padding-right:16px;background-color:#fff;border-top:8px solid #fff;
 						} 
-		.trans { 		font-family:Verdana,Geneva,sans-serif; font-size:small;
+		.trans { 		font-family:Verdana,Geneva,sans-serif; font-size:13px;
 						margin:0px; padding:0px;padding-right:8px;padding-left:16px;
 						overflow:hidden;background-color:#fff;border-top:8px solid #fff;
 						cursor:pointer;
@@ -38,17 +38,17 @@
 						-moz-border-radius:6px;-webkit-border-radius:6px;-khtml-border-radius:6px;border-radius:6px;
 						background-color:#ccc;
 						} 
-		.info { 		font-family:Verdana,Geneva,sans-serif; font-size:small;
+		.info { 		font-family:Verdana,Geneva,sans-serif; font-size:13px;
 						margin:0px; padding:0px;background-color:#fff;border-top:8px solid #fff;
 						overflow:hidden;
 						}
-		.labels { 		font-family:Verdana,Geneva,sans-serif; font-size:medium;
+		.labels { 		font-family:Verdana,Geneva,sans-serif; font-size:16px;
 						color:#999;font-weight:bold;background-color:#fff;
 						}
-		.timeDisp { 	font-family:Verdana,Geneva,sans-serif; font-size:xx-small;
+		.timeDisp { 	font-family:Verdana,Geneva,sans-serif; font-size:9px;
 						color:#666;width:100px;display:inline-block;text-align:center;
 						}
-		.prompt { 		font-family:Verdana,Geneva,sans-serif; font-size:x-small;
+		.prompt { 		font-family:Verdana,Geneva,sans-serif; font-size:10px;
 						color:#000;width:100%;text-align:right;padding-top:4px;background-color:#fff;
 						}
 
@@ -91,7 +91,7 @@
 	<div id="transDiv" style="position:absolute;opacity:inherit" class="trans">
 		<span id="transLab" class="labels"></span>
 		<div id="transSearchDiv" style='position:absolute;top:0px;white-space:nowrap;opacity:inherit'> 
-			<input style='width:100px;font-size:small;border:1px solid #ddd' id='transSearch'>
+			<input style='width:100px;font-size:13px;border:1px solid #ddd' id='transSearch'>
   			<img src="images/settingsbut.gif" id="transSettings" title="Transcript menu" style="vertical-align:-2px;cursor:pointer">
 	  	</div>
   		<div id="transcriptText" style="height:90%;overflow:auto;margin-top:16px;padding-right:8px;opacity:inherit"></div>
@@ -99,7 +99,8 @@
 	<div id="infoDiv" style="position:absolute;opacity:inherit" class="info">
 		<span id="infoLab" class="labels"></span>
 		<div id="infoMapDiv" style='position:absolute;top:0px;white-space:nowrap;opacity:inherit;display:none'> 
- 			<img src="images/mapbut.gif" id="infomap" title="Show content map" style="cursor:pointer">
+ 			<img src="images/mapbut.gif" id="infomap" title="Show content map" style="cursor:pointer"> &nbsp;
+ 			<img src="images/annotate.gif" id="annotate" width="12" title="Annotate" style="cursor:pointer">
 	  	</div>
 		<div id="informationText" style="height:100%;overflow:hidden;margin-top:16px;opacity:inherit"></div>
 	</div>
@@ -218,7 +219,7 @@
 			str+="<tr height='18'><td>Speed</td>";
 			str+="<td><div style='display:inline-block;width:100px' id='pSpeed'></div></td></tr>"
 			str+="<tr height='18'><td>Quality</td><td>";
-			str+=MakeSelect("pQuality",false,["Default","Good","Better","Best"],sd.playerQuality,"style='font-size:x-small'")+"</td></tr>";
+			str+=MakeSelect("pQuality",false,["Default","Good","Better","Best"],sd.playerQuality,"style='font-size:10px'")+"</td></tr>";
 			str+="<tr><td>Take notes</td><td><input id='pNotes' type='checkbox'></td></tr>";
 			str+="<tr><td>Zen mode</td><td><input id='pZen' type='checkbox'></td></tr>";
 			str+="</table>";
@@ -349,7 +350,11 @@
 		$("#playerDiv").css({ width:w+"px",top:pt+"px"});						// Set player pos
 		$("#overlayDiv").css({ width:w+"px",top:pt+"px",height:$("#playerDiv").height()+"px"});	// Set overlay
 		$("#slideDiv").css({ left:(wid-w2+8)+"px",width:(w2)+"px",top:pt+"px"}); // Set slider pos/size
+					$("#slideDiv").height("auto")
+
 		var h=Math.max(w*sd.playerAspect,$("#slideDiv").height());		// Player height
+		$("#slideDiv").height(h)
+
 		$("#playerSiz").css({ left:(w+8)+"px",height:h+"px",top:pt+"px"});		// Set sizer pos
 		h+=pt;																	// Point at top of control bar
 		var ct=h+$("#controlDiv").height()+14;									// Contents top
@@ -375,7 +380,7 @@
 		$("#transHgt").css({ top:ct+sd.transHgt+"px"});							// Set transcript height
 		$("#transSearchDiv").css("left",$("#transDiv").width()-104)+"px";		// Search div width
 		if (sd.infoMapSource) 													// If an infomap
-			$("#infoMapDiv").css({ left:$("#infoDiv").width()-34+"px",display:"initial"});	// Set pos and show
+			$("#infoMapDiv").css({ left:$("#infoDiv").width()-62+"px",display:"initial"});	// Set pos and show
 		RunPlayer("resize");													// Resize player
 		RunSlide("resize");														// Resize slides
 		RunInfo("resize");														// Resize info
@@ -452,12 +457,7 @@
 							RunPlayer("pause");									// Pause player
 							src="assess.htm";									// Point at assess module
 							curAssess=src.split("=")[1];						// Get name
-/*
-		shivaLib=new SHIVA_Show("infoDiv");								// Alloc SHIVA_Show
-		shivaLib.Draw({ shivaGroup:"Draw", height:"400", width:"500" } );		// Draw map
-		shivaLib.Annotate(18,414);
-turn;
-*/							}
+							}
 						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
 							$("#"+div+"IF").remove();							// Remove any existing iframes
 							if ((o.d) && (o.c.match(/scroll/i))) 	extra="";	// Add scroll bars
@@ -683,7 +683,7 @@ trace(y)
 			var w=190;
 			var x=$("#transSearchDiv").css("left").replace(/px/,"")-0+80;
 			var str="<table><tr height='18'><td>Language</td><td>";
-			str+=MakeSelect("tLang",false,sd.transLangs.split("|"),sd.transLanguage,"style='font-size:x-small'")+"</td></tr>";
+			str+=MakeSelect("tLang",false,sd.transLangs.split("|"),sd.transLanguage,"style='font-size:10px'")+"</td></tr>";
 			str+="</table>";
 			$("body").append("<div id='setpopup' style='display:none;position:absolute;width:"+w+"px;height:auto;background-color:#f8f8f8;left:"+x+"px;top:"+y+"px;border:1px solid #ccc;padding:8px' class='rousnded-corners'>"+str+"</div>");
 			var y=$("#controlDiv").css("top").replace(/px/,"")-0+24+$("#controlDiv").height();			
@@ -697,6 +697,15 @@ trace(y)
 
 			});																	// End transcript settings
 	
+		$("#annotate").on("click", function(e) {								// ANNOTATE HANDLER
+			if (!shivaLib)														// If not alloced yet
+				shivaLib=new SHIVA_Show("overlayDiv");							// Alloc SHIVA_Show
+			var t=$("#contentDiv").css("top").replace(/px/,"")-0+40;			// In contents
+			shivaLib.DrawOverlay();												// Make sure contexts are set up
+			shivaLib.Annotate(18,t);											// Show it
+			});
+
+
 		$("#infomap").on("click", function(e) {									// INFOMAP HANDLER
 			if ($("#infoMapIF").length) {										// If already there
 				$("#infoMapIF").remove();										// Remove any existing iframes
@@ -781,7 +790,9 @@ trace(y)
 		}	
 	
 	 else if (e.data && e.data.match(/Shiva/)) {								// A SHIVA message
-	 	if ($("#infoMapIF").length && e.data.match(/click/)) {					// If infomap is open and clicked on
+	 	if (e.data.match(/ShivaDraw=done/))										// If annotation palette closed
+			$("#shivaDrawDiv").html("");										// Clear drawings
+	 	else if ($("#infoMapIF").length && e.data.match(/click/)) {				// If infomap is open and clicked on
 			var t=e.data.split("|")[3];											// Get time
 			t=Math.min(t/10*sd.playerStop);										// Calc time
 			RunPlayer("scrub",t,true);											// Go there, but inhibit scale/info
@@ -792,6 +803,22 @@ trace(y)
 		trace(e.data)
 		if (v[0] == "QmediaAssess=done") 										// Done with assessment
 			RunPlayer("play");													// Roll player
+		if (v[0] == "QmediaAssess=draw") { 										// Draw assessment
+			if (v[2] == "start") {												// Start
+				if (v[3]) {														// If a size spec'd
+					var t=sd.playerSlideRatio;									// Store old ratio
+					sd.playerSlideRatio=v[3];									// Set ratio
+					ResizePanes();												// Resize
+					sd.playerSlideRatio=t;										// Restore old ratio
+					$("#annotate").trigger("click");							// Open drawing palette
+					}				
+				}			
+			else if (v[2] == "done") {											// Done
+				shivaLib.dr.SetTool(-1);										// Close palette
+				$("#shivaDrawDiv").html("");									// Clear drawings
+				ResizePanes();													// Resize
+				}			
+			}
 		else if (v[0] == "QmediaAssess=ready") {								// Ready
 		// Send CSS
 		// Send assess info
@@ -1209,14 +1236,14 @@ trace(y)
 		if (!playerNotes) 														// If not visible
 			return;																// Turn it off
 		var ts="color:#009900;cursor:pointer";									// Timecode style
-		var ns="font-size:small;border:none;background:none;width:100%;padding:0px;margin:0px"; // Note style	
+		var ns="font-size:13px;border:none;background:none;width:100%;padding:0px;margin:0px"; // Note style	
 		str="<div class='rounded-corners' id='notesDiv' style='position:absolute;padding:8px;overflow-y:auto;overflow-x:hidden;";	// Div
 		str+="width:"+sd.width/2+"px;height:"+($("#infoDiv").height()-16)+"px;";	// Set sizing
 		str+="background-color:#f8f8f8;border:1px solid #ccc;box-shadow:4px 4px 8px #ccc;";	// Set coloring
 		str+="top:"+$("#infoDiv").offset().top+"px;left:"+sd.width/4+"px;'>";	// Set position
 		str+="<table id='notesTbl' width='100%'>";								// Table
-		str+="<div style='text-align:center;font-size:medium;'>Personal notes</div><hr>";
-		str+="<div style='position:absolute;top:-2px;left:0px;width:100%;text-align:right;color:#999'><br/>Find: <input type='input' id='notesSearch' style='height:12px;width:60px;font-size:x-small;padding:0px;margin:0px;border:1px solid #ccc'/>"
+		str+="<div style='text-align:center;font-size:16px;'>Personal notes</div><hr>";
+		str+="<div style='position:absolute;top:-2px;left:0px;width:100%;text-align:right;color:#999'><br/>Find: <input type='input' id='notesSearch' style='height:12px;width:60px;font-size:10px;padding:0px;margin:0px;border:1px solid #ccc'/>"
 		str+=" <img src='images/closedot.gif' id='nCloser' title='Close notes' style='vertical-align:bottom'>&nbsp; &nbsp;</div>";
 		str+="<tr><td width='38' id='ntc-0' style='"+ts+"'>Type:</td><td><input id='ntx-0' type='input' style='"+ns+"'/></td></tr>";
 		str+="</table>";														// End
@@ -1284,7 +1311,7 @@ trace(y)
 				cap=true;														// Let's cap line
 			if ((e.keyCode == 13) || (cap)) {									// Enter on capping a line
 				var ts="color:#009900;cursor:pointer";							// Timecode style
-				var ns="font-size:small;border:none;background:none;width:100%;padding:0px;margin:0px";	// Note style	
+				var ns="font-size:13px;border:none;background:none;width:100%;padding:0px;margin:0px";	// Note style	
 				var id=$("#notesTbl tr").length;								// If of next row
 				var str="<tr><td id='ntc-"+id+"' style='"+ts+"'>Type:</td><td><input id='ntx-"+id+"' type='input' style='"+ns+"'/></td></tr>";
 				$("#notesTbl").append(str);										// Add row
