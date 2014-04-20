@@ -795,9 +795,12 @@ trace(y)
 		}
 	else if (e.data && e.data.match(/QmediaAssess/)) {							// An assessment message
 		var v=e.data.split("|");												// Get data
-		trace(e.data)
 		if (v[0] == "QmediaAssess=done") 										// Done with assessment
 			RunPlayer("play");													// Roll player
+		else if (v[0] == "QmediaAssess=ready") {								// Ready
+			var str="ShivaAct=data|"+JSON.stringify(sd.assessments[0]);			// Get data
+			e.source.postMessage(str,"*");										// Send data to wind
+			}
 		else if (v[0] == "QmediaAssess=draw") { 								// Draw assessment
 			if (v[2] == "start") {												// Start
 				var l=18,t=90;
@@ -832,10 +835,6 @@ trace(y)
 				showCurSource[infoPane]="";										// Force redraw
 				ShowContent(infoPane,"informationText");						// Show content
 				}			
-			}
-		else if (v[0] == "QmediaAssess=ready") {								// Ready
-			var str="ShivaAct=data|"+JSON.stringify(sd.assessments[0]);			// Get data
-			e.source.postMessage(str,"*");										// Send data to wind
 			}
 		}
 	}
