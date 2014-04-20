@@ -694,8 +694,7 @@ trace(y)
 			});																	// End transcript settings
 	
 		$("#annotate").on("click", function(e) {								// ANNOTATE HANDLER
-			if (!shivaLib)														// If not alloced yet
-				shivaLib=new SHIVA_Show("overlayDiv");							// Alloc SHIVA_Show
+			shivaLib=new SHIVA_Show("overlayDiv");								// Alloc SHIVA_Show
 			var t=$("#contentDiv").css("top").replace(/px/,"")-0+40;			// In contents
 			shivaLib.DrawOverlay();												// Make sure contexts are set up
 			shivaLib.Annotate(18,t);											// Show it
@@ -801,23 +800,42 @@ trace(y)
 			RunPlayer("play");													// Roll player
 		else if (v[0] == "QmediaAssess=draw") { 								// Draw assessment
 			if (v[2] == "start") {												// Start
-				if (v[3]) {														// If a size spec'd
-					var t=sd.playerSlideRatio;									// Store old ratio
-					sd.playerSlideRatio=v[3];									// Set ratio
+				var l=18,t=90;
+				if (v[3] == "bottom") {											// If in infodiv
+					l=$("#playerDiv").width()/2-90;								// Center 
+					sd.transInfoRatio=0;										// Full size
 					ResizePanes();												// Resize
-					sd.playerSlideRatio=t;										// Restore old ratio
+					sd.transInfoRatio=.5;										// Original size
+					shivaLib=new SHIVA_Show("infoDiv");							// Alloc SHIVA_Show in infodiv
+					$("#informationText").html("");								// Clear div
+					$("#infoLab").html("Draw here:");							// Set label
+					if (v[4] != undefined) 										// If a param
+						if (v[4].match(/\/\//))									// If an image defined 
+							$("#informationText").html("<img width='100%' src='"+v[4]+"'>"); // Load image
+						else													// Must be css
+							$("#informationText").css({"background-color":v[4],border:"1px solid #999"});	// Set style
 					}				
-				$("#annotate").trigger("click");								// Open drawing palette
+				else{															// On top of player
+					t=$("#contentDiv").css("top").replace(/px/,"")-0+40			// In content area
+					shivaLib=new SHIVA_Show("overlayDiv");						// Alloc SHIVA_Show in player
+					}
+				shivaLib.DrawOverlay();											// Make sure contexts are set up
+				shivaLib.Annotate(l,t);											// Show it
 				}			
 			else if (v[2] == "done") {											// Done
 				shivaLib.dr.SetTool(-1);										// Close palette
 				$("#shivaDrawDiv").html("");									// Clear drawings
+				$("#informationText").html("");									// Clear div
+				$("#informationText").css({"background-color":"#fff",border:"none"});	// Clear style
+				$("#infoLab").html(sd.infoLab);									// Set label
 				ResizePanes();													// Resize
+				showCurSource[infoPane]="";										// Force redraw
+				ShowContent(infoPane,"informationText");						// Show content
 				}			
 			}
 		else if (v[0] == "QmediaAssess=ready") {								// Ready
-		// Send CSS
-		// Send assess info
+			var str="ShivaAct=data|"+JSON.stringify(sd.assessments[0]);			// Get data
+			e.source.postMessage(str,"*");										// Send data to wind
 			}
 		}
 	}
