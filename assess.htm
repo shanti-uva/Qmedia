@@ -69,6 +69,7 @@
 	var aData=null;																// Holds assessment data
 	var curPage=0;																// Current page of assessment
 	var numTries=0;																// Number of tries at page
+	var curTime;																// Current player time
 		
 	$(document).ready(function() {											// WHEN PAGE LOADED
 		if (window.addEventListener) 											// If supported this way
@@ -76,22 +77,21 @@
 		else																	// Use other method
 			window.attachEvent("message",shivaEventHandler);					// Add handler
 		SendShivaMessage("QmediaAssess=ready","");								// Send ready message
-
-
+		setInterval(function(){	SendShivaMessage("QmediaAssess=time","")},500);	// Get player time						
+	
 		/////////////////////////////////////////////////////////////////	
 		var e={}
 		e.data='ShivaAct=data|{"showFeedback":"true"';
 		e.data+=',"pages":[';
-		e.data+='{"title":"The world is unequal"';
-		e.data+=',"numTries":1';
-		e.data+=',"whyRight":""';
-		e.data+=',"whyWrong":"Hint: It seemed like a large percentage"';
-		e.data+=',"text":"President Clinton says that the world is profoundly unqual, with half the world\'s people living onless than two dollars a day."';
-		e.data+=',\"prompt":"What percentage of children under 5 years old live in these unequal conditions?"';
-		e.data+=',"pic":"//sitemaker.umich.edu/356.cho/files/hunger.jpg"';
-		e.data+=',"optionType":"radio","options":["10%","30%","50%","*80%"]}';
+		e.data+='{"title":"Find in time"';
+		e.data+=',"numTries":3';
+		e.data+=',"whyRight":"That\'s one of them, but he does this a lot."';
+		e.data+=',"whyWrong":"Not one I chose, try: 2:26"';
+		e.data+=',"text":"President Clinton uses his hands ro gesture and reinforce his talk."';
+		e.data+=',\"prompt":"Show places where gestures"';
+		e.data+=',"optionType":"findtime","options":["146-147","185"]}';
 		e.data+="]}"
-//		shivaEventHandler(e);													
+		shivaEventHandler(e);													
 		/////////////////////////////////////////////////////////////////	
 
 
@@ -104,6 +104,8 @@
 			aData=$.parseJSON(v[1]);											// Convert to obj
 			Draw(0,false);														// Draw page
 			}												
+		else if (v[0] == "ShivaAct=time") 										// If time
+			curTime=v[1];														// Set curtime 
 	}	
 
 	function Draw(num, showRight, answer)									// DRAW NODE
@@ -198,7 +200,18 @@
 					}
 				ans="wrong";													// Assume wrong
 				if (correct == i)				ans="right";					// Correct				
-				if (correct && correct < i)	ans="partial"						// Partial
+				if (correct && correct < i)		ans="partial"					// Partial
+				}
+			else if (d.optionType == "findtime") {								// Find time
+				var s,e;
+				ans="wrong";													// Assume wrong
+				for (i=0;i<d.options.length;++i) {								// For each option
+					s=d.options[i].split("-")[0];								// Start
+					e=d.options[i].split("-")[1];								// End
+					if (!e)	e=s;												// No end
+					if ((curTime >=s) && (curTime <=e))							// In span
+						ans="right";											// Right
+					}
 				}
 			else{
 				correct=0;														// Restart

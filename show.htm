@@ -454,6 +454,11 @@
 							RunPlayer("pause");									// Pause player
 							curAssess=i;										// Get name
 							src="assess.htm";									// Point at assess module
+							if (o.r)											// If a ratio set
+								sd.playerSlideRatio=o.r;						// Use it
+							else												// Nothing set
+								sd.playerSlideRatio=Math.min(sd.playerSlideRatio,.5);	// Needs to be at least 1/2
+							ResizePanes();										// Resize
 							}
 						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
 							$("#"+div+"IF").remove();							// Remove any existing iframes
@@ -804,7 +809,7 @@ trace(y)
 				if (str.length > 4)												// If a time spec'd
 					RunPlayer("play",str.substr(4));							// Roll player from a time
 				else															// No time 
-					RunPlayer("play",showVectors[slidePane][curAssess].t);		// Roll player from where we left off
+					RunPlayer("play",showVectors[slidePane][curAssess].ps+.5);	// Roll player from where we left off
 				}
 			else if (str.match(/cue/)) {										// If just cuing
 				if (str.length > 3)												// If a time spec'd
@@ -845,7 +850,6 @@ trace(y)
 					shivaLib.Annotate(l,t);										// Show it
 					}			
 				else if (v[2] == "done") {										// Done
-					searchMode=false;											// Allow other events
 					shivaLib.dr.SetTool(-1);									// Close palette
 					$("#shivaDrawDiv").html("");								// Clear drawings
 					$("#informationText").html("");								// Clear div
@@ -856,7 +860,9 @@ trace(y)
 					ShowContent(infoPane,"informationText");					// Show content
 					}			
 				}
-			}
+		else if (v[0] == "QmediaAssess=time") 									// Get time
+			e.source.postMessage("ShivaAct=time|"+playerNow,"*");				// Send data to assessment iframe
+		}
 	}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

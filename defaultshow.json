@@ -126,7 +126,14 @@ LoadShow({
                 "pic":"//upload.wikimedia.org/wikipedia/en/0/08/Integrative_learning_concept_map.gif",
                 "background":"#e8e8e8",
                 "optionType":"draw"},
-        
+
+                {"title":"Find in time",
+                "text":"President Clinton often uses his hands to gesture and reinforce his talk.",
+                "prompt":"Scroll to a place in the video where he gestures",
+                "whyRight":"That\'s one of them, but he does this kind of gesturing a lot.",
+                "whyWrong":"Not one I chose, try: 2:26",
+                "optionType":"findtime", "options":["146-147","185"]},
+ 
                 {"title":"What do you think?",
                 "text":"President Clinton says the world is interdependent, but insufficient.",
                 "prompt":"What does he mean by that?",
