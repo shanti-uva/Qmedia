@@ -93,7 +93,7 @@ LoadShow({
 			{ "t":367, "c":"" } 
 			],	
        "assessments": [
-            { "name": "1", "showFeedback":"true", "pages": [
+            { "name": "unequal", "showFeedback":"true", "pages": [
                {"title":"The world is unequal",
                 "numTries":8,
                 "whyRight":"Clinton said that there was a&quot;billion going to bed hungry every night -- 80 percent of them under five years of age.&quot",
@@ -109,7 +109,7 @@ LoadShow({
                 "whyPartial":"Hint: Only two of them in this list were mentioned.",
                 "whyWrong":"Hint: Think of tropical diseases",
                 "text":"President Clinton says that mentioned a number of diseases affecting children.",
-                "prompt":"What are the diseases he taslks about?",
+                "prompt":"What are the diseases he talks about?",
                 "pic":"//www.bergenhealth.org/communicable/images/Legionnaires-Disease.jpg",
                 "optionType":"checkbox","options":["*TB","*Malaria","Tetnus","Lyme\'s disease"]},
 
@@ -122,7 +122,7 @@ LoadShow({
 
                 {"title":"Draw a concept map",
                 "text":"President Clinton says the world is interdependent, but insufficient. What does he mean by that?",
-                "prompt":"Draw a concept map over the video that illustrates that idea.",
+                "prompt":"Draw a concept map below which illustrates that idea.",
                 "pic":"//upload.wikimedia.org/wikipedia/en/0/08/Integrative_learning_concept_map.gif",
                 "background":"#e8e8e8",
                 "optionType":"draw"},
