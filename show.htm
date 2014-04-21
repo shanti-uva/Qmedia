@@ -144,7 +144,8 @@
 	var notesText="";															// No notes
 	var isMobile=false;															// Flag for mobile devices
 	var curAssess=-1;															// Currently active assessment						
-	var shivaLib=null;
+	var shivaLib=null;															// Holds shiva
+	var searchMode=false;														// Don't trigger anything
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INIT
@@ -350,7 +351,7 @@
 		$("#playerDiv").css({ width:w+"px",top:pt+"px"});						// Set player pos
 		$("#overlayDiv").css({ width:w+"px",top:pt+"px",height:$("#playerDiv").height()+"px"});	// Set overlay
 		$("#slideDiv").css({ left:(wid-w2+8)+"px",width:(w2)+"px",top:pt+"px"}); // Set slider pos/size
-		var h=Math.max(w*sd.playerAspect,$("#slideDiv").height());				// Player height
+		var h=Math.max((wid*sd.playerAspect)-(w*sd.playerAspect),w*sd.playerAspect);	// Player height
 		$("#playerSiz").css({ left:(w+8)+"px",height:h+"px",top:pt+"px"});		// Set sizer pos
 		h+=pt;																	// Point at top of control bar
 		var ct=h+$("#controlDiv").height()+14;									// Contents top
@@ -451,8 +452,8 @@
 					else{														// An iframe
 						if (src.match(/assess=/)) {								// If an assessment
 							RunPlayer("pause");									// Pause player
+							curAssess=i;										// Get name
 							src="assess.htm";									// Point at assess module
-							curAssess=src.split("=")[1];						// Get name
 							}
 						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
 							$("#"+div+"IF").remove();							// Remove any existing iframes
@@ -746,6 +747,7 @@ trace(y)
 
 	function shivaEventHandler(e)											// ON SHIVA EVENT
 	{
+		var str,i;
 		if (e.origin.match(/vimeo/i)) {											// From vimeo
     		var ev=$.parseJSON(e.data);											// Parse json
   			if (ev.event == "playProgress") {									// If playing			
@@ -795,48 +797,66 @@ trace(y)
 		}
 	else if (e.data && e.data.match(/QmediaAssess/)) {							// An assessment message
 		var v=e.data.split("|");												// Get data
-		if (v[0] == "QmediaAssess=done") 										// Done with assessment
-			RunPlayer("play");													// Roll player
+		if (v[0] == "QmediaAssess=done") {										// Done with assessment
+			searchMode=false;													// Allow other events
+			str=showVectors[slidePane][curAssess].e;							// Extract end action
+			if (str.match(/play/)) {											// If playing
+				if (str.length > 4)												// If a time spec'd
+					RunPlayer("play",str.substr(4));							// Roll player from a time
+				else															// No time 
+					RunPlayer("play",showVectors[slidePane][curAssess].t);		// Roll player from where we left off
+				}
+			else if (str.match(/cue/)) {										// If just cuing
+				if (str.length > 3)												// If a time spec'd
+					RunPlayer("scrub",str.substr(3));							// Cue player to time
+				}
+			}
 		else if (v[0] == "QmediaAssess=ready") {								// Ready
-			var str="ShivaAct=data|"+JSON.stringify(sd.assessments[0]);			// Get data
-			e.source.postMessage(str,"*");										// Send data to wind
-			}
-		else if (v[0] == "QmediaAssess=draw") { 								// Draw assessment
-			if (v[2] == "start") {												// Start
-				var l=18,t=90;
-				if (v[3] == "bottom") {											// If in infodiv
-					l=$("#playerDiv").width()/2-90;								// Center 
-					sd.transInfoRatio=0;										// Full size
-					ResizePanes();												// Resize
-					sd.transInfoRatio=.5;										// Original size
-					shivaLib=new SHIVA_Show("infoDiv");							// Alloc SHIVA_Show in infodiv
-					$("#informationText").html("");								// Clear div
-					$("#infoLab").html("Draw here:");							// Set label
-					if (v[4] != undefined) 										// If a param
-						if (v[4].match(/\/\//))									// If an image defined 
-							$("#informationText").html("<img width='100%' src='"+v[4]+"'>"); // Load image
-						else													// Must be css
-							$("#informationText").css({"background-color":v[4],border:"1px solid #999"});	// Set style
-					}				
-				else{															// On top of player
-					t=$("#contentDiv").css("top").replace(/px/,"")-0+40			// In content area
-					shivaLib=new SHIVA_Show("overlayDiv");						// Alloc SHIVA_Show in player
+			str=showVectors[slidePane][curAssess].cs.split("=")[1];				// Extract name of assessment to run
+			for (i=0;i<sd.assessments.length;++i)								// For each possible assessment
+				if (sd.assessments[i].name == str) {							// The one I'm looking for
+					var str="ShivaAct=data|"+JSON.stringify(sd.assessments[i]);	// Get data
+					e.source.postMessage(str,"*");								// Send data to wind
+					searchMode=true;											// Inhibit other events
 					}
-				shivaLib.DrawOverlay();											// Make sure contexts are set up
-				shivaLib.Annotate(l,t);											// Show it
-				}			
-			else if (v[2] == "done") {											// Done
-				shivaLib.dr.SetTool(-1);										// Close palette
-				$("#shivaDrawDiv").html("");									// Clear drawings
-				$("#informationText").html("");									// Clear div
-				$("#informationText").css({"background-color":"#fff",border:"none"});	// Clear style
-				$("#infoLab").html(sd.infoLab);									// Set label
-				ResizePanes();													// Resize
-				showCurSource[infoPane]="";										// Force redraw
-				ShowContent(infoPane,"informationText");						// Show content
-				}			
+				}
+			else if (v[0] == "QmediaAssess=draw") { 							// Draw assessment
+				if (v[2] == "start") {											// Start
+					var l=18,t=90;
+					if (v[3] == "bottom") {										// If in infodiv
+						l=$("#playerDiv").width()/2-90;							// Center 
+						sd.transInfoRatio=0;									// Full size
+						ResizePanes();											// Resize
+						sd.transInfoRatio=.5;									// Original size
+						shivaLib=new SHIVA_Show("infoDiv");						// Alloc SHIVA_Show in infodiv
+						$("#informationText").html("");							// Clear div
+						$("#infoLab").html("Draw here:");						// Set label
+						if (v[4] != undefined) 									// If a param
+							if (v[4].match(/\/\//))								// If an image defined 
+								$("#informationText").html("<img width='100%' src='"+v[4]+"'>"); // Load image
+							else												// Must be css
+								$("#informationText").css({"background-color":v[4],border:"1px solid #999"});	// Set style
+						}				
+					else{														// On top of player
+						t=$("#contentDiv").css("top").replace(/px/,"")-0+40		// In content area
+						shivaLib=new SHIVA_Show("overlayDiv");					// Alloc SHIVA_Show in player
+						}
+					shivaLib.DrawOverlay();										// Make sure contexts are set up
+					shivaLib.Annotate(l,t);										// Show it
+					}			
+				else if (v[2] == "done") {										// Done
+					searchMode=false;											// Allow other events
+					shivaLib.dr.SetTool(-1);									// Close palette
+					$("#shivaDrawDiv").html("");								// Clear drawings
+					$("#informationText").html("");								// Clear div
+					$("#informationText").css({"background-color":"#fff",border:"none"});	// Clear style
+					$("#infoLab").html(sd.infoLab);								// Set label
+					ResizePanes();												// Resize
+					showCurSource[infoPane]="";									// Force redraw
+					ShowContent(infoPane,"informationText");					// Show content
+					}			
+				}
 			}
-		}
 	}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -869,7 +889,7 @@ trace(y)
 				}
 			if (playerType == "youtube") {										// If YouTube
 				player.seekTo(playerNow,true);									// Cue
-				if (playerMode == "play")	player.playVideo();					// Play
+				if (playerMode == "play")		player.playVideo();				// Play
 				else if (playerMode == "pause")	player.pauseVideo();			// Pause
 				}
 			else if (playerType == "vimeo") {									// If Vimeo
@@ -920,6 +940,8 @@ trace(y)
 			str+=SecondsToTimecode(sd.playerStop);								// End time
 			$("#timeDisp").text(str);											// Show now
 			$("#slider").slider("value",playerNow);								// Set slider
+			if (searchMode)														// If just searching																			
+				return;															// Quit
 			var max=$("#transcriptText")[0].scrollHeight;						// Max
 			var cp=GetCharPosTimeFrom(playerNow);								// Get char pos in transcript
 			$("#transcriptText").scrollTop(cp.pct*max-$("#transcriptText").height()/4);	// Set scroll

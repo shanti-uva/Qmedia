@@ -76,6 +76,25 @@
 		else																	// Use other method
 			window.attachEvent("message",shivaEventHandler);					// Add handler
 		SendShivaMessage("QmediaAssess=ready","");								// Send ready message
+
+
+		/////////////////////////////////////////////////////////////////	
+		var e={}
+		e.data='ShivaAct=data|{"showFeedback":"true"';
+		e.data+=',"pages":[';
+		e.data+='{"title":"The world is unequal"';
+		e.data+=',"numTries":1';
+		e.data+=',"whyRight":""';
+		e.data+=',"whyWrong":"Hint: It seemed like a large percentage"';
+		e.data+=',"text":"President Clinton says that the world is profoundly unqual, with half the world\'s people living onless than two dollars a day."';
+		e.data+=',\"prompt":"What percentage of children under 5 years old live in these unequal conditions?"';
+		e.data+=',"pic":"//sitemaker.umich.edu/356.cho/files/hunger.jpg"';
+		e.data+=',"optionType":"radio","options":["10%","30%","50%","*80%"]}';
+		e.data+="]}"
+//		shivaEventHandler(e);													
+		/////////////////////////////////////////////////////////////////	
+
+
 		});
 		
 	function shivaEventHandler(e)											// ON SHIVA EVENT
