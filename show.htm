@@ -452,6 +452,7 @@
 					else{														// An iframe
 						if (src.match(/assess=/)) {								// If an assessment
 							RunPlayer("pause");									// Pause player
+							RunPlayer("pause");									// Pause player (twice for firefox mac)
 							curAssess=i;										// Get name
 							src="assess.htm";									// Point at assess module
 							if (o.r)											// If a ratio set
