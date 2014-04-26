@@ -20,6 +20,8 @@
 		   				}
  		.mainSty { 		font-family:Verdana,Geneva,sans-serif; font-size:12px; 
 						padding:0px; margin:0px;border-radius:18px;
+						-moz-user-select: none;     -khtml-user-select: none;
+		   			 	-webkit-user-select: none;  -ms-user-select: none;   user-select: none;
 						}
 		.titleSty { 	font-size:18px; font-weight:bold; text-align:center;padding-bottom:8px;
 						color:#000099
@@ -38,6 +40,10 @@
 						} 
  		.nextbutSty {	border-radius:10px;color:#009900;
  						}
+  		#sortable li {  margin-bottom:7px; padding:1px; padding-left:12px;padding-right:12px;
+  						border:1px solid #999;
+  						border-radius:10px;background-color:#ddd;cursor:pointer
+  						}
  	
  	</style>
 	<script>
@@ -83,15 +89,13 @@
 		var e={}
 		e.data='ShivaAct=data|{"showFeedback":"true"';
 		e.data+=',"pages":[';
-		e.data+='{"title":"Find in time"';
+		e.data+='{"title":"Sort"';
 		e.data+=',"numTries":3';
-		e.data+=',"whyRight":"That\'s one of them, but he does this a lot."';
-		e.data+=',"whyWrong":"Not one I chose, try: 2:26"';
-		e.data+=',"text":"President Clinton uses his hands ro gesture and reinforce his talk."';
-		e.data+=',\"prompt":"Show places where gestures"';
-		e.data+=',"optionType":"findtime","options":["146-147","185"]}';
+		e.data+=',"text":"Sort these."';
+		e.data+=',\"prompt":"Drag then"';
+		e.data+=',"optionType":"match","options":["first:sex","second:drugs","third:rock","fourth:roll"]}';
 		e.data+="]}"
-//		shivaEventHandler(e);													
+		shivaEventHandler(e);													
 		/////////////////////////////////////////////////////////////////	
 
 
@@ -122,7 +126,7 @@
 		if (d.title) 	$("#titleDiv").html(d.title);							// Add title
 		if (d.text) 	$("#textDiv").html(d.text);								// Text body
 		if (d.prompt) 	$("#promptDiv").html(d.prompt);							// Prompt
-		if ((d.options) && (d.optionType == "radio" || d.optionType == "checkbox")) {	// Checkbox or radio												// Add options
+		if ((d.options) &&  (d.optionType == "radio" || d.optionType == "checkbox")) {	// Checkbox or radio												// Add options
 			for (i=0;i<d.options.length;++i) {									// For each option
 				if (showRight) {												// If showing correct answers
 					if (d.options[i].match(/^\*/)) 	col="#00aa00";				// If a correct one
@@ -133,7 +137,7 @@
 			 	str+="&nbsp;&nbsp; <input type='"+d.optionType+"' name='opt' id='opt"+i+"' value='"+lab+"'>"+lab+"<br></span>";	// Add line
 				}
 			}
-		if ((d.options) && (d.optionType == "cloze")) {							// Cloze												// Add options
+		if ((d.options) && (d.optionType == "cloze")) {							// Cloze
 			var ss,s=d.options;
 			i=0;																// Reset counter
 			var imp="<input style='text-align:center;width:80px;border:none;border-bottom:1px solid;padding-left:4px;color:#000099' type='text' id='opt";
@@ -141,24 +145,42 @@
 				s=s.replace(/@\((.+?)\)/,imp+(i++)+"'>");						// Replace with text box
 			str="<p style='margin-left:40px;margin-right:40px'>"+s+"</p>";		// Add cloze
 			}
-		if (d.optionType == "write") {											// Write option
+		if ((d.options) && ((d.optionType == "sort") || (d.optionType == "match"))) {	// Sort/match
+			v=[]
+			for (i=0;i<d.options.length;++i)  v.push(i);						// Normal array
+			v=Shuffle(v);														// Shuffle array
+			str="<ol id='sortable'>";											// Header
+			for (i=0;i<d.options.length;++i) 									// For each option
+				str+="<li id='"+i+"'>"+d.options[v[i]].split(":")[0]+"</li>";	// Add item
+			str+="</ol>";														// End tag
+			}
+		else if (d.optionType == "write") {										// Write option
 			str+="&nbsp;&nbsp;<textarea id='opt' rows=3 placeholder='Write your answer here...' ";		// Text 
 			str+="style='width:"+$("#optionsLDiv").parent().width()*.8+"px'></textarea><br></span>";	// area
 			}	
 
-		if (d.optionType == "draw")	{											// Draw option
+		else if (d.optionType == "draw")	{											// Draw option
 			SendShivaMessage("QmediaAssess=draw","start|bottom|"+d.background);	// Send start message
 			if (d.pic) str+="<img src='"+d.pic+"' height=75><br>";				// Add pic
 			}	
 		str+="<p style='text-align:center'><input id='nextBut' type='button' value='Next' class='nextbutSty'>"; 	// Add button
 		str+="<input id='skipBut' type='button' value='Skip' class='nextbutSty'></p>"; 	// Add button
 		$("#optionsLDiv").html(str);											// Set div
-	
+ 		$("#sortable" ).sortable({ axis:"y"} );									// Make sortable, if a sort
 		i=$("#optionsLDiv").height()-16;										// Height of options side
 		if (d.optionType != "draw")												// Not the draw option
 			if (d.pic) $("#optionsRDiv").html("<img src='"+d.pic+"' height="+i+">");// Add pic
-			else	   $("#optionsRDiv").html("");									// Erase it
+			else	   $("#optionsRDiv").html("");								// Erase it
 		
+		if ((d.options) && (d.optionType == "match")) {							// Match
+			str="<span style='text-align:left;font-weight:bold'>";				// Span
+			for (i=0;i<d.options.length;++i)									// For each option
+				str+="<p>"+d.options[i].split(":")[1]+"</p>";					// Add item
+			$("#optionsRDiv").html(str+"</span>");								// Set div
+			}
+	
+	/////////////////////////////////////////////////////////////////////////////////////////
+	
 		$("#nextBut").on("click",function() {									// NEXT BUTTON HANDLER
 			++numTries;															// Increment tries
 			if (d.optionType == "write") {										// Draw style
@@ -202,7 +224,15 @@
 				if (correct == i)				ans="right";					// Correct				
 				if (correct && correct < i)		ans="partial"					// Partial
 				}
-			else if (d.optionType == "findtime") {								// Find time
+			else if ((d.optionType == "sort") || (d.optionType == "match")) {	// Sort/Match
+				for (i=0;i<d.options.length;++i) 								// For each option
+				 	if ($("#sortable :eq("+i+")").text() == d.options[i].split(":")[0])	// A match
+						++correct;												// Inc right answer
+				ans="wrong";													// Assume wrong
+				if (correct == i)				ans="right";					// Correct				
+				if (correct && correct < i)		ans="partial"					// Partial
+				}
+			else if (d.optionType == "findtime") {									// Find time
 				var s,e;
 				ans="wrong";													// Assume wrong
 				for (i=0;i<d.options.length;++i) {								// For each option
@@ -284,6 +314,16 @@
 			window.postMessage(str,"*");										// Send message to wind
 	}
 	
+	
+	function Shuffle(array) {												// FISHER-YATES SHUFFLE
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
+}
 	
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{
