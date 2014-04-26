@@ -3,7 +3,7 @@ LoadShow({
         "contentsLab":"Contents",
         "contentsPlayOnClick":"true",
 		"infoLab":"More information",
-         "infoMapSource":"//www.viseyes.org/shiva/go.htm?e=1133",
+        "infoMapSource":"//www.viseyes.org/shiva/go.htm?e=1133",
 		"transHgt":400,
 		"transInfoRatio":0.5,
 		"transLab":"Transcript",

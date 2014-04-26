@@ -290,8 +290,11 @@
 		if (!show.slideVectors)													// If no slides
 			$("#slideControlsDiv").css("display","none");						// Hide controls
 		var tag=document.createElement('script');								// Create script
-		if (!sd.playerSource)													// No scrubbable media
+		if (!sd.playerSource) {													// No scrubbable media
+			playerType="noplayer";												// No player
+			player=1;															// Put something there
 			RunPlayer("ready");													// Init show
+			}
 		else if (sd.playerSource.match(/\/\//i)) {								// If HTML5
 			playerType="html5";													// Set type
 			RunPlayer("init");													// Init player
@@ -746,6 +749,8 @@ trace(y)
 			playerCurTime=player.getCurrentTime();								// Get cur time
 		else if (playerType == "html5") 										// If  HTML5
 			playerCurTime=player.currentTime;									// Get cur time
+		else if (playerType == "noplayer") 										// If  noplayer
+			playerCurTime=(new Date().getTime()-player)/1000;					// Get current time			
 		if (playerCurTime >= sd.playerStop)										// Past end
 			RunPlayer("pause");													// Pause
 		playerNow=Math.min(playerCurTime,sd.playerStop);						// Get capped time
@@ -913,6 +918,8 @@ trace(y)
 				if (playerMode == "play")  	player.play(); 						// Play
 				if (playerMode == "pause")	player.pause();						// Pause
 				}
+			else if (playerType == "noplayer")									// If noplayer
+				player=new Date().getTime()-(playerNow*1000);					// Get current time			
 			RunPlayer("show");													// Show where we're at
 			}
 		else if (what == "scrub") {												// Scrub
@@ -931,6 +938,8 @@ trace(y)
 				player.contentWindow.postMessage("{\"method\":\"seekTo\",\"value\":\""+playerNow+"\"}","*");
 			else if (playerType == "html5") 									// If HTML5
 				player.currentTime=playerNow;									// Cue
+			else if (playerType == "noplayer")									// If noplayer
+				player=new Date().getTime()-(playerNow*1000);					// Get current time			
 			RunPlayer("show",param2);											// Show where we're at
 			}
 		else if (what == "pause") {												// Pause
