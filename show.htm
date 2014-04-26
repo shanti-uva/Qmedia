@@ -349,9 +349,9 @@
 		else																	// No title
 			$("#titleDiv").css("display","none")								// Hide bar
 		$("#playerDiv").css({ width:w+"px",top:pt+"px"});						// Set player pos
-		$("#overlayDiv").css({ width:w+"px",top:pt+"px",height:$("#playerDiv").height()+"px"});	// Set overlay
+		$("#overlayDiv").css({ width:w+"px",top:pt+"px",height:$("#playerDiv").height()+"px",left:"8px"});	// Set overlay
 		$("#slideDiv").css({ left:(wid-w2+8)+"px",width:(w2)+"px",top:pt+"px"}); // Set slider pos/size
-		var h=Math.max((wid*sd.playerAspect)-(w*sd.playerAspect),w*sd.playerAspect);	// Player height
+		var h=Math.max(((wid-4)*sd.playerAspect)-(w*sd.playerAspect),w*sd.playerAspect);	// Player height
 		$("#playerSiz").css({ left:(w+8)+"px",height:h+"px",top:pt+"px"});		// Set sizer pos
 		h+=pt;																	// Point at top of control bar
 		var ct=h+$("#controlDiv").height()+14;									// Contents top
@@ -440,7 +440,7 @@
 				if (showCurSource[pane] != o.cs) {								// A new item
 					var src=o.cs;												// Point at source
 					clearInterval(imageAnimationTimer);							// Kill image timer
-					if (src.match(/\.png|.gif|\.jpg|\.jpeg/i))	{			// An image
+					if (src.match(/\.png|.gif|\.jpg|\.jpeg/i))	{				// An image
 						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0])  		// Bases are different
 							$("#"+div).html("<img id='"+div+"IM' width='100%' src='"+src+"'>"); 	// Load an image
 						else													// Same image base
@@ -449,6 +449,8 @@
 							AnimateContent(this.id,o);							// Animate image, if set
 							})
 						}
+					else if (src.match(/</))									// Markup
+						$("#overlayDiv").html(src);								// Populate overlay
 					else{														// An iframe
 						if (src.match(/assess=/)) {								// If an assessment
 							RunPlayer("pause");									// Pause player
@@ -954,7 +956,7 @@ trace(y)
 			$("#transcriptText").scrollTop(cp.pct*max-$("#transcriptText").height()/4);	// Set scroll
 			if (!param)															// If not inhibiting scroll
 				RunInfo("show");												// Show Info
-			RunOverlay("show");													// Show overlay
+			ShowContent(playerPane,"overlayDiv", param);						// Show content
 			HighlightText(cp.pos,cp.pos2);										// Highlight area
 			RunSlide("show",param);												// Show slide, with param to/not resize
 			}
@@ -1128,26 +1130,6 @@ trace(y)
 		else if (what == "resize") 												// Resize
 			$("#infoDivIF").height($("#informationText").height()-2);			// Set iframe height, if any
 	}																			// End closure
-
-	function RunOverlay(what, param)										// OVERLAY ACTIONS
-	{
-		var i,o;
-		var n=showVectors[playerPane].length-1;									// Last vector
-		for (i=n;i>=0;i--) {													// For each vector
-			o=showVectors[playerPane][i];										// Point at player overlay action
-			if (playerNow >= o.ps) {											// In this one
-				if (showCurSource[playerPane] != o.cs) {						// A new item
-					$("#overlayDiv").html(o.cs);								// Populate overlay
-					showCurSource[playerPane]=o.cs;								// Then is now
-					if (o.m != undefined)										// If a prompt
-						Prompt(o.m);											// Show it
-					}
-				break;															// Stop looking	
-				}
-			}
-	}
-
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // HELPERS

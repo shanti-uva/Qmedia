@@ -40,7 +40,10 @@ LoadShow({
 			{ "t":0,   "c":"" },
 			{ "t":50,  "c":"<svg width='100%' height='100%'><text x='53%' y='95%' fill='yellow' font-size='18px' opacity='.8' font-family='sans-serif' text-anchor='middle'>A highlight on top of video</text><circle cx='53%' cy='46%' r='30%' fill='white' opacity='.2'></svg>", "m":"Note the highlight"},
 			{ "t":60,  "c":"", "m":"" },
-			{ "t":367, "c":"" }
+            { "t":65,  "c":"//www.viseyes.org/shiva/qmedia/clinton03.jpg", "r":1 },   
+ 	        { "t":70,  "c":"", "m":"" },
+
+ 			{ "t":367, "c":"" }
 			],	
 		"transVectors": [
 			{ "t":0,   "c":0, "d":0 },
