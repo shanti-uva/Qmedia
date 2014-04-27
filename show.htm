@@ -105,8 +105,8 @@
 		<div id="informationText" style="height:100%;overflow:hidden;margin-top:16px;opacity:inherit"></div>
 	</div>
 	<div id="transHgt" style="position:absolute;width:1000px;height:7px;cursor:row-resize;border-bottom:3px solid #ccc" class="unselectable" title="Change transcript height">
-			<p id="prompt" class="prompt">The University of Virginia</p><br>
-			Click <a href="//docs.google.com/presentation/d/18LLvvy3rMbRexOj_UmPI3JBhcymq5Ok1w7swoKeb50c/pub" target="_blank"> here </a> for a short slide show about Qmedia
+			<p id="prompt" class="prompt">The University of Virginia</p>
+			<div id="botMarkup"></div>
 	</div>
 	<div id="transSiz" style="position:absolute;width:8px;cursor:col-resize;opacity:inherit" class="unselectable" title="Resize transcript">
 		<div style="position:absolute;width:40px;height:100%;top:32px;left:-4px" class="unselectable"></div>
@@ -313,6 +313,9 @@
 		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
 		if (show.initialPrompt != undefined)									// If a prompt set
 			Prompt(show.initialPrompt);											// Show initial prompt
+		if (show.botMarkup != undefined)										// If a prompt set
+			$("#botMarkup").html(show.botMarkup);								// Show html at bottom
+
 	}
 
 
@@ -391,13 +394,15 @@
 		var start;
 		if (isMobile && (playerMode == "play") && (playerType == "youtube"))	// Playing on ipad 
 			return;																// Don't resize
-		if (which == slidePane) 	 start=sd.playerSlideRatio;					// Get current player ratio
-		else if (which == infoPane)  start=sd.transInfoRatio;					// Get current transcript ratio
+		if (which == slidePane) 	 	start=sd.playerSlideRatio;				// Get current player ratio
+		else if (which == playerPane) 	start=sd.playerSlideRatio;				// Get current player ratio
+		else if (which == infoPane)  	start=sd.transInfoRatio;				// Get current transcript ratio
 		var dif=Math.abs(end-start);											// Difference
 		if ((dif < .05) || (paneAnimationTimer)) {								// If close enough or animating alredy
 			clearInterval(paneAnimationTimer);									// Kill timer
 			paneAnimationTimer=null;											// Clear timer var
 			if (which == slidePane) 	 	sd.playerSlideRatio=end;			// Set player ratio
+			else if (which == playerPane) 	sd.transInfoRatio=end;				// Set player ratio
 			else if (which == infoPane) 	sd.transInfoRatio=end;				// Set transcript ratio
 			if (dif)															// If not there yet
 				ResizePanes();													// Resize
@@ -424,6 +429,7 @@
 				}
 			if (which == slidePane) 	 	sd.playerSlideRatio=pos;			// Set player ratio
 			else if (which == infoPane) 	sd.transInfoRatio=pos;				// Set transcript ratio
+			else if (which == playerPane) 	sd.playerSlideRatio=pos;			// Set player ratio
 			ResizePanes();														// Resize
 			}
 	}
@@ -445,7 +451,7 @@
 					clearInterval(imageAnimationTimer);							// Kill image timer
 					if (src.match(/\.png|.gif|\.jpg|\.jpeg/i))	{				// An image
 						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0])  		// Bases are different
-							$("#"+div).html("<img id='"+div+"IM' width='100%' src='"+src+"'>"); 	// Load an image
+							$("#"+div).html("<img id='"+div+"IM' style='opacity:0' width='100%' src='"+src+"'>"); 	// Load an image
 						else													// Same image base
 							AnimateContent(div+"IM",o);							// Animate image, if set
 						$("#"+div+"IM").on("load",function() {					// On image loaded
@@ -469,7 +475,7 @@
 						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
 							$("#"+div+"IF").remove();							// Remove any existing iframes
 							if ((o.d) && (o.c.match(/scroll/i))) 	extra="";	// Add scroll bars
-							$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' src='"+src+"'></iframe>");	// Load in iframe
+							$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' style='opacity:0' src='"+src+"'></iframe>");	// Load in iframe
 							}
 						else													// Same image base
 							AnimateContent(div+"IF",o);							// Animate iframe, if set
@@ -509,8 +515,10 @@
 	function AnimateContent(id, vec)										// ANIMATE IMAGE OR IFRAME
 	{
 		var x,y,z,dur=500;
-		if (!vec.z)																// If not pan and zoom set
+		if (!vec.z)	{															// If not pan and zoom set
+			$("#"+id).css("opacity",1);											// Make it visible	
 			return;																// Quit
+			}
 		var v=vec.z.split("|");													// Get components
 		var sx=v[4],sy=v[5],sz=v[6];											// Start positions
 		var ex=v[0],ey=v[1],ez=v[2];											// End position
@@ -528,6 +536,7 @@
 			dur=1;																// Go to end quickly
 		
 		imageAnimationTimer=setInterval(function() {							// Set timer
+			var tx=0,ty=0;
 			var now=(new Date().getTime()-startTime)/dur;						// Get now
 			now=1.0-((Math.cos(3.1414*Math.min(now,1))+1)/2.0);					// Full cosine curve
 			if (now > .999)	{													// If done
@@ -537,17 +546,20 @@
 			x=(sx-0)+(ex-sx)*now;												// Get x pos
 			y=(sy-0)+(ey-sy)*now;												// Get y
 			z=(sz-0)+(ez-sz)*now;												// Get z
-			x=-x*pw*z+(pw/2);													// Pos x
-			y=-y*ph*z+(ph/2);													// Pos y
+			if (z < 1) {														// If PIP
+				x=x*pw-(pw*z/2);												// Pos X										
+				y=y*ph-(ph*z/2);												// Pos Y										
+				}
+			else{
+				x=-x*pw*z+(pw/2);												// Pos x
+				y=-y*ph*z+(ph/2);												// Pos y
+				}
 			$("#"+id).css({	"-webkit-transform-origin":"0 0", 					// Move image
-				"-moz-transform-origin":"0 0",
-				"-ms-transform-origin":"0 0",
 				"transform-origin":"0 0",			
 				"-webkit-transform":"matrix("+z+",0,0,"+z+","+x+","+y+")",
-				"-moz-transform":"matrix("+z+",0,0,"+z+","+x+","+y+")",
-				"-ms-transform":"matrix("+z+",0,0,"+z+","+x+","+y+")",
 	 			"-transform":"matrix("+z+",0,0,"+z+","+x+","+y+")",
-	   		});
+	   			});
+			$("#"+id).css("opacity",1);											// Make it visible	
 			},24);																// Set timer ~40ps
 	}
 	

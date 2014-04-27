@@ -3,6 +3,7 @@ LoadShow({
         "contentsLab":"Contents",
         "contentsPlayOnClick":"true",
 		"infoLab":"More information",
+        "botMarkup":"Click <a href='//docs.google.com/presentation/d/18LLvvy3rMbRexOj_UmPI3JBhcymq5Ok1w7swoKeb50c/pub' target='_blank'> here </a> for a short slide show about Qmedia",
         "infoMapSource":"//www.viseyes.org/shiva/go.htm?e=1133",
 		"transHgt":400,
 		"transInfoRatio":0.5,
@@ -29,7 +30,7 @@ LoadShow({
 			{"t":0,    "c":"Opening credits"},
 			{"t":16,   "c":"My TED wish"},
 			{"t":44,   "c":"An unequal world"},
-			{"t":109,   "c":"An unstable world"},
+			{"t":109,  "c":"An unstable world"},
 			{"t":137,  "c":"The world I want to see"},
 			{"t":178,  "c":"London"},
 			{"t":220,  "c":"Power of people"},
@@ -38,12 +39,12 @@ LoadShow({
 			],
 		"playerVectors": [
 			{ "t":0,   "c":"" },
-			{ "t":50,  "c":"<svg width='100%' height='100%'><text x='53%' y='95%' fill='yellow' font-size='18px' opacity='.8' font-family='sans-serif' text-anchor='middle'>A highlight on top of video</text><circle cx='53%' cy='46%' r='30%' fill='white' opacity='.2'></svg>", "m":"Note the highlight"},
+            { "t":34,  "c":"//icons.iconarchive.com/icons/gakuseisean/radium/256/Globe-Connected-icon.png", z:".17|.17|.3|2|.15|.15|.001","m":"Notice Picture-in-picture of globe"},   
+            { "t":42,  "c":"", "m":"" },
+  			{ "t":50,  "c":"<svg width='100%' height='100%'><text x='53%' y='95%' fill='yellow' font-size='18px' opacity='.8' font-family='sans-serif' text-anchor='middle'>A highlight on top of video</text><circle cx='53%' cy='46%' r='30%' fill='white' opacity='.2'></svg>", "m":"Note the highlight"},
 			{ "t":60,  "c":"", "m":"" },
-            { "t":65,  "c":"//www.viseyes.org/shiva/qmedia/clinton03.jpg", "r":1 },   
- 	        { "t":70,  "c":"", "m":"" },
-
- 			{ "t":367, "c":"" }
+  	        { "t":70,  "c":"", "m":"" },
+			{ "t":367, "c":"" }
 			],	
 		"transVectors": [
 			{ "t":0,   "c":0, "d":0 },

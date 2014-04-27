@@ -83,6 +83,10 @@
 		else																	// Use other method
 			window.attachEvent("message",shivaEventHandler);					// Add handler
 		SendShivaMessage("QmediaAssess=ready","");								// Send ready message
+		$("body").on("keydown", function(e) {									// Handle key down
+				if (e.which == 27) 												// Esc key
+					Draw(aData.pages.length);									// Move on
+				});
 		setInterval(function(){	SendShivaMessage("QmediaAssess=time","")},500);	// Get player time						
 	
 		/////////////////////////////////////////////////////////////////	
