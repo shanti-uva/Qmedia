@@ -109,7 +109,8 @@
 	var width=1000;
 	var curShow="Clinton";
 	var curPane="";
-	var curJson="<LoadShow({\ntitle:\"Bill Clinton speaks at TED Conference\","
+	var curJson="<LoadShow({\ntitle:\"Bill Clinton speaks at TED Conference\",";
+	var curTime=0;
 
 	
 	$(document).ready(function() {											// WHEN PAGE LOADED
@@ -129,11 +130,15 @@
 					case "34":	curPane="contentSlide"; 	Draw();		break;	// Slide content
 					case "35":	curPane="contentInfo"; 		Draw();		break;	// Info content
 					case "36":	curPane="contentTranscript";  Draw();	break;	// Trans content
+					case"4":
+						SendShivaMessage("Qmedia=time")
+						
 					break;	
 					}
 			 	});
 		Draw();
-		$(window ).resize(Draw); 		
+		$(window).resize(Draw); 		
+		setInterval(function() { SendShivaMessage("Qmedia=time") },500); 		// Set timer ~5ps
 		});	
 	
 	function Draw()															// RESIZE PANES
@@ -160,7 +165,19 @@
 	
 	function shivaEventHandler(e)											// ON SHIVA EVENT
 	{
+		if (e.data.match(/ShivaAct=time/))										// If a time
+			curTime=e.data.split("|")[1]-0;										// Isolate it
 	}	
+
+	function SendShivaMessage(cmd, msg) 									// SEND SHIVA MESSAGE 
+	{
+		var str=cmd+"|QmediaEditor";											// Add src and window						
+		if (msg)																// If more to it
+			str+="|"+msg;														// Add it
+		var win=document.getElementById("playerIF").contentWindow;				// Point at iframe	
+		win.postMessage(str,"*");												// Send message to show
+	}
+
 	
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{

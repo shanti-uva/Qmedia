@@ -269,6 +269,8 @@
 
 	function LoadShow(show)													// LOAD SHOW CONTENT
 	{
+		
+		trace(show)
 		sd=show;
 		for (i=0;i<4;++i) {														// For each show pane
 			showVectors[i]=[];													// Create timing vector arrays 
@@ -882,6 +884,26 @@ trace(y)
 				}
 		else if (v[0] == "QmediaAssess=time") 									// Get time
 			e.source.postMessage("ShivaAct=time|"+playerNow,"*");				// Send data to assessment iframe
+		}
+	else if (e.data && e.data.match(/Qmedia/)) {								// An assessment message
+		var v=e.data.split("|");												// Get data
+		if (v[0] == "Qmedia=time") 												// Get time
+			e.source.postMessage("ShivaAct=time|"+playerNow,"*");				// Send data to assessment iframe
+		else if (v[0] == "Qmedia=seek") 										// Seek
+			RunPlayer("scrub",v[2]);											// Cue player to time
+		else if (v[0] == "Qmedia=play") 										// Seek
+			RunPlayer("play",v[2]);												// Play player to time
+		else if (v[0] == "Qmedia=pause") 										// Pause
+			RunPlayer("pause");													// Pause
+		else if (v[0] == "Qmedia=data") 										// Data
+			LoadShow($.parseJSON(v[2]));										// Convert to obj and load
+		else if (v[0] == "Qmedia=resize") {										// Resize
+			if (v[2] == "top")													// If top
+				sd.playerSlideRatio=v[3]-0;										// Set it								
+			if (v[2] == "bot")													// If bot
+				sd.transInfoRatio=v[3]-0;										// Set it	
+			ResizePanes();														// Resize								
+			}
 		}
 	}
 
