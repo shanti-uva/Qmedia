@@ -8,9 +8,8 @@
 	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 	<script src="jquery.ui.touch-punch.min.js"></script>
-
 	<style type="text/css">
-		body { 			font-family:Verdana,Geneva,sans-serif; font-size:xx-small}
+		body { 			font-family:Verdana,Geneva,sans-serif; font-size:10px;}
 		.rounded-corners { -moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;}
 		tr.odd { 		background-color:#e0e0e0; }
 		.ui-autocomplete { max-height: 300px; overflow-y: auto; }
@@ -18,9 +17,34 @@
  		.unselectable { -moz-user-select: none;     -khtml-user-select: none;
 		   			 	-webkit-user-select: none;  -ms-user-select: none;   user-select: none;
 		   				}
- 	 	.player { 		display:inline-block;margin:0px;border:none;padding:0px		}
-
- 	
+ 	 	.player { 		display:inline-block;margin:0px;border:none;padding:0px;
+ 	 					}
+	 	.pane 	{ 		background-color:#f0f0f0;font-size:12px
+	 					}
+	 	.footer { 		margin:-1px;border-bottom-right-radius:4px;border-bottom-left-radius:4px; 
+	 					border:1px solid #999;background-color:#ddd;font-size:13px;
+	 					padding:0px;padding-top:4px;padding-bottom:4px;
+	 					display:inline-block;top:100%;width:100%;
+	 					}
+	 	.editor { 		border-radius:4px;border:1px solid #999;
+	 					}
+		.butSty {		border-radius:10px;color:#333;cursor:pointer;
+						}
+ 		.ui-menu {     	overflow:hidden;border:none;font-size:13px;
+ 						border-radius:0px;border-bottom:1px solid #999;padding:0px !important;
+ 						}
+		.ui-menu > li { 				float: left;display: block;width: auto !important;}
+		.ui-menu ul {   				border:1px solid #999;border-radius:4px; }
+		.ui-menu ul li {   				display:block;float:none;border:none }
+		.ui-menu ul li ul {    			width:auto; left:96px !important; padding-top:5px !important;padding-bottom:5px !important;}
+		.ui-menu ul li ul li {    		width:auto !important; margin: 0px 5px !important; }
+		.ui-menu ul li ul li a {   	 	float:left; }
+		.ui-menu li {    				margin: 5px 5px !important; padding: 0 0 !important; }
+		.ui-menu > li > a {  			float:left;display:block;clear: both;overflow: hidden; }
+		.ui-menu .ui-menu-icon {     	display:none }
+		.ui-menu .ui-menu .ui-menu li { float:left;display:block; }	
+ 		.ui-menu .ui-menu { 		    overflow: visible !important; }
+	
  	</style>
 	<script>
 	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -33,11 +57,45 @@
 </head>
 
 	<iframe class="player" id="playerIF" src="show.htm" height="100%" scrolling="no"></iframe>
-	<div id="editDiv" style="position:absolute;top:16px">
-		<div id="binDiv" style="opacity:inherit" class="bin unselectable"></div><br>
-		<div id="propDiv" style="opacity:inherit" class="prop unselectable"></div>
-		<div id="tresizer" style="position:absolute;width:100%;height:10px;cursor:row-resize;solid #fff" class="unselectable" title="Change height"></div>
-		<p style="text-align:right"><button type="button">Preview show</button> <button type="button">Save show</button></p>
+	<div id="editDiv" class="editor" style="position:absolute;top:16px"> 
+		 <ul id="menu" style="margin:1px">
+		    <li id=""><a href="#">File</a><ul>
+				<li id="m11"><a  href="#">New</a></li>
+				<li id="m12"><a href="#">Open</a></li>
+				<li id="m13"><a href="#">Save</a></li>
+				<li id="m14"><a href="#">Save as...</a></li>
+		   	</ul></li>
+		    <li id=""><a href="#">Edit</a><ul>
+				<li id="m21"><a href="#">Undo</a></li>
+				<li id="m22"><a href="#">Redo</a></li>
+				<li id=""><a href="#">Bookmarks</a><ul>
+	                <li id="m231"><a href="#">New&nbsp;bookmark</a></li>
+	                <li id="m232"><a href="#">Load&nbsp;bookmark</a></li>
+	             </ul>   
+	 			<li id=""><a href="#">Settings</a><ul>
+	                <li id="m241"><a href="#">Project</a></li>
+	                <li id="m242"><a href="#">Player</a></li>
+	                <li id="m243"><a href="#">Slides</a></li>
+	                <li id="m244"><a href="#">Information</a></li>
+	                <li id="m245"><a href="#">Transcript</a></li>
+	                <li id="m245"><a href="#">Assessment</a></li>
+	            </ul>
+				<li id="m25"><a href="#">JSON</a></li>
+			</ul></li>
+	 			<li id=""><a href="#">Content</a><ul>
+	                <li id="m31"><a href="#">All</a></li>
+	                <li id="m32"><a href="#">Player</a></li>
+	                <li id="m33"><a href="#">Index</a></li>
+	                <li id="m34"><a href="#">Slides</a></li>
+	                <li id="m35"><a href="#">Information</a></li>
+	                <li id="m36"><a href="#">Transcript</a></li>
+	            </ul>
+			<li id="m4" ><a href="#">Preview</a><li>
+		</ul>
+		<div id="paneDiv" class="pane" style="width:100%;height:100%"></div> 
+		<div id="footerDiv" class="footer" style="position:absolute;width:100%">
+			<span id="showName"></span>
+		</div>
 	</div>
 <body>
 
@@ -49,7 +107,10 @@
 	
 	
 	var width=1000;
-	var topBotRatio=.66;
+	var curShow="Clinton";
+	var curPane="";
+	var curJson="<LoadShow({\ntitle:\"Bill Clinton speaks at TED Conference\","
+
 	
 	$(document).ready(function() {											// WHEN PAGE LOADED
 		if (window.addEventListener) 											// If supported this way
@@ -57,60 +118,44 @@
 		else																	// Use other method
 			window.attachEvent("message",shivaEventHandler);					// Add handler
 
-		$("#playerIF").prop("width",width);										// Player wid
-		$("#playerIF").prop("height",window.innerHeight-24);					// Hgt
-
-		var str="<ul>";
-		str+="<li><a href='#tdiv'>Script Editor</a></li>";
-		str+="<li><a href='#tdiv'>Player</a></li>";
-		str+="<li><a href='#tdiv'>Slides</a></li>";
-		str+="<li><a href='#tdiv'>Contents</a></li>";
-		str+="<li><a href='#tdiv'>Assessment</a></li>";
-		str+="<li><a href='#tdiv'>Transcript</a></li>";
-		str+="<li><a href='#tdiv'>Information</a></li>";
-		str+="<li><a href='#tdiv'>Settings</a></li>";
-		str+="</ul>";
-		str+="<div id='tdiv' style='height:"+window.innerHeight*.66+"px;padding:6px'>";
-		str+="<textarea style='width:"+(window.innerWidth-width-68)+"px;height:95%;border:none;font-size:small;padding:8px'></textarea></div>";
-		$('#binDiv').html(str);	
-		$('#binDiv').tabs();
-		str="<ul>";
-		str+="<li><a href='#bdiv'>Properties</a></li>";
-		str+="<li><a href='#bdiv'>Resources</a></li>";
-		str+="</ul>";
-		str+="<div id='bdiv'><br><br>This area will contain ways to edit elements<br><br><br><br><br></div>";
-		$('#propDiv').html(str);	
-		$('#propDiv').tabs();
- 		$('#saveBut').button()
-		$('#previewBut').button()
-
-		$("#tresizer").hover(													// Resizer
-			function(){ $(this).css("background-color","#acc3db")},				// Highlight
-			function(){ $(this).css("background-color","transparent")			// Hide
-		});
-
-		$("#tresizer").draggable({												// DRAG HEIGHT HANDLER		
-			cursor: "row-resize", axis:"y",										// Y-only
-			stop: ResizePanes,													// Resize panes when done
-			drag: function(event, ui) {											// On drag
-				var h=window.innerHeight-32;
-				topBotRatio=Math.max(.1,Math.min((event.clientY-70)/h,.8))
-				ResizePanes();													// Resize panes
-				}
-			});
-
-		
-		ResizePanes();
-		
+		$("#menu" ).menu({ position:{my:"left top", at: "left top+40" }});		// Set menu
+		$("#menu").on("menuselect", function(event,ui) { 						// On menu select
+				var id=ui.item[0].id.substr(1);									// Get id
+				switch(id) {													// Route on id
+					case "25":	curPane="json"; 			Draw();		break;	// Edit JSON
+					case "31":	curPane="contentAll"; 		Draw();		break;	// All content
+					case "32":	curPane="contentPlayer"; 	Draw();		break;	// Player content
+					case "33":	curPane="contentIndex";  	Draw();		break;	// Index content
+					case "34":	curPane="contentSlide"; 	Draw();		break;	// Slide content
+					case "35":	curPane="contentInfo"; 		Draw();		break;	// Info content
+					case "36":	curPane="contentTranscript";  Draw();	break;	// Trans content
+					break;	
+					}
+			 	});
+		Draw();
+		$(window ).resize(Draw); 		
 		});	
-		
-	function ResizePanes()													// RESIZE PANES
+	
+	function Draw()															// RESIZE PANES
 	{ 
-		var h=window.innerHeight-32;
-		$("#editDiv").css({"width":window.innerWidth-width-32+"px",left:width+16+"px"});// Position edit window
-		$("#tdiv").height(h*topBotRatio);										// Set height
-		$("#bdiv").height(h*(1-topBotRatio)-150);								// Set height
-		$("#tresizer").css({ top:$("#binDiv").height()+6+"px"});				// Position resizer
+		var str;
+		var w=window.innerWidth-width-32;										// Editor width
+		var h=window.innerHeight-64;											// Editor height
+		$("#playerIF").prop("width",width);										// Player wid
+		$("#playerIF").prop("height",h+40);										// Hgt
+		$("#editDiv").css({width:w+"px",left:width+16+"px",height:h+"px"});		// Overall div
+		$("#footerDiv").css({});										
+		$("#showName").html("&nbsp; Current show: <b>"+curShow+"</b>");			// Show name
+		if (curPane == "json") {												// Editing pane
+			str="<textarea style='width:"+(w-17)+"px;height:"+(h-55)+"px;border:none;font-size:13px;padding:8px;background-color:#f8f8f8'>"+curJson+"</textarea></div>";
+			$("#paneDiv").html(str);											// Put editor up	
+			}
+		if (curPane.match(/content/)) {											// A content  pane
+			var type=curPane.replace(/content/,"");								// Get type of content
+			str="<br><p style='font-size:18px'>&nbsp&nbsp;<b>Manage "+type+" content</b></p>"
+			str+="&nbsp;&nbsp;"+type+" content is managed in this panel."
+			$("#paneDiv").html(str);											// Put editor up	
+			}
 	}
 	
 	function shivaEventHandler(e)											// ON SHIVA EVENT
