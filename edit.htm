@@ -171,6 +171,8 @@
 			curTime=e.data.split("|")[1]-0;										// Isolate it
 			$("#curTime").text(SecondsToTimecode(curTime));						// Show time
 			}
+		else
+			trace(e.data);
 	}	
 
 	function SendShivaMessage(cmd, msg) 									// SEND SHIVA MESSAGE 

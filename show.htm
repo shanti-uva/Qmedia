@@ -186,17 +186,23 @@
 			drag: function(event, ui) {											// On drag
 				var wid=Math.min($("body").width(),sd.width);					// Cap at screen size
 			 	sd.playerSlideRatio=Math.max(0,Math.min(1,(event.clientX-8)/(wid+16)));	// Set ratio between windows
+				if (Math.abs(sd.playerSlideRatio-.5) < .01) 					// If close to center
+					sd.playerSlideRatio=.5;										// Snap it there
 				ResizePanes();													// Resize panes
 				},
 			stop: function(event, ui) {											// On drag end
-				$("#playerSiz1").css({ width:"40px", left:"-16px" });			// Constract hiding div
+				$("#playerSiz1").css({ width:"40px", left:"-16px" });			// Contract hiding div
 				ResizePanes();													// Resize panes
+				SendShivaMessage("ShivaAct=playerwid",sd.playerSlideRatio);		// Send that position has changed
 				}
 			});
 			
 		$("#transHgt").draggable({												// DRAG TRANSCRIPT HEIGHT HANDLER		
 			cursor: "row-resize", axis:"y",										// Y-only
-			stop: ResizePanes,													// Resize panes when done
+			stop: function(event, ui) {											// When done
+				SendShivaMessage("ShivaAct=transhgt",sd.transHgt);				// Send that position has changed
+				ResizePanes;													// Resize panes when done
+				},
 			drag: function(event, ui) {											// On drag
 				sd.transHgt=Math.max(event.clientY-$("#controlDiv").css("top").replace(/px/,"")*1-$("#controlDiv").height(),0)-32;  // Set hgt
 				ResizePanes();													// Resize panes
@@ -687,10 +693,15 @@ trace(y)
 		$("#transSiz").draggable({												// DRAG TRANSCRIPT WIDTH HANDLER
 			cursorAt:{left:0},													// Cursor offext
 			cursor: "col-resize", axis:"x",										// X-only
-			stop: ResizePanes,													// Resize panes when done
+			stop: function(event, ui) {											// When done
+				SendShivaMessage("ShivaAct=transwid",sd.transInfoRatio);			// Send that position has changed
+				ResizePanes;													// Resize panes when done
+				},
 			drag: function(event, ui) {											// On drag
 				var wid=Math.min($("body").width(),sd.width);					// Cap at screen size
 			 	sd.transInfoRatio=Math.max(0,Math.min(1,(event.clientX)/wid));	// Set ratio between windows
+				if (Math.abs(sd.transInfoRatio-.5) < .01) 						// If close to center
+					sd.transInfoRatio=.5;										// Snap it there
 				ResizePanes();													// Resize panes
 				}
 			});
@@ -752,6 +763,17 @@ trace(y)
     {   
 		RunPlayer("init");														// Init player								
  	}
+
+	function SendShivaMessage(src, msg) 									// SEND SHIVA MESSAGE 
+	{
+		var str=src+"|show";													// Add src and window						
+		if (msg)																// If more to it
+			str+="|"+msg;														// Add it
+		if (window.parent)														// If has a parent
+			window.parent.postMessage(str,"*");									// Send message to parent wind
+		else																	// Local	
+			window.postMessage(str,"*");										// Send message to wind
+	}
 
 	function OnPlayerTimer()												// GET TIME FROM CHARPOS IN TRANSCRIPT
 	{
