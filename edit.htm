@@ -125,6 +125,7 @@
 		$("#menu" ).menu({ position:{my:"left top", at: "left top+40" }});		// Set menu
 		$("#menu").on("menuselect", function(event,ui) { 						// On menu select
 				var id=ui.item[0].id.substr(1);									// Get id
+				if (id)	Sound("click");											// Click
 				switch(id) {													// Route on id
 					case "12":	ChangePane("intro");	qmf.Load(); 	break;	// Load file
 					case "25":	ChangePane("json");						break;	// Edit JSON
@@ -183,6 +184,9 @@
 	function LoadShow(data)														// LOAD A SHOW
 	{
   		curJson=data;															// Set json
+   		if (data.handle)														// If a handle
+   			curShow=data.handle;												// Set curshow
+   		Draw();																	// Redraw 
    	}
 
 	function Preview(data)													// PREVIEW SHOW
