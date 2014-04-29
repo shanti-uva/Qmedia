@@ -139,7 +139,7 @@
 			 	});
 		Draw();
 		$(window).resize(Draw); 		
-		setInterval(function() { SendShivaMessage("Qmedia=time") },500); 		// Set timer ~5ps
+		setInterval(function() { SendShivaMessage("Qmedia=time") },1000); 		// Set timer 1-fps
 		});	
 	
 	function Draw()															// RESIZE PANES
@@ -158,16 +158,19 @@
 			}
 		if (curPane.match(/content/)) {											// A content  pane
 			var type=curPane.replace(/content/,"");								// Get type of content
-			str="<br><p style='font-size:18px'>&nbsp&nbsp;<b>Manage "+type+" content</b></p>"
-			str+="&nbsp;&nbsp;"+type+" content is managed in this panel."
+			str="<br><p style='font-size:18px'>&nbsp;<b>Manage "+type+" content</b></p>"
+			str+="&nbsp;&nbsp;"+type+" content is managed in this panel.<br><br>"
+			str+="&nbsp;&nbsp;Current player time is: <b><span id='curTime'>"+SecondsToTimecode(curTime)+"</span></b>"
 			$("#paneDiv").html(str);											// Put editor up	
 			}
 	}
 	
 	function shivaEventHandler(e)											// ON SHIVA EVENT
 	{
-		if (e.data.match(/ShivaAct=time/))										// If a time
+		if (e.data.match(/ShivaAct=time/))	{									// If a time
 			curTime=e.data.split("|")[1]-0;										// Isolate it
+			$("#curTime").text(SecondsToTimecode(curTime));						// Show time
+			}
 	}	
 
 	function SendShivaMessage(cmd, msg) 									// SEND SHIVA MESSAGE 
@@ -179,7 +182,20 @@
 		win.postMessage(str,"*");												// Send message to show
 	}
 
-	
+	function SecondsToTimecode(secs) 										// CONVERT SECONDS TO TIMECODE
+	{
+		var str="",n;
+		n=Math.floor(secs/3600);												// Get hours
+		if (n) str+=n+":";														// Add to tc
+		n=Math.floor(secs/60);													// Get mins
+		if (n < 10) str+="0";													// Add leading 0
+		str+=n+":";																// Add to tc
+		n=Math.floor(secs%60);													// Get secs
+		if (n < 10) str+="0";													// Add leading 0
+		str+=n;																	// Add to tc
+		return str;																// Return timecode			
+	}
+		
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{
 		if (p4 != undefined)
