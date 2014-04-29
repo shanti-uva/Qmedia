@@ -321,7 +321,7 @@
 			Prompt(show.initialPrompt);											// Show initial prompt
 		if (show.botMarkup != undefined)										// If a prompt set
 			$("#botMarkup").html(show.botMarkup);								// Show html at bottom
-
+		ResizePanes();															// Resize panes
 	}
 
 
@@ -676,7 +676,7 @@
 	  		var s=window.getSelection();										// Get selection
  			var y=sd.transText.indexOf(s.focusNode.textContent);				// Char pos of paragraph
 	 		y=y+s.anchorOffset;													// Position in text
-trace(y)
+			SendShivaMessage("ShivaAct=trans",y);								// Send that position 
  			RunPlayer("scrub",GetTimeFromCharPos(y),true);						// Show
  			});
 
@@ -915,8 +915,11 @@ trace(y)
 			RunPlayer("play",v[2]);												// Play player to time
 		else if (v[0] == "Qmedia=pause") 										// Pause
 			RunPlayer("pause");													// Pause
-		else if (v[0] == "Qmedia=data") 										// Data
-			LoadShow($.parseJSON(v[2]));										// Convert to obj and load
+		else if (v[0] == "Qmedia=data") {										// Data
+			str=e.data.replace(/Qmedia=data\|QmediaEditor\|/,"");				// Strip off header
+			LoadShow($.parseJSON(str));											// Convert to obj and load
+			Sound("ding");														// Ding sound
+			}
 		else if (v[0] == "Qmedia=resize") {										// Resize
 			if (v[2] == "top")													// If top
 				sd.playerSlideRatio=v[3]-0;										// Set it								
@@ -1198,6 +1201,17 @@ trace(y)
 // HELPERS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+	function Sound(sound, mode)												// PLAY SOUND
+	{	
+		var snd=new Audio();
+		if (!snd.canPlayType("audio/mpeg"))
+			snd=new Audio(sound+".ogg");
+		else	
+			snd=new Audio(sound+".mp3");
+		if (mode != "init")
+			snd.play();
+	}
 	
 	function Popup(msg)
 	{

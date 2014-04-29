@@ -8,6 +8,7 @@
 	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 	<script src="jquery.ui.touch-punch.min.js"></script>
+	<script src="qfile.js"></script>
 	<style type="text/css">
 		body { 			font-family:Verdana,Geneva,sans-serif; font-size:10px;}
 		.rounded-corners { -moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;}
@@ -107,12 +108,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	
-	var width=1000;
-	var curShow="Clinton";
-	var curPane="";
-	var curJson="<LoadShow({\ntitle:\"Bill Clinton speaks at TED Conference\",";
-	var curTime=0;
-
+	var width=1000;																// Show width
+	var curShow="Clinton";														// Currently loaded show name
+	var curPane="intro";														// Current edit pane
+	var curJson="";																// Holds current JSON
+	var curTime=0;																// Current time of show player
+	var qmf=null;																// File system
 	
 	$(document).ready(function() {											// WHEN PAGE LOADED
 		if (window.addEventListener) 											// If supported this way
@@ -120,27 +121,37 @@
 		else																	// Use other method
 			window.attachEvent("message",shivaEventHandler);					// Add handler
 
+		qmf=new QmediaFile();													// Alloc file system
 		$("#menu" ).menu({ position:{my:"left top", at: "left top+40" }});		// Set menu
 		$("#menu").on("menuselect", function(event,ui) { 						// On menu select
 				var id=ui.item[0].id.substr(1);									// Get id
 				switch(id) {													// Route on id
-					case "25":	curPane="json"; 			Draw();		break;	// Edit JSON
-					case "31":	curPane="contentAll"; 		Draw();		break;	// All content
-					case "32":	curPane="contentPlayer"; 	Draw();		break;	// Player content
-					case "33":	curPane="contentIndex";  	Draw();		break;	// Index content
-					case "34":	curPane="contentSlide"; 	Draw();		break;	// Slide content
-					case "35":	curPane="contentInfo"; 		Draw();		break;	// Info content
-					case "36":	curPane="contentTranscript";  Draw();	break;	// Trans content
-					case"4":
-						SendShivaMessage("Qmedia=time")
-						
-					break;	
+					case "12":	ChangePane("intro");	qmf.Load(); 	break;	// Load file
+					case "25":	ChangePane("json");						break;	// Edit JSON
+					case "31":	ChangePane("contentAll");				break;	// All content
+					case "32":	ChangePane("contentPlayer");			break;	// Player content
+					case "33": 	ChangePane("contentIndex");  			break;	// Index content
+					case "34":	ChangePane("contentSlide"); 			break;	// Slide content
+					case "35":	ChangePane("contentInfo"); 				break;	// Info content
+					case "36":	ChangePane("contentTranscript");		break;	// Trans content
+					case "4":	ChangePane(curPane);	Preview();		break;	// Preview
 					}
 			 	});
 		Draw();
 		$(window).resize(Draw); 		
 		setInterval(function() { SendShivaMessage("Qmedia=time") },1000); 		// Set timer 1-fps
 		});	
+	
+	function ChangePane(newPane) 											// CHANGE EDIT PANE
+	{	
+		if (curPane == "json") {												// If current pane is JSON editor
+			var str=$("#jsonEditor").val();										// Get script
+			//Checkit!!!!
+			curJson=$.parseJSON(str);											// Get editor contents
+			}
+		curPane=newPane;														// Set current pane
+		Draw();																	// Redraw
+	}
 	
 	function Draw()															// RESIZE PANES
 	{ 
@@ -153,7 +164,11 @@
 		$("#footerDiv").css({});										
 		$("#showName").html("&nbsp; Current show: <b>"+curShow+"</b>");			// Show name
 		if (curPane == "json") {												// Editing pane
-			str="<textarea style='width:"+(w-17)+"px;height:"+(h-55)+"px;border:none;font-size:13px;padding:8px;background-color:#f8f8f8'>"+curJson+"</textarea></div>";
+			str="<textarea id='jsonEditor' style='width:"+(w-17)+"px;height:"+(h-55)+"px;border:none;font-size:13px;padding:8px;background-color:#f8f8f8'>"+JSON.stringify(curJson,null,'\t')+"</textarea></div>";
+			$("#paneDiv").html(str);											// Put editor up	
+			}
+		else if (curPane == "intro") {											// Startup pane
+			str="";	// Image
 			$("#paneDiv").html(str);											// Put editor up	
 			}
 		if (curPane.match(/content/)) {											// A content  pane
@@ -164,6 +179,16 @@
 			$("#paneDiv").html(str);											// Put editor up	
 			}
 	}
+	
+	function LoadShow(data)														// LOAD A SHOW
+	{
+  		curJson=data;															// Set json
+   	}
+
+	function Preview(data)													// PREVIEW SHOW
+	{
+		SendShivaMessage("Qmedia=data",JSON.stringify(curJson));				// Send to show player	
+   	}
 	
 	function shivaEventHandler(e)											// ON SHIVA EVENT
 	{
@@ -198,6 +223,17 @@
 		return str;																// Return timecode			
 	}
 		
+	function Sound(sound, mode)												// PLAY SOUND
+	{	
+		var snd=new Audio();
+		if (!snd.canPlayType("audio/mpeg"))
+			snd=new Audio(sound+".ogg");
+		else	
+			snd=new Audio(sound+".mp3");
+		if (mode != "init")
+			snd.play();
+	}
+
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{
 		if (p4 != undefined)
