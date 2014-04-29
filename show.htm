@@ -676,8 +676,10 @@
 	  		var s=window.getSelection();										// Get selection
  			var y=sd.transText.indexOf(s.focusNode.textContent);				// Char pos of paragraph
 	 		y=y+s.anchorOffset;													// Position in text
-			SendShivaMessage("ShivaAct=trans",y);								// Send that position 
- 			RunPlayer("scrub",GetTimeFromCharPos(y),true);						// Show
+			if (y > 1) {														// If a valid position
+				SendShivaMessage("ShivaAct=trans",y);							// Send that position 
+	 			RunPlayer("scrub",GetTimeFromCharPos(y),true);					// Show
+ 				}
  			});
 
 		$("#transHgt").hover(													// If over transcript height control
