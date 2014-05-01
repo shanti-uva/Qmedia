@@ -2,17 +2,22 @@
 header('Cache-Control: no-cache, no-store, must-revalidate'); 
 header('Expires: Sun, 01 Jul 2005 00:00:00 GMT'); 
 header('Pragma: no-cache'); 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Max-Age: 1000');
 require_once('config.php');
 			
+	$id="";
 	$title="";													
 	$script="";												
 	$password="";												
 	$private='0';												
 	$deleted='0';												
 
-	$handle=$_REQUEST['handle'];								// Get handle
 	$email=$_REQUEST['email'];									// Get email
 	
+	if (isSet($_REQUEST['id'])) 								// If set
+		$id=$_REQUEST['id'];									// Get it
 	if (isSet($_REQUEST['title'])) 								// If set
 		$title=$_REQUEST['title'];								// Get it
 	if (isSet($_REQUEST['script'])) 							// If set
@@ -24,33 +29,35 @@ require_once('config.php');
 	if (isSet($_REQUEST['deleted'])) 							// If set
 		$deleted=$_REQUEST['deleted'];							// Get it
 			
-	$query="SELECT * FROM qshow WHERE handle = '".$handle."'"; 	// Look existing one	
+	$query="SELECT * FROM qshow WHERE id = '".$id."'"; 			// Look existing one	
 	$result=mysql_query($query);								// Query
 	if ($result == false) {										// Bad query
-		print("-1\n");											// Return error
-		mysql_close();											// Close session
-		exit();													// Quit
-		}
-	if ($password != mysql_result($result,0,"password")) {		// Passwords don't match
-		print("-4\n");											// Return error
+		print("-1");											// Show error 
 		mysql_close();											// Close session
 		exit();													// Quit
 		}
 	if (!mysql_numrows($result)) {								// If not found, add it
-		$query="INSERT INTO qshow (title, handle, script, email, password, private) VALUES ('";
-		$query.=addslashes($title)."','";
-		$query.=addslashes($handle)."','";
-		$query.=addslashes($script)."','";
+		$query="INSERT INTO qshow (title, script, email, password, private) VALUES ('";
+		$query.=$title."','";
+		$query.=$script."','";
 		$query.=$email."','";
 		$query.=$password."','";
 		$query.=$private."')";
+		print($query);
+		print(mysql_error());
 		$result=mysql_query($query);							// Add row
 		if ($result == false)									// Bad save
-			print("-2\n");										// Return error
+			print("-2");										// Show error 
 		else
 			print(mysql_insert_id()."\n");						// Return ID of new resource
 		}
 	else{														// We have one already
+		$oldpass=mysql_result($result,0,"password");			// Get old password		
+		if ($oldpass && ($password != $oldpass)) {				// Passwords don't match
+			print("-3");										// Show error 
+			mysql_close();										// Close session
+			exit();												// Quit
+			}
 		$id=mysql_result($result,0,"id");						// Get id
 		if ($id != "") {										// If valid
 			$query="UPDATE qshow SET title='".$title."' WHERE id = '".$id."'";
@@ -64,12 +71,11 @@ require_once('config.php');
 			$query="UPDATE qshow SET date='".date("Y-m-d H:i:s")."' WHERE id = '".$id."'";
 			$result=mysql_query($query);
 			}
-			if ($result == false)								// Bad update
-				print("-3\n");									// Return error
-			else
-				print($id."\n");								// Return ID
+		if ($result == false)									// Bad update
+			print("-4");										// Show error 
+		else
+			print($id);											// Show id 
 			}													// End if valid
-
 		mysql_close();											// Close session
 ?>
 	

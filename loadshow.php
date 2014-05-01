@@ -6,13 +6,13 @@ require_once('config.php');
 	
 	$id=$_REQUEST['id'];
 	$password=$_REQUEST['password'];
-	$query="SELECT * FROM qshow WHERE handle = '$id'";
+	$query="SELECT * FROM qshow WHERE id = '$id'";
 	$result=mysql_query($query);
 	if (($result == false) || (!mysql_numrows($result)))
-		print("error");
+			print("LoadShow({ \"qmfmsg\":\"error\"})");
 	else{
 		if (mysql_result($result,0,"private") && (mysql_result($result,0,"password") != $password))
-			print("private");
+			print("LoadShow({ \"qmfmsg\":\"private\"})");
 		else	
 			print(mysql_result($result,0,"script"));
 		}
