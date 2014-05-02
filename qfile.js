@@ -87,8 +87,8 @@
 				 		alert("Sorry, the password for this project does not match the one you supplied.");	
 				 	else if (d == -4) 											// Error
 				 		alert("Sorry, there was an error updating that project.");		
-				 	else{														// Success!
-				 		this.curFile=d;										// Set current file
+				 	else if (!isNaN(d)){										// Success if a number
+				 		this.curFile=d;											// Set current file
 						Sound("ding");
 						}
 					},

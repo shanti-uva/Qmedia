@@ -64,7 +64,7 @@
 				<li id="m11"><a  href="#">New</a></li>
 				<li id="m12"><a href="#">Open</a></li>
 				<li id="m13"><a href="#">Save</a></li>
-				<li id="m14"><a href="#">Save as...</a></li>
+				<li id="m14"><a href="#">Save As...</a></li>
 				<li id="m15"><a href="#">Delete</a></li>
 		   	</ul></li>
 		    <li id=""><a href="#">Edit</a><ul>
@@ -127,6 +127,7 @@
 				var id=ui.item[0].id.substr(1);									// Get id
 				if (id)	Sound("click");											// Click
 				switch(id) {													// Route on id
+					case "11":	NewShow(); 	ChangePane("intro");		break;	// New file
 					case "12":	ChangePane("intro");	qmf.Load(); 	break;	// Load file
 					case "13":	ChangePane("intro");	qmf.Save(0); 	break;	// Save file
 					case "14":	ChangePane("intro");	qmf.Save(1); 	break;	// Save as... 
@@ -155,6 +156,20 @@
 		curPane=newPane;														// Set current pane
 		Draw();																	// Redraw
 	}
+	
+	function NewShow() 														// NEW SHOW
+	{	
+		if (!confirm("Are you sure?"))	return;;								// Be sure
+		curJson={};
+		curJson.title="Title goes here";
+		curJson.playerStop=600;
+		curJson.width=1000;
+		curJson.playerSource="3_T9Un5hWAg";
+		curJson.playerAspect=.5625;
+		curJson.infoLab="";
+		Preview();																// Run preview
+		}
+
 	
 	function Draw()															// RESIZE PANES
 	{ 

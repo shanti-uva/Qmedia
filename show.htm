@@ -99,7 +99,7 @@
 	<div id="infoDiv" style="position:absolute;opacity:inherit" class="info">
 		<span id="infoLab" class="labels"></span>
 		<div id="infoMapDiv" style='position:absolute;top:0px;white-space:nowrap;opacity:inherit;display:none'> 
- 			<img src="images/mapbut.gif" id="infomap" title="Show content map" style="cursor:pointer"> &nbsp;
+ 			<img src="images/mapbut.gif" id="infomap" title="Show content map" style="cursor:pointer;opacity:0"> &nbsp;
  			<img src="images/annotate.gif" id="annotate" width="12" title="Annotate" style="cursor:pointer">
 	  	</div>
 		<div id="informationText" style="height:100%;overflow:hidden;margin-top:16px;opacity:inherit"></div>
@@ -161,7 +161,9 @@
 		
 		isMobile=navigator.userAgent.match(/(ipad|iphone|ipod|android)/i) ? true : false; // Set mobile flag
 		var url=window.location.search.substring(1);							// Get query string
-		if ((url) && (!url.match(/\./)))										// No file extension
+		if (url && !isNaN(url)) 												// If a number,
+			url="//qmediaplayer.com/loadshow.php?id="+url;						// Get from db
+		else if ((url) && (!url.match(/\./)))									// No file extension
 			url+=".json";														// Add txt
 		if (!url)																// Nothing on command line
 			url="defaultshow.json";												// Use default
@@ -272,7 +274,6 @@
 
 	});
 
-
 	function LoadShow(show)													// LOAD SHOW CONTENT
 	{
 		sd=show;
@@ -286,11 +287,18 @@
 		MakeVectors(3,show.infoVectors);										// Make info timing list
 		$("#titleDiv").html(show.title);										// Set title
 		$("#contentsLab").html(show.contentsLab);								// Set label
-		$("#transLab").html(show.transLab);										// Set label
+			$("#transLab").html(show.transLab);									// Set label
 		$("#infoLab").html(show.infoLab);										// Set label
 		$("#slider").slider("option","max",show.playerStop);					// Set timeline end
 		notesText="";															// No notes
-		
+		if (!sd.playerAspect) 													// No aspect spec'd
+			sd.playerAspect=.5625;												// Assign one
+		if (!sd.playerSlideRatio) 												// No ratio spec'd
+			sd.playerSlideRatio=.5;												// Assign one
+		if (!sd.transInfoRatio) 												// No ratio spec'd
+			sd.transInfoRatio=.5;												// Assign one
+		if (!sd.playerStart) 													// No start spec'd
+			sd.playerStart=0;													// Assign one
 		MakeTOC(show.toc);														// Fill TOC contents
 		MakeTranscript();														// Load transcript
 		if (!show.slideVectors)													// If no slides
@@ -316,13 +324,19 @@
 			var firstScriptTag=document.getElementsByTagName('script')[0];		// Find 1st script
 			firstScriptTag.parentNode.insertBefore(tag,firstScriptTag);			// Load
 			}
-		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
+		ResizePanes();															// Resize panes
+		Prompt("");																// Clear initial prompt
 		if (show.initialPrompt != undefined)									// If a prompt set
 			Prompt(show.initialPrompt);											// Show initial prompt
-		if (show.botMarkup != undefined)										// If a prompt set
+		$("#botMarkup").html("");												// Erase html at bottom
+		if (show.botMarkup != undefined)										// If markup set
 			$("#botMarkup").html(show.botMarkup);								// Show html at bottom
-		ResizePanes();															// Resize panes
-	}
+		$("#slideDiv").html("");												// Clear slides
+		$("#informationText").html("");											// Clear info
+		$("#overlayDiv").html("");												// Clear player
+		RunPlayer("show");
+		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
+		}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -386,10 +400,19 @@
 			$("#transDiv").css("display","none");								// Hide transcript
 			}
 		$("#infoDiv").css({ left:(wid-w+8)+"px",width:Math.max(w,0)+"px",height:sd.transHgt+"px",top:ct+"px"});
-		$("#transHgt").css({ top:ct+sd.transHgt+"px"});							// Set transcript height
+		if (sd.transHgt) {														// If a height set
+			ct+=sd.transHgt;													// Add it to top					
+			$("#transHgt").css("opacity",1);									// Show
+			}
+		else																	// No bottom
+			$("#transHgt").css("opacity",0);									// Hide
+		$("#transHgt").css({ top:ct-0+4+"px"});									// Set sizer top
 		$("#transSearchDiv").css("left",$("#transDiv").width()-104)+"px";		// Search div width
-		if (sd.infoMapSource) 													// If an infomap
-			$("#infoMapDiv").css({ left:$("#infoDiv").width()-62+"px",display:"initial"});	// Set pos and show
+		$("#infomap").css("opacity",0);											// Hide icon
+			w=$("#infoDiv").width()
+		$("#infoMapDiv").css({ left:w-62+"px",display:"initial"});				// Set pos and show
+		if (sd.infoMapSource) 	 												// If an infomap
+			$("#infomap").css("opacity",1);										// Show icon
 		RunPlayer("resize");													// Resize player
 		RunSlide("resize");														// Resize slides
 		RunInfo("resize");														// Resize info

@@ -5,8 +5,8 @@ header('Pragma: no-cache');
 require_once('config.php');
 			
 	$query="SELECT * FROM qshow";								// Query start
-	if (isSet($_REQUEST['email'])) 	 							// If set
-		$query.=" WHERE email = '".$_REQUEST['email']."'";		// WHERE email search
+	if (isSet($_REQUEST['email'])) 		 						// If set
+		$query.=" WHERE email = '".addslashes($_REQUEST['email'])."'";		// WHERE email search
 	$result=mysql_query($query);								// Query
 	if ($result == false) {										// Bad query
 		print("-1\n");											// Return error

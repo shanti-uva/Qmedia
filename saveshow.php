@@ -28,7 +28,14 @@ require_once('config.php');
 		$private=$_REQUEST['private'];							// Get it
 	if (isSet($_REQUEST['deleted'])) 							// If set
 		$deleted=$_REQUEST['deleted'];							// Get it
-			
+	
+	$script=addEscapes($script);								// Escape script
+	$title=addEscapes($title);									// Title	
+	$email=addEscapes($email);									// Email	
+	$password=addEscapes($password);							// Password	
+	$private=addEscapes($private);								// Private
+	$id=addEscapes($id);										// Private
+					
 	$query="SELECT * FROM qshow WHERE id = '".$id."'"; 			// Look existing one	
 	$result=mysql_query($query);								// Query
 	if ($result == false) {										// Bad query
@@ -43,8 +50,6 @@ require_once('config.php');
 		$query.=$email."','";
 		$query.=$password."','";
 		$query.=$private."')";
-		print($query);
-		print(mysql_error());
 		$result=mysql_query($query);							// Add row
 		if ($result == false)									// Bad save
 			print("-2");										// Show error 
@@ -77,5 +82,16 @@ require_once('config.php');
 			print($id);											// Show id 
 			}													// End if valid
 		mysql_close();											// Close session
+
+	
+	function addEscapes($str)									// ESCAPE ENTRIES
+	{
+		if (!$str)												// If nothing
+			return $str;										// Quit
+		$str=addslashes($str);									// Add slashes
+		$str=str_replace("\r","",$str);							// No crs
+		return $str;
+	}
+
 ?>
 	
