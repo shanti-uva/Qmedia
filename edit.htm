@@ -131,6 +131,7 @@
 					case "12":	ChangePane("intro");	qmf.Load(); 	break;	// Load file
 					case "13":	ChangePane("intro");	qmf.Save(0); 	break;	// Save file
 					case "14":	ChangePane("intro");	qmf.Save(1); 	break;	// Save as... 
+					case "15":	ChangePane("intro");	qmf.Delete(); 	break;	// Delete
 					case "25":	ChangePane("json");						break;	// Edit JSON
 					case "31":	ChangePane("contentAll");				break;	// All content
 					case "32":	ChangePane("contentPlayer");			break;	// Player content
@@ -170,6 +171,10 @@
 		Preview();																// Run preview
 		}
 
+	function DeleteShow() 													// DELETE SHOW
+	{
+			
+	}
 	
 	function Draw()															// RESIZE PANES
 	{ 

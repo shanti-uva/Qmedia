@@ -6,7 +6,7 @@ require_once('config.php');
 			
 	$query="SELECT * FROM qshow";								// Query start
 	if (isSet($_REQUEST['email'])) 		 						// If set
-		$query.=" WHERE email = '".addslashes($_REQUEST['email'])."'";		// WHERE email search
+		$query.=" WHERE email = '".addslashes($_REQUEST['email'])."' ORDER by date DESC";	// WHERE email search
 	$result=mysql_query($query);								// Query
 	if ($result == false) {										// Bad query
 		print("-1\n");											// Return error

@@ -11,6 +11,7 @@
 		this.curFile="";														// Current file
 		this.password=this.GetCookie("password");								// Password
 		this.butsty=" style='border-radius:10px;color#666;padding-left:6px;padding-right:6px' ";	// Button styling
+		this.deleting=false;													// Not deleting
 	}
 	
 	QmediaFile.prototype.Load=function() 									//	LOAD FILE
@@ -31,7 +32,29 @@
 			});
 	
 		$("#logBut").button().click(function() {								// LOGIN BUTTON
-			_this.ListFiles($("#email").val());									// Get list of files
+			_this.ListFiles(false);												// Get list of files
+			});
+	}	
+
+	QmediaFile.prototype.Delete=function() 									//	DELETE FILE
+	{
+		var str="<br/>"
+		str+="Type your email address and password.<br>"
+		str+="<br/><blockquote><table cellspacing=0 cellpadding=0 style='font-size:11px'>";
+		str+="<tr><td><b>Email</b></td><td><input"+this.butsty+"type='text' id='email' size='20' value='"+this.email+"'/></td></tr>";
+		str+="<tr><td><b>Password&nbsp;&nbsp;</b></td><td><input"+this.butsty+"type='password' id='password' size='20' value='"+this.password+"'/></td></tr>";
+		str+="</table></blockquote><div style='font-size:12px;text-align:right'><br>";	
+		str+="<button"+this.butsty+"id='logBut'>Login</button>";	
+		str+="<button"+this.butsty+"id='cancelBut'>Cancel</button></div>";	
+		this.ShowLightBox("Login",str);
+		var _this=this;															// Save context
+		
+		$("#cancelBut").button().click(function() {								// CANCEL BUTTON
+			$("#lightBoxDiv").remove();											// Close
+			});
+	
+		$("#logBut").button().click(function() {								// LOGIN BUTTON
+			_this.ListFiles(true);												// Get list of files
 			});
 	}	
 	
@@ -113,33 +136,60 @@
 		$.ajax({ url:url, dataType:'jsonp', complete:function() { Sound('ding'); } });	// Get data and pass to LoadProject()
 	}	
 		
-	QmediaFile.prototype.ListFiles=function(callback, email) 				//	LIST PROJECTS IN DB
+	QmediaFile.prototype.DeleteFile=function(id) 							//	FLAG A FILE AS DELETED IN DB
 	{
+		id=id.substr(3);														// Strip off prefix
+		$("#lightBoxDiv").remove();												// Close
+		var url=this.host+"saveshow.php";										// Base file
+		url+="?id="+id;															// Add id
+		url+="&password="+this.password;										// Add deleted
+		url+="&deleted=1";														// Add to query line
+		$.ajax({ url:url, dataType:'jsonp', complete:function() { Sound('ding'); } });	// Get data and pass to LoadProject()
+	}	
+
+	QmediaFile.prototype.ListFiles=function(deleting) 						//	LIST PROJECTS IN DB
+	{
+		if (deleting) {
+			if (!this.password && !this.email) 									// Missing both
+				 return alert("Sorry, you need to add an email and password.");	// Quit with alert
+			else if (!this.password) 											// Missing password
+				 return alert("Sorry, you need to add a password.");	// Quit with alert
+			else if (!this.email) 												// Missing email
+				 return alert("Sorry, you need to add an email.");		// Quit with alert
+			}
+		this.deleting=deleting;													// Deleting status
 		var url=this.host+"listshow.php";										// Base file
-		if (email)																// If email
-			url+="?email="+email;												// Add to query line
+		if (this.email)															// If email
+			url+="?email="+this.email;											// Add to query line
 		$.ajax({ url:url, dataType:'jsonp', complete:function() { Sound('click'); } });	// Get data and pass qmfListFiles()
 	}
 	
 	function qmfListFiles(files)											// CALLBACK TO List()
 	{
 		var trsty=" style='height:20px;cursor:pointer' onMouseOver='this.style.backgroundColor=\"#acc3db\"' ";
-		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='qmf.LoadFile(this.id)'";
+		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='";
+		if (qmf.deleting)	trsty+="qmf.DeleteFile(this.id)'";
+		else				trsty+="qmf.LoadFile(this.id)'";
 		qmf.password=$("#password").val();										// Get current password
 		qmf.SetCookie("password",qmf.password,7);								// Save cookie
 		qmf.email=$("#email").val();											// Get current email
 		qmf.SetCookie("email",qmf.email,7);										// Save cookie
 		$("#lightBoxDiv").remove();												// Close old one
-		str="<br>Choose project to load from the list below.<br>"
-		str+="<br><div style='width:100%;max-height400px;overflow-y:auto'>";
+		str="<br>Choose project from the list below.<br>"
+		str+="<br><div style='width:100%;max-height:300px;overflow-y:auto'>";
 		str+="<table style='font-size:12px;width:100%;padding:0px'>";
-		str+="<tr><td ><b>Title </b></td><td align=right><b>&nbsp;Date&nbsp;&&nbsp;time</b></td></tr>";
+		str+="<tr></td><td><b>Title </b></td><td><b>Date&nbsp;&&nbsp;time</b></td><td><b>&nbsp;&nbsp;&nbspId</b></tr>";
 		str+="<tr><td colspan='3'><hr></td></tr>";
 		for (var i=0;i<files.length;++i) 										// For each file
-			str+="<tr id='qmf"+files[i].id+"' "+trsty+"><td>"+files[i].title+"</td><td align=right>"+files[i].date.substr(5,11)+"</td></tr>";
+			str+="<tr id='qmf"+files[i].id+"' "+trsty+"><td>"+files[i].title+"</td><td>"+files[i].date.substr(5,11)+"</td><td align=right>"+files[i].id+"</td></tr>";
 		str+="</table></div><div style='font-size:12px;text-align:right'><br>";	
 		str+=" <button"+qmf.butsty+"id='cancelBut'>Cancel</button></div>";	
-		qmf.ShowLightBox("Load project",str);									// Show lightbox
+		
+		if (qmf.deleting)														// If deleting
+			qmf.ShowLightBox("Delete a project",str);							// Show lightbox
+		else																	// Loading
+			qmf.ShowLightBox("Load a project",str);								// Show lightbox
+		this.deleting=false;													// Done deleting
 		
 		$("#cancelBut").button().click(function() {								// CANCEL BUTTON
 			$("#lightBoxDiv").remove();											// Close
