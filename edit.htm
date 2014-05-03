@@ -160,15 +160,16 @@
 	
 	function NewShow() 														// NEW SHOW
 	{	
-		if (!confirm("Are you sure?"))	return;;								// Be sure
-		curJson={};
-		curJson.title="Title goes here";
-		curJson.playerStop=600;
-		curJson.width=1000;
-		curJson.playerSource="3_T9Un5hWAg";
-		curJson.playerAspect=.5625;
-		curJson.infoLab="";
-		Preview();																// Run preview
+		ConfirmBox("This will clear the project you current have open. It will not affect the one stored online", function() {								// Be sure
+			curJson={};															// New obj
+			curJson.title="Title goes here";									// Set defaults
+			curJson.playerStop=600;
+			curJson.width=1000;
+			curJson.playerSource="3_T9Un5hWAg";
+			curJson.playerAspect=.5625;
+			curJson.infoLab="";
+			Preview();															// Run preview
+			});
 		}
 
 	function Draw()															// RESIZE PANES
@@ -280,12 +281,31 @@
 	{
 		if (modal)
 			return alert(content);
-		$("body").append("<div id='alertBoxDiv' style='border-radius:16px'></div>");														
-		var str="<img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
-		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#ff9000'><b>"+title+"</b></span><br>";
+		$("body").append("<div id='alertBoxDiv'></div>");														
+		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
+		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#ff9000'><b>"+title+"</b></span></p>";
 		str+="<div style='font-size:14px;margin:16px'>"+content+"</div>";
 		$("#alertBoxDiv").append(str);	
-		 	$("#alertBoxDiv").dialog({ width:400 });	
+		$("#alertBoxDiv").dialog({ width:400, buttons:{"OK": function() { $(this).remove(); }}});	
+		$(".ui-dialog-titlebar").hide();
+		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
+		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
+	}
+
+	function ConfirmBox(content, callback)									// COMFIRM BOX
+	{
+		$("body").append("<div id='alertBoxDiv'></div>");														
+		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
+		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>Are you sure?</b></span><p>";
+		str+="<div style='font-size:14px;margin:14px'>"+content+"</div>";
+		$("#alertBoxDiv").append(str);	
+		$("#alertBoxDiv").dialog({ width:400, buttons: {
+					            	"Yes": function() { $(this).remove(); callback() },
+					            	"No":  function() { $(this).remove(); }
+									}});	
+		$(".ui-dialog-titlebar").hide();
+		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
+		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
 	}
 
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
