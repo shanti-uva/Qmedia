@@ -100,7 +100,6 @@
 		</div>
 	</div>
 <body>
-
 <script>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,6 +153,7 @@
 			//Checkit!!!!
 			curJson=$.parseJSON(str);											// Get editor contents
 			}
+			
 		curPane=newPane;														// Set current pane
 		Draw();																	// Redraw
 	}
@@ -171,11 +171,6 @@
 		Preview();																// Run preview
 		}
 
-	function DeleteShow() 													// DELETE SHOW
-	{
-			
-	}
-	
 	function Draw()															// RESIZE PANES
 	{ 
 		var str;
@@ -206,23 +201,30 @@
 	function LoadShow(data)													// LOAD A SHOW
 	{
  		if (data.qmfmsg == "private") {											// If a private file		
-			alert("Sorry, but this project is marked private. You will need to supply the password to load it");
+			AlertBox("Private project","Sorry, but this project is marked <i>private</i>. You will need to supply the password to load it");
 			return;																// Quit
 			}
 		else if (data.qmfmsg == "error") {										// If an error
-			alert("Sorry, but there was an error loading this project");
+			AlertBox("Sorry, but there was an error loading this project");
 			return;																// Quit
 			}
   		curJson=data;															// Set json
    		if (qmf.curFile)														// If a good file
    			curShow=qmf.curFile;												// Set curshow
+  		Preview(); 																// Preview show
    		Draw();																	// Redraw 
-   	}
+   		Sound('ding'); 															// Ding
+    	}
 
 	function Preview(data)													// PREVIEW SHOW
 	{
 		SendShivaMessage("Qmedia=data",JSON.stringify(curJson));				// Send to show player	
    	}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// EVENTS
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	
 	function shivaEventHandler(e)											// ON SHIVA EVENT
 	{
@@ -242,6 +244,12 @@
 		var win=document.getElementById("playerIF").contentWindow;				// Point at iframe	
 		win.postMessage(str,"*");												// Send message to show
 	}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// HELPERS
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 	function SecondsToTimecode(secs) 										// CONVERT SECONDS TO TIMECODE
 	{
@@ -266,6 +274,18 @@
 			snd=new Audio(sound+".mp3");
 		if (mode != "init")
 			snd.play();
+	}
+
+	function AlertBox(title, content, modal)								// ALERT BOX
+	{
+		if (modal)
+			return alert(content);
+		$("body").append("<div id='alertBoxDiv' style='border-radius:16px'></div>");														
+		var str="<img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
+		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#ff9000'><b>"+title+"</b></span><br>";
+		str+="<div style='font-size:14px;margin:16px'>"+content+"</div>";
+		$("#alertBoxDiv").append(str);	
+		 	$("#alertBoxDiv").dialog({ width:400 });	
 	}
 
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 

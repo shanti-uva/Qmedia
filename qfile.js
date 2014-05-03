@@ -81,11 +81,11 @@
 			var pri= $("#private").prop("checked") ? 1 : 0						// Get private
 			
 			if (!_this.password && !_this.email) 								// Missing both
-				 return alert("Sorry, you need to add an email and password to save.");	// Quit with alert
+				 return AlertBox("Need email and passord","Sorry, you need to add an email and password to save.",1);	// Quit with alert
 			else if (!_this.password) 											// Missing password
-				 return alert("Sorry, you need to add a password to save.");	// Quit with alert
+				 return AlertBox("Need passord","Sorry, you need to add a password to save.",1);	// Quit with alert
 			else if (!_this.email) 												// Missing email
-				 return alert("Sorry, you need to add an email to save.");		// Quit with alert
+				 return AlertBox("Need email","Sorry, you need to add an email to save.",1);	// Quit with alert
 
 			_this.SetCookie("password",_this.password,7);						// Save cookie
 			_this.SetCookie("email",_this.email,7);								// Save cookie
@@ -101,15 +101,13 @@
 				$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat,  // Post data
 				success:function(d) { 			
 					if (d == -1) 												// Error
-				 		alert("Sorry, there was an error loading that project.");		
-					else if (d == -1) 											// Error
-				 		alert("Sorry, the password for this project does not match the one you supplied.");		
+				 		AlertBox("Error","Sorry, there was an error loading that project.(1)");		
 					else if (d == -2) 											// Error
-				 		alert("Sorry, there was an error saving that project.");		
+				 		AlertBox("Error","Sorry, there was an error saving that project. (2)");		
 					else if (d == -3) 											// Error
-				 		alert("Sorry, the password for this project does not match the one you supplied.");	
+				 		AlertBox("Wrong password","Sorry, the password for this project does not match the one you supplied.");	
 				 	else if (d == -4) 											// Error
-				 		alert("Sorry, there was an error updating that project.");		
+				 		AlertBox("Error","Sorry, there was an error updating that project. (4)");		
 				 	else if (!isNaN(d)){										// Success if a number
 				 		this.curFile=d;											// Set current file
 						Sound("ding");
@@ -133,7 +131,7 @@
 		if (this.password)														// If a password spec'd
 			url+="&password="+this.password;									// Add to query line
 		this.curFile=id;														// Set as current file
-		$.ajax({ url:url, dataType:'jsonp', complete:function() { Sound('ding'); } });	// Get data and pass to LoadProject()
+		$.ajax({ url:url, dataType:'jsonp'});									// Get data and pass to LoadProject() in Edit
 	}	
 		
 	QmediaFile.prototype.DeleteFile=function(id) 							//	FLAG A FILE AS DELETED IN DB
@@ -151,11 +149,11 @@
 	{
 		if (deleting) {
 			if (!this.password && !this.email) 									// Missing both
-				 return alert("Sorry, you need to add an email and password.");	// Quit with alert
+				 return alert("Need email and password","Sorry, you need to add an email and password.",1);	// Quit with alert
 			else if (!this.password) 											// Missing password
-				 return alert("Sorry, you need to add a password.");	// Quit with alert
+				 return alert("Need password","Sorry, you need to add a password.",1);	// Quit with alert
 			else if (!this.email) 												// Missing email
-				 return alert("Sorry, you need to add an email.");		// Quit with alert
+				 return alert("Need email","Sorry, you need to add an email.",1);	// Quit with alert
 			}
 		this.deleting=deleting;													// Deleting status
 		var url=this.host+"listshow.php";										// Base file

@@ -26,7 +26,7 @@ LoadShow({
 		"playerStop":367,
 		"playerVolume":75,
 		"width":1000,
-		"toc":[ 
+		"indexVectors":[ 
 			{"t":0,    "c":"Opening credits"},
 			{"t":16,   "c":"My TED wish"},
 			{"t":44,   "c":"An unequal world"},

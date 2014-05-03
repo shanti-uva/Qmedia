@@ -276,6 +276,16 @@
 
 	function LoadShow(show)													// LOAD SHOW CONTENT
 	{
+		if (show.playerAspect == undefined) 									// No aspect spec'd
+			show.playerAspect=0.5625;											// Assign one
+		if (show.playerSlideRatio == undefined) 								// No ratio spec'd
+			show.playerSlideRatio=0.5;											// Assign one
+		if (show.transInfoRatio == undefined)									// No ratio spec'd
+			show.transInfoRatio=0.5;											// Assign one
+		if (show.playerStart == undefined) 										// No start spec'd
+			show.playerStart=0.0;												// Assign one
+		if (show.playerStop == undefined) 										// No start spec'd
+			show.playerStop=600.0;												// Assign one
 		sd=show;
 		for (i=0;i<4;++i) {														// For each show pane
 			showVectors[i]=[];													// Create timing vector arrays 
@@ -291,38 +301,36 @@
 		$("#infoLab").html(show.infoLab);										// Set label
 		$("#slider").slider("option","max",show.playerStop);					// Set timeline end
 		notesText="";															// No notes
-		if (!sd.playerAspect) 													// No aspect spec'd
-			sd.playerAspect=.5625;												// Assign one
-		if (!sd.playerSlideRatio) 												// No ratio spec'd
-			sd.playerSlideRatio=.5;												// Assign one
-		if (!sd.transInfoRatio) 												// No ratio spec'd
-			sd.transInfoRatio=.5;												// Assign one
-		if (!sd.playerStart) 													// No start spec'd
-			sd.playerStart=0;													// Assign one
-		MakeTOC(show.toc);														// Fill TOC contents
+		MakeIndex(show.indexVectors);											// Fill TOC contents
 		MakeTranscript();														// Load transcript
 		if (!show.slideVectors)													// If no slides
 			$("#slideControlsDiv").css("display","none");						// Hide controls
 		var tag=document.createElement('script');								// Create script
-		if (!sd.playerSource) {													// No scrubbable media
+		if (!show.playerSource) {												// No scrubbable media
 			playerType="noplayer";												// No player
 			player=1;															// Put something there
 			RunPlayer("ready");													// Init show
 			}
-		else if (sd.playerSource.match(/\/\//i)) {								// If HTML5
+		else if (show.playerSource.match(/\/\//i)) {							// If HTML5
 			playerType="html5";													// Set type
 			RunPlayer("init");													// Init player
 			}
-		else if (!isNaN(sd.playerSource)) {										// If Vimeo
+		else if (!isNaN(show.playerSource)) {									// If Vimeo
 			playerType="vimeo";													// Set type
 			RunPlayer("init");													// Init player
 			}
 		else{																	// If YouTube
 			playerType="youtube";												// Set type
-			var tag=document.createElement('script');							// Create script
-			tag.src="//www.youtube.com/iframe_api";								// Set api url
-			var firstScriptTag=document.getElementsByTagName('script')[0];		// Find 1st script
-			firstScriptTag.parentNode.insertBefore(tag,firstScriptTag);			// Load
+			if (player) {														// API already loaded
+				player.loadVideoById(show.playerSource);						// Reload clip
+				player.pauseVideo();
+				}
+			else{
+				var tag=document.createElement('script');						// Create script
+				tag.src="//www.youtube.com/iframe_api";							// Set api url
+				var firstScriptTag=document.getElementsByTagName('script')[0];	// Find 1st script
+				firstScriptTag.parentNode.insertBefore(tag,firstScriptTag);		// Load
+				}
 			}
 		ResizePanes();															// Resize panes
 		Prompt("");																// Clear initial prompt
@@ -383,7 +391,7 @@
 		var ct=h+$("#controlDiv").height()+14;									// Contents top
 		$("#contentDiv").css({ top:ct+"px",height:sd.transHgt+"px"});			// Position/size contents
 		var cw=$("#contentDiv").width()-8;										// Get width of content panel
-		if (sd.toc)																// If a TOC
+		if (sd.indexVectors)													// If an index
 			cw+=16;																// Pad it out
 		$("#controlDiv").css({ top:h+"px" });									// Position control slider
 		var sw=164;																// Account for t/c & play but												
@@ -646,7 +654,7 @@
 		$("#transcriptText").html(tran.replace(/\n/g,"<br>"));					// Set text
 	}
 
-	function MakeTOC(toc)
+	function MakeIndex(toc)													// MAKE INDEX
 	{
 		var i,j,ply;
 		if (!toc) {																// No toc
@@ -674,11 +682,17 @@
 	function MakeTranscript()												// CREATE TRANSCRIPT
 	{
 		if (!sd.transText) {													// If no transcript
-			sd.transInfoRatio=0;												// Slide over
+			$("#transcriptText").html("");										// No text
 			$("#transDiv").css("display","none");								// Hide it
-			$("#transSiz").css("display","none");								// Hide it
+			$("#transSearchDiv").css("display","none");							// Hide it
+			$("#transLab").css("display","none");								// Hide it
+			if (!sd.indexVectors)												// No TOC
+				sd.transInfoRatio=.0;											// Slide over
 			return;																// Quit
 			} 
+		$("#transDiv").css("display","initial");								// Show it
+		$("#transSearchDiv").css("display","initial");							// Show it
+		$("#transLab").css("display","initial");								// Show it
 		sd.transText=sd.transText.replace(/\r/g,"");							// Remove CRS
 		$("#transcriptText").html(sd.transText);								// Fill div
 		var words=sd.transText.split(" ");										// Get words
