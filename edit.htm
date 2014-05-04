@@ -86,12 +86,10 @@
 				<li id="m25"><a href="#">JSON</a></li>
 			</ul></li>
 	 			<li id=""><a href="#">Content</a><ul>
-	                <li id="m31"><a href="#">All</a></li>
-	                <li id="m32"><a href="#">Player</a></li>
-	                <li id="m33"><a href="#">Index</a></li>
-	                <li id="m34"><a href="#">Slides</a></li>
-	                <li id="m35"><a href="#">Information</a></li>
-	                <li id="m36"><a href="#">Transcript</a></li>
+	                <li id="m31"><a href="#">Add content</a></li>
+	                <li id="m32"><a href="#">Manage content</a></li>
+	                <li id="m33"><a href="#">Edit index</a></li>
+	                <li id="m34"><a href="#">Sync transcript</a></li>
 	            </ul>
 			<li id="m4" ><a href="#">Preview</a><li>
 		</ul>
@@ -134,12 +132,10 @@
 					case "15":	ChangePane("intro");	qmf.Delete(); 	break;	// Delete
 					case "16":	ChangePane("intro");	qmf.Delete(1); 	break;	// Undelete
 					case "25":	ChangePane("json");						break;	// Edit JSON
-					case "31":	ChangePane("contentAll");				break;	// All content
-					case "32":	ChangePane("contentPlayer");			break;	// Player content
-					case "33": 	ChangePane("contentIndex");  			break;	// Index content
-					case "34":	ChangePane("contentSlide"); 			break;	// Slide content
-					case "35":	ChangePane("contentInfo"); 				break;	// Info content
-					case "36":	ChangePane("contentTranscript");		break;	// Trans content
+					case "31":	ChangePane("addcontent");				break;	// Add content
+					case "32":	ChangePane("content");					break;	// Manage content
+					case "33": 	ChangePane("index");  					break;	// Index content
+					case "34": 	ChangePane("transcript");  				break;	// Index content
 					case "4":	ChangePane(curPane);	Preview();		break;	// Preview
 					}
 			 	});
@@ -192,10 +188,26 @@
 			str="";	// Image
 			$("#paneDiv").html(str);											// Put editor up	
 			}
-		if (curPane.match(/content/)) {											// A content  pane
-			var type=curPane.replace(/content/,"");								// Get type of content
-			str="<br><p style='font-size:18px'>&nbsp;<b>Manage "+type+" content</b></p>"
-			str+="&nbsp;&nbsp;"+type+" content is managed in this panel.<br><br>"
+		else if (curPane == "addcontent") {										// Add content pane
+			str="<br><p style='font-size:18px'>&nbsp;<b>Add new content</b></p>"
+			str+="&nbsp;&nbspThis is the content bin, where content is added to bin.<br><br>"
+			$("#paneDiv").html(str);											// Put editor up	
+			}
+		else if (curPane == "content") {										// Content pane
+			str="<br><p style='font-size:18px'>&nbsp;<b>Manage content</b></p>"
+			str+="&nbsp;&nbsp;Content is managed in this panel.<br><br>"
+			str+="&nbsp;&nbsp;Current player time is: <b><span id='curTime'>"+SecondsToTimecode(curTime)+"</span></b>"
+			$("#paneDiv").html(str);											// Put editor up	
+			}
+		else if (curPane == "index") {											// Index pane
+			str="<br><p style='font-size:18px'>&nbsp;<b>Edit index</b></p>"
+			str+="&nbsp;&nbsp;Index is managed in this panel.<br><br>"
+			str+="&nbsp;&nbsp;Current player time is: <b><span id='curTime'>"+SecondsToTimecode(curTime)+"</span></b>"
+			$("#paneDiv").html(str);											// Put editor up	
+			}
+		else if (curPane == "transcript") {										// Transcript pane
+			str="<br><p style='font-size:18px'>&nbsp;<b>Sync transcript</b></p>"
+			str+="&nbsp;&nbsp;Transcript is synced is managed in this panel.<br><br>"
 			str+="&nbsp;&nbsp;Current player time is: <b><span id='curTime'>"+SecondsToTimecode(curTime)+"</span></b>"
 			$("#paneDiv").html(str);											// Put editor up	
 			}
