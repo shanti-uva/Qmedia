@@ -81,11 +81,11 @@
 			var pri= $("#private").prop("checked") ? 1 : 0						// Get private
 			
 			if (!_this.password && !_this.email) 								// Missing both
-				 return AlertBox("Need email and passord","Sorry, you need to add an email and password to save.",1);	// Quit with alert
+				 return _this.LightBoxAlert("Need email and password");			// Quit with alert
 			else if (!_this.password) 											// Missing password
-				 return AlertBox("Need passord","Sorry, you need to add a password to save.",1);	// Quit with alert
+				 return _this.LightBoxAlert("Need password");					// Quit with alert
 			else if (!_this.email) 												// Missing email
-				 return AlertBox("Need email","Sorry, you need to add an email to save.",1);	// Quit with alert
+				 return _this.LightBoxAlert("Need email");						// Quit with alert
 
 			_this.SetCookie("password",_this.password,7);						// Save cookie
 			_this.SetCookie("email",_this.email,7);								// Save cookie
@@ -136,25 +136,37 @@
 		
 	QmediaFile.prototype.DeleteFile=function(id) 							//	FLAG A FILE AS DELETED IN DB
 	{
+		var dat={};
 		id=id.substr(3);														// Strip off prefix
 		$("#lightBoxDiv").remove();												// Close
 		var url=this.host+"saveshow.php";										// Base file
-		url+="?id="+id;															// Add id
-		url+="&password="+this.password;										// Add deleted
-		url+="&deleted=1";														// Add to query line
-		$.ajax({ url:url, dataType:'jsonp', complete:function() { Sound('ding'); } });	// Get data and pass to LoadProject()
+		dat["id"]=id;															// Add id
+		dat["password"]=this.password;											// Add password
+		dat["deleted"]="1";														// Add id
+		ConfirmBox("This will delete the project from the server.", function(){	// If OK
+			$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat,  // Post data
+				success:function(d) { 			
+					if (d == -3) 	AlertBox("Wrong password","Sorry, the password for this project does not match the one you supplied.");	
+			 		else			Sound("ding");
+					}
+				});
+		});																		// Get data and pass to LoadProject()
 	}	
 
 	QmediaFile.prototype.ListFiles=function(deleting) 						//	LIST PROJECTS IN DB
 	{
+		this.password=$("#password").val();										// Get current password
+		this.email=$("#email").val();											// Get current email
 		if (deleting) {
 			if (!this.password && !this.email) 									// Missing both
-				 return alert("Need email and password","Sorry, you need to add an email and password.",1);	// Quit with alert
+				 return this.LightBoxAlert("Need email and password");			// Quit with alert
 			else if (!this.password) 											// Missing password
-				 return alert("Need password","Sorry, you need to add a password.",1);	// Quit with alert
+				 return this.LightBoxAlert("Need password");					// Quit with alert
 			else if (!this.email) 												// Missing email
-				 return alert("Need email","Sorry, you need to add an email.",1);	// Quit with alert
+				 return this.LightBoxAlert("Need email");						// Quit with alert
 			}
+		this.SetCookie("password",this.password,7);								// Save cookie
+		this.SetCookie("email",this.email,7);									// Save cookie
 		this.deleting=deleting;													// Deleting status
 		var url=this.host+"listshow.php";										// Base file
 		if (this.email)															// If email
@@ -234,8 +246,74 @@
 		str+=";border-radius:12px;z-index:2003;"
 		str+="border:1px solid; left:"+x+"px;top:"+y+"px;background-color:#f8f8f8'>";
 		str+="<img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
-		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc'><b>"+title+"</b></span>";
+		str+="<span id='lightBoxTitle' style='font-size:18px;text-shadow:1px 1px #ccc'><b>"+title+"</b></span>";
 		str+="<div id='lightContentDiv'>"+content+"</div>";					
 		$("#lightBoxDiv").append(str);	
 		$("#lightBoxDiv").css("z-index",2500);						
+	}
+	
+	QmediaFile.prototype.LightBoxAlert=function(msg) 						//	SHOW LIGHTBOX ALERT
+	{
+		Sound("delete");														// Delete sound
+		$("#lightBoxTitle").html("<span style='color:#990000'>"+msg+"</span>");	// Put new
+	}
+	
+	function Sound(sound, mode)												// PLAY SOUND
+	{	
+		var snd=new Audio();
+		if (!snd.canPlayType("audio/mpeg"))
+			snd=new Audio(sound+".ogg");
+		else	
+			snd=new Audio(sound+".mp3");
+		if (mode != "init")
+			snd.play();
+	}
+
+	function AlertBox(title, content)										// ALERT BOX
+	{
+		$("#alertBoxDiv").remove();												// Remove any old ones
+		Sound("delete");														// Delete sound
+		$("body").append("<div id='alertBoxDiv'></div>");														
+		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
+		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#ff9000'><b>"+title+"</b></span></p>";
+		str+="<div style='font-size:14px;margin:16px'>"+content+"</div>";
+		$("#alertBoxDiv").append(str);	
+		$("#alertBoxDiv").dialog({ width:400, buttons:{"OK": function() { $(this).remove(); }}});	
+		$(".ui-dialog-titlebar").hide();
+		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
+		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
+  		$(".ui-button").css({"border-radius":"30px","outline":"none"});
+	}
+
+	function ConfirmBox(content, callback)									// COMFIRM BOX
+	{
+		Sound("delete");														// Delete sound
+		$("#alertBoxDiv").remove();												// Remove any old ones
+		$("body").append("<div id='alertBoxDiv'></div>");														
+		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
+		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>Are you sure?</b></span><p>";
+		str+="<div style='font-size:14px;margin:14px'>"+content+"</div>";
+		$("#alertBoxDiv").append(str);	
+		$("#alertBoxDiv").dialog({ width:400, buttons: {
+					            	"Yes": function() { $(this).remove(); callback() },
+					            	"No":  function() { $(this).remove(); }
+									}});	
+		$(".ui-dialog-titlebar").hide();
+		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
+		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
+ 		$(".ui-button").css({"border-radius":"30px","outline":"none"});
+ 	}
+
+	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
+	{
+		if (p4 != undefined)
+			console.log(msg,p1,p2,p3,p4);
+		else if (p3 != undefined)
+			console.log(msg,p1,p2,p3);
+		else if (p2 != undefined)
+			console.log(msg,p1,p2);
+		else if (p1 != undefined)
+			console.log(msg,p1);
+		else
+			console.log(msg);
 	}

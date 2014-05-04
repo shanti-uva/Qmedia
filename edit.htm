@@ -266,61 +266,6 @@
 		return str;																// Return timecode			
 	}
 		
-	function Sound(sound, mode)												// PLAY SOUND
-	{	
-		var snd=new Audio();
-		if (!snd.canPlayType("audio/mpeg"))
-			snd=new Audio(sound+".ogg");
-		else	
-			snd=new Audio(sound+".mp3");
-		if (mode != "init")
-			snd.play();
-	}
-
-	function AlertBox(title, content, modal)								// ALERT BOX
-	{
-		if (modal)
-			return alert(content);
-		$("body").append("<div id='alertBoxDiv'></div>");														
-		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
-		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#ff9000'><b>"+title+"</b></span></p>";
-		str+="<div style='font-size:14px;margin:16px'>"+content+"</div>";
-		$("#alertBoxDiv").append(str);	
-		$("#alertBoxDiv").dialog({ width:400, buttons:{"OK": function() { $(this).remove(); }}});	
-		$(".ui-dialog-titlebar").hide();
-		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
-		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
-	}
-
-	function ConfirmBox(content, callback)									// COMFIRM BOX
-	{
-		$("body").append("<div id='alertBoxDiv'></div>");														
-		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
-		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>Are you sure?</b></span><p>";
-		str+="<div style='font-size:14px;margin:14px'>"+content+"</div>";
-		$("#alertBoxDiv").append(str);	
-		$("#alertBoxDiv").dialog({ width:400, buttons: {
-					            	"Yes": function() { $(this).remove(); callback() },
-					            	"No":  function() { $(this).remove(); }
-									}});	
-		$(".ui-dialog-titlebar").hide();
-		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
-		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
-	}
-
-	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
-	{
-		if (p4 != undefined)
-			console.log(msg,p1,p2,p3,p4);
-		else if (p3 != undefined)
-			console.log(msg,p1,p2,p3);
-		else if (p2 != undefined)
-			console.log(msg,p1,p2);
-		else if (p1 != undefined)
-			console.log(msg,p1);
-		else
-			console.log(msg);
-	}
 	
 	
 </script>
