@@ -71,25 +71,23 @@
 		    <li id=""><a href="#">Edit</a><ul>
 				<li id="m21"><a href="#">Undo</a></li>
 				<li id="m22"><a href="#">Redo</a></li>
-				<li id=""><a href="#">Bookmarks</a><ul>
-	                <li id="m231"><a href="#">New&nbsp;bookmark</a></li>
-	                <li id="m232"><a href="#">Load&nbsp;bookmark</a></li>
-	             </ul>   
-	 			<li id=""><a href="#">Settings</a><ul>
+	            <li id="m231"><a href="#">Bookmark&nbsp;an&nbsp;undo</a></li>
+	            <li id="m232"><a href="#">Load&nbsp;bookmarked&nbsp;undo</a></li>
+		 		<li id=""><a href="#">Settings</a><ul>
 	                <li id="m241"><a href="#">Project</a></li>
 	                <li id="m242"><a href="#">Player</a></li>
 	                <li id="m243"><a href="#">Slides</a></li>
 	                <li id="m244"><a href="#">Information</a></li>
 	                <li id="m245"><a href="#">Transcript</a></li>
-	                <li id="m245"><a href="#">Assessment</a></li>
 	            </ul>
 				<li id="m25"><a href="#">JSON</a></li>
 			</ul></li>
 	 			<li id=""><a href="#">Content</a><ul>
-	                <li id="m31"><a href="#">Add content</a></li>
-	                <li id="m32"><a href="#">Manage content</a></li>
-	                <li id="m33"><a href="#">Edit index</a></li>
-	                <li id="m34"><a href="#">Sync transcript</a></li>
+	                <li id="m31"><a href="#">Add new content</a></li>
+	                <li id="m32"><a href="#">Sync content</a></li>
+	                <li id="m33"><a href="#">Sync transcript</a></li>
+	                <li id="m34"><a href="#">Edit index</a></li>
+	                <li id="m35"><a href="#">Edit assessments</a></li>
 	            </ul>
 			<li id="m4" ><a href="#">Preview</a><li>
 		</ul>
@@ -134,8 +132,9 @@
 					case "25":	ChangePane("json");						break;	// Edit JSON
 					case "31":	ChangePane("addcontent");				break;	// Add content
 					case "32":	ChangePane("content");					break;	// Manage content
-					case "33": 	ChangePane("index");  					break;	// Index content
-					case "34": 	ChangePane("transcript");  				break;	// Index content
+					case "33": 	ChangePane("transcript");  				break;	// Transcript
+					case "34": 	ChangePane("index");  					break;	// Index 
+					case "35": 	ChangePane("assessment");  				break;	// Assessment content
 					case "4":	ChangePane(curPane);	Preview();		break;	// Preview
 					}
 			 	});
@@ -194,8 +193,8 @@
 			$("#paneDiv").html(str);											// Put editor up	
 			}
 		else if (curPane == "content") {										// Content pane
-			str="<br><p style='font-size:18px'>&nbsp;<b>Manage content</b></p>"
-			str+="&nbsp;&nbsp;Content is managed in this panel.<br><br>"
+			str="<br><p style='font-size:18px'>&nbsp;<b>Sync content</b></p>"
+			str+="&nbsp;&nbsp;Content is synced in this panel.<br><br>"
 			str+="&nbsp;&nbsp;Current player time is: <b><span id='curTime'>"+SecondsToTimecode(curTime)+"</span></b>"
 			$("#paneDiv").html(str);											// Put editor up	
 			}
@@ -209,6 +208,11 @@
 			str="<br><p style='font-size:18px'>&nbsp;<b>Sync transcript</b></p>"
 			str+="&nbsp;&nbsp;Transcript is synced is managed in this panel.<br><br>"
 			str+="&nbsp;&nbsp;Current player time is: <b><span id='curTime'>"+SecondsToTimecode(curTime)+"</span></b>"
+			$("#paneDiv").html(str);											// Put editor up	
+			}
+		else if (curPane == "assessment") {										// Assessment pane
+			str="<br><p style='font-size:18px'>&nbsp;<b>Edit Assessments</b></p>"
+			str+="&nbsp;&nbsp;Assessments are managed in this panel.<br><br>"
 			$("#paneDiv").html(str);											// Put editor up	
 			}
 	}
