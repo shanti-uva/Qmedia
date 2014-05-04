@@ -32,11 +32,11 @@
 			});
 	
 		$("#logBut").button().click(function() {								// LOGIN BUTTON
-			_this.ListFiles(false);												// Get list of files
+			_this.ListFiles("load");											// Get list of files
 			});
 	}	
 
-	QmediaFile.prototype.Delete=function() 									//	DELETE FILE
+	QmediaFile.prototype.Delete=function(undelete) 							//	DELETE FILE
 	{
 		var str="<br/>"
 		str+="Type your email address and password.<br>"
@@ -54,10 +54,10 @@
 			});
 	
 		$("#logBut").button().click(function() {								// LOGIN BUTTON
-			_this.ListFiles(true);												// Get list of files
+			_this.ListFiles( undelete ? "undelete" : "delete"	);				// Get list of files
 			});
 	}	
-	
+
 	QmediaFile.prototype.Save=function(saveAs) 								//	SAVE FILE TO DB
 	{
 		var str="<br/>"
@@ -134,7 +134,7 @@
 		$.ajax({ url:url, dataType:'jsonp'});									// Get data and pass to LoadProject() in Edit
 	}	
 		
-	QmediaFile.prototype.DeleteFile=function(id) 							//	FLAG A FILE AS DELETED IN DB
+	QmediaFile.prototype.DeleteFile=function(id, status) 					//	FLAG A FILE AS  DELETED/ UN-DELETED IN DB
 	{
 		var dat={};
 		id=id.substr(3);														// Strip off prefix
@@ -142,14 +142,12 @@
 		var url=this.host+"saveshow.php";										// Base file
 		dat["id"]=id;															// Add id
 		dat["password"]=this.password;											// Add password
-		dat["deleted"]="1";														// Add id
-		ConfirmBox("This will delete the project from the server.", function(){	// If OK
-			$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat,  // Post data
+		dat["deleted"]=status;													// Delete or undelete (1=delete, 0=undelete)
+		$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat, // Post data
 				success:function(d) { 			
-					if (d == -3) 	AlertBox("Wrong password","Sorry, the password for this project does not match the one you supplied.");	
-			 		else			Sound("ding");
-					}
-				});
+				if (d == -3) 	AlertBox("Wrong password","Sorry, the password for this project does not match the one you supplied.");	
+				else			Sound("ding");
+				}
 		});																		// Get data and pass to LoadProject()
 	}	
 
@@ -170,7 +168,11 @@
 		this.deleting=deleting;													// Deleting status
 		var url=this.host+"listshow.php";										// Base file
 		if (this.email)															// If email
-			url+="?email="+this.email;											// Add to query line
+			url+="?email="+this.email+"&deleted=";								// Add email and deleted to query line
+		else																	// Just deleted
+			url+="?deleted=";													// Add to query line
+		
+		url+=(deleting == "undelete") ? 1 : 0									// Add deleted status
 		$.ajax({ url:url, dataType:'jsonp', complete:function() { Sound('click'); } });	// Get data and pass qmfListFiles()
 	}
 	
@@ -178,8 +180,9 @@
 	{
 		var trsty=" style='height:20px;cursor:pointer' onMouseOver='this.style.backgroundColor=\"#acc3db\"' ";
 		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='";
-		if (qmf.deleting)	trsty+="qmf.DeleteFile(this.id)'";
-		else				trsty+="qmf.LoadFile(this.id)'";
+		if (qmf.deleting == "delete")		 trsty+="qmf.DeleteFile(this.id,1)'";	// Delete
+		else if (qmf.deleting == "undelete") trsty+="qmf.DeleteFile(this.id,0)'";	// Undelete
+		else								 trsty+="qmf.LoadFile(this.id)'";		// Load
 		qmf.password=$("#password").val();										// Get current password
 		qmf.SetCookie("password",qmf.password,7);								// Save cookie
 		qmf.email=$("#email").val();											// Get current email

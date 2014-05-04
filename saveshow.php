@@ -8,13 +8,15 @@ header('Access-Control-Max-Age: 1000');
 require_once('config.php');
 			
 	$id="";
+	$password="";												
+	$email="";												
 	$title="";													
 	$script="";												
-	$password="";												
 	$private='0';												
 	$deleted='0';												
 
 	$email=$_REQUEST['email'];									// Get email
+	$password=$_REQUEST['password'];							// Get password
 	
 	if (isSet($_REQUEST['id'])) 								// If set
 		$id=$_REQUEST['id'];									// Get it
@@ -22,8 +24,6 @@ require_once('config.php');
 		$title=$_REQUEST['title'];								// Get it
 	if (isSet($_REQUEST['script'])) 							// If set
 		$script=$_REQUEST['script'];							// Get it
-	if (isSet($_REQUEST['password'])) 							// If set
-		$password=$_REQUEST['password'];						// Get it
 	if (isSet($_REQUEST['private'])) 							// If set
 		$private=$_REQUEST['private'];							// Get it
 	if (isSet($_REQUEST['deleted'])) 							// If set
@@ -31,9 +31,9 @@ require_once('config.php');
 	
 	$script=addEscapes($script);								// Escape script
 	$title=addEscapes($title);									// Title	
+	$private=addEscapes($private);								// Private
 	$email=addEscapes($email);									// Email	
 	$password=addEscapes($password);							// Password	
-	$private=addEscapes($private);								// Private
 	$id=addEscapes($id);										// Private
 					
 	$query="SELECT * FROM qshow WHERE id = '".$id."'"; 			// Look existing one	
@@ -44,6 +44,9 @@ require_once('config.php');
 		exit();													// Quit
 		}
 	if (!mysql_numrows($result)) {								// If not found, add it
+		$script=addEscapes($script);							// Escape script
+		$title=addEscapes($title);								// Title	
+		$private=addEscapes($private);							// Private
 		$query="INSERT INTO qshow (title, script, email, password, private) VALUES ('";
 		$query.=$title."','";
 		$query.=$script."','";
@@ -63,6 +66,15 @@ require_once('config.php');
 			mysql_close();										// Close session
 			exit();												// Quit
 			}
+		if (!isSet($_REQUEST['title'])) 						// If not set
+			$title=mysql_result($result,0,"title");				// Get from POST
+		if (!isSet($_REQUEST['script'])) 						// If not set
+			$script=mysql_result($result,0,"script");			// Get from POST
+		if (!isSet($_REQUEST['private'])) 						// If not set
+			$private=mysql_result($result,0,"private");			// Get from POST
+		if (!isSet($_REQUEST['deleted'])) 						// If not set
+			$deleted=mysql_result($result,0,"deleted");			// Get from POST
+		
 		$id=mysql_result($result,0,"id");						// Get id
 		if ($id != "") {										// If valid
 			$query="UPDATE qshow SET title='".$title."' WHERE id = '".$id."'";

@@ -35,7 +35,7 @@
  						border-radius:0px;border-bottom:1px solid #999;padding:0px !important;
  						}
 		.ui-menu > li { 				float: left;display: block;width: auto !important;}
-		.ui-menu ul {   				border:1px solid #999;border-radius:4px; }
+		.ui-menu ul {   				border:1px solid #999;border-radius:4px;padding-bottom:6px !important;}
 		.ui-menu ul li {   				display:block;float:none;border:none }
 		.ui-menu ul li ul {    			width:auto; left:96px !important; padding-top:5px !important;padding-bottom:5px !important;}
 		.ui-menu ul li ul li {    		width:auto !important; margin: 0px 5px !important; }
@@ -66,6 +66,7 @@
 				<li id="m13"><a href="#">Save</a></li>
 				<li id="m14"><a href="#">Save As...</a></li>
 				<li id="m15"><a href="#">Delete</a></li>
+				<li id="m16"><a href="#">Undelete</a></li>
 		   	</ul></li>
 		    <li id=""><a href="#">Edit</a><ul>
 				<li id="m21"><a href="#">Undo</a></li>
@@ -131,6 +132,7 @@
 					case "13":	ChangePane("intro");	qmf.Save(0); 	break;	// Save file
 					case "14":	ChangePane("intro");	qmf.Save(1); 	break;	// Save as... 
 					case "15":	ChangePane("intro");	qmf.Delete(); 	break;	// Delete
+					case "16":	ChangePane("intro");	qmf.Delete(1); 	break;	// Undelete
 					case "25":	ChangePane("json");						break;	// Edit JSON
 					case "31":	ChangePane("contentAll");				break;	// All content
 					case "32":	ChangePane("contentPlayer");			break;	// Player content
