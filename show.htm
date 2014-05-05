@@ -662,6 +662,8 @@
 			$("#contentDiv").width(0);											// Squeeze
 			return;																// Quit
 			}
+		$("#contentDiv").css("display","initial");								// Show it
+		$("#contentDiv").width("auto");											// Auto size
 		var str="<div style='cursor:pointer;padding-left:12px'>"				// Set up
 		for (i=0;i<toc.length;++i) {											// For each title
 			ply="play";															// Assume click to play
@@ -674,7 +676,12 @@
 				str+="<span style='color:#aaa'><b>&bull; </b></span>"; 			// Add bullet
 			else 																// Sub-level
 				str+="<span style='color:#aaa'><b>- </b></span>"; 				// Add d
-			str+=toc[i].c+"</div>";												// Add title
+			if (toc[i].s && (toc[i].s.match(/b/i)))	str+="<b>";					// If bold
+			if (toc[i].s && (toc[i].s.match(/i/i)))	str+="<i>";					// If italic
+			str+=toc[i].c;														// Add title
+			if (toc[i].s && (toc[i].s.match(/i/i)))	str+="</i>";				// If italic
+			if (toc[i].s && (toc[i].s.match(/b/i)))	str+="</b>";				// If bold
+			str+="</div>";														// End div
 			}
 		$("#contentsText").html(str+"</div>");									// Set div contents
 	}
@@ -957,7 +964,6 @@
 		else if (v[0] == "Qmedia=data") {										// Data
 			str=e.data.replace(/Qmedia=data\|QmediaEditor\|/,"");				// Strip off header
 			LoadShow($.parseJSON(str));											// Convert to obj and load
-			Sound("ding");														// Ding sound
 			}
 		else if (v[0] == "Qmedia=resize") {										// Resize
 			if (v[2] == "top")													// If top
@@ -1267,6 +1273,7 @@
 		var i,o,d="";
 		if (!rlc)																// No run length data
 			return;																// Quit		
+		showVectors[pane]=[];														
 		for (i=0;i<rlc.length-1;++i) {											// For each run length
 			o={};																// New obj
 			o.ps=rlc[i].t;														// Time start

@@ -178,7 +178,7 @@
 	
 	function qmfListFiles(files)											// CALLBACK TO List()
 	{
-		var trsty=" style='height:20px;cursor:pointer' onMouseOver='this.style.backgroundColor=\"#acc3db\"' ";
+		var trsty=" style='height:20px;cursor:pointer' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
 		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='";
 		if (qmf.deleting == "delete")		 trsty+="qmf.DeleteFile(this.id,1)'";	// Delete
 		else if (qmf.deleting == "undelete") trsty+="qmf.DeleteFile(this.id,0)'";	// Undelete
@@ -190,7 +190,7 @@
 		$("#lightBoxDiv").remove();												// Close old one
 		str="<br>Choose project from the list below.<br>"
 		str+="<br><div style='width:100%;max-height:300px;overflow-y:auto'>";
-		str+="<table style='font-size:12px;width:100%;padding:0px'>";
+		str+="<table style='font-size:12px;width:100%;padding:0px;border-collapse:collapse;'>";
 		str+="<tr></td><td><b>Title </b></td><td><b>Date&nbsp;&&nbsp;time</b></td><td><b>&nbsp;&nbsp;&nbspId</b></tr>";
 		str+="<tr><td colspan='3'><hr></td></tr>";
 		for (var i=0;i<files.length;++i) 										// For each file
