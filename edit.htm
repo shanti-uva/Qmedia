@@ -62,7 +62,9 @@
 	</script>
 </head>
 
-	<iframe class="player" id="playerIF" src="show.htm" height="100%" scrolling="no"></iframe>
+	<div id='playerDiv'>
+		<iframe class="player" id="playerIF" src="show.htm" height="100%" scrolling="no"></iframe>
+	</div>
 	<div id="editDiv" class="editor" style="position:absolute;top:16px;z-index:4"> 
 		 <ul id="menu" style="margin:1px">
 		    <li id=""><a href="#">File</a><ul>
@@ -97,6 +99,9 @@
 				target='_blank' style='text-decoration:none;position:absolute'>
 				<img src="images/helpicon.gif"></a>
 		</div>
+	</div>
+	<div id="playerSiz" style="position:absolute;top:0px;width:8px;cursor:col-resize;opacity:inherit;height:100%" class="unselectable" title="Resize player"></div>
+		
 <body>
 <script>
 
@@ -105,7 +110,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	
-	var width=1000;																// Show width
 	var curShow="";																// Currently loaded show name
 	var curPane="intro";														// Current edit pane
 	var curJson=null;															// Holds current JSON
@@ -115,7 +119,7 @@
 	var butsty=" style='border-radius:10px;color#666;padding-left:12px;padding-right:12px;color:#222;background-color:#ccc;font-size:12px;' ";	// Button styling
 	var keyFlag="";																// Holds key flags												
 	var defTransDur=60;															// Default trancript line duration
-
+	var playerZoom=1;
 	
 	$(document).ready(function() {											// WHEN PAGE LOADED
 		if (window.addEventListener) 											// If supported this way
@@ -148,13 +152,27 @@
 					case "4":	ChangePane(curPane);	Preview();		break;	// Preview
 					}
 			 	});
+		
 		Draw();
 		$(window).resize(Draw); 		
 		setInterval(function() { SendShivaMessage("Qmedia=time") },500); 		// Set timer 1-fps
-		var id=window.location.search.substring(1);								// Get query string
-		if (id && !isNaN(id)) 													// If a number,
-			qmf.LoadFile("qmf"+id);												// Load project
-		});	
+		qmf.LoadFile("qmf1");													// Load project
+
+		$("#playerSiz").draggable({												// DRAG PLAYER WIDTH HANDLER
+			cursorAt:{left:-8},iframeFix:true,									// Cursor offset
+			cursor: "col-resize", axis:"x",										// X-only
+			containment:[0,0,curJson.width,0],
+			drag: function(event, ui) {											// On drag
+			 	playerZoom=Math.max(0,Math.min(1,(event.clientX)/curJson.width));	// Set ratio between windows
+				Draw();															// Resize panes
+				}
+			});
+		$("#playerSiz").hover(													// Player width
+			function(){ $(this).css("background-color","#acc3db")},				// Highlight
+			function(){ $(this).css("background-color","transparent")			// Hide
+		});
+
+	});	
 	
 	function NewShow() 														// NEW SHOW
 	{	
@@ -220,11 +238,11 @@
 	function Draw()															// RESIZE PANES
 	{ 
 		var str;
-		var w=window.innerWidth-width-32;										// Editor width
+		var w=window.innerWidth-curJson.width*playerZoom-32;					// Editor width
 		var h=window.innerHeight-64;											// Editor height
-		$("#playerIF").prop("width",width);										// Player wid
+		$("#playerIF").prop("width",curJson.width);								// Player wid
 		$("#playerIF").prop("height",h+40);										// Hgt
-		$("#editDiv").css({width:w+"px",left:width+16+"px",height:h+"px"});		// Overall div
+		$("#editDiv").css({width:w+"px",left:curJson.width*playerZoom+16+"px",height:h+"px"});		// Overall div
 		$("#getHelp").css({left:w-24+"px"});									// Help dot to right
 	
 		$("#showName").html("&nbsp; Current show: <b>"+curShow+"</b>");			// Show name
@@ -255,6 +273,13 @@
 			str+="&nbsp;&nbsp;Assessments are managed in this panel.<br><br>"
 			$("#paneDiv").html(str);											// Put editor up	
 			}
+		$("#playerDiv").css({	"-webkit-transform-origin":"0 0", 				// Scale player window
+				"transform-origin":"0 0",			
+				"-webkit-transform":"matrix("+playerZoom+",0,0,"+playerZoom+",0,0)",
+	 			"-transform":"matrix("+playerZoom+",0,0,"+playerZoom+",0,0)",
+	   			});
+		
+		$("#playerSiz").css({ left:(curJson.width*playerZoom+8)+"px"});			// Set sizer pos
 	}
 
 ///////////// INDEX ////////////////
@@ -441,7 +466,7 @@
 	function MakeTransTable() 												// MAKE TABLE AND SORT BY TIME
 	{	
 		var i,n=0;
-		var nc=$("#paneDiv").width()/25;										// Chars left of anchor
+		var nc=($("#paneDiv").width()-60)/18;										// Chars left of anchor
 		var trsty=" style='height:20px;cursor:pointer;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
 		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='onClickTrans(this.id)'";
 		if (curJson.transVectors) {												// If any indices
