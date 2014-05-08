@@ -1036,7 +1036,8 @@
 					player.contentWindow.postMessage("{\"method\":\"pause\"}","*");	// Send
  				}
 			else if (playerType == "html5") {									// If HTML5
-				player.currentTime=playerNow;									// Cue
+				if (player.readyState)											// If ready
+					player.currentTime=playerNow;								// Cue
 				if (playerMode == "play")  	player.play(); 						// Play
 				if (playerMode == "pause")	player.pause();						// Pause
 				}
@@ -1059,7 +1060,8 @@
 			else if (playerType == "vimeo") 									// If Vimeo
 				player.contentWindow.postMessage("{\"method\":\"seekTo\",\"value\":\""+playerNow+"\"}","*");
 			else if (playerType == "html5") 									// If HTML5
-				player.currentTime=playerNow;									// Cue
+				if (player.readyState)											// If ready
+					player.currentTime=playerNow;								// Cue
 			else if (playerType == "noplayer")									// If noplayer
 				player=new Date().getTime()-(playerNow*1000);					// Get current time			
 			RunPlayer("show",param2);											// Show where we're at
@@ -1179,7 +1181,8 @@
 		       	player=$("#vplayer")[0];										// Point to iframe
 				}
 			else if (playerType == "html5") {									// If HTML5
- 				var base=sd.playerSource.match(/(.*)\.[^.]+$/i)[1];				// Extract base
+ 				$("#playerDiv").html("");										// Add video tag
+				var base=sd.playerSource.match(/(.*)\.[^.]+$/i)[1];				// Extract base
 				str="<video id='vplayer' width='100%' height='100%'";			// Video tag
 				if ((sd.playerControls == "true") || isMobile)					// If has controls or mobile
 					str+= " controls";											// Add native controls to player

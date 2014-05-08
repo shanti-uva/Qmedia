@@ -46,6 +46,11 @@
 		.ui-menu .ui-menu-icon {     	display:none }
 		.ui-menu .ui-menu .ui-menu li { float:left;display:block; }	
  		.ui-menu .ui-menu { 		    overflow: visible !important; }
+		.bs {			border-radius:10px;padding-left:8px;padding-right:8px;padding-top:1px;
+						border:1px solid #999;font-size:11px;height;20px;
+						}	 
+
+
  	</style>
 	<script>
 	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -71,16 +76,10 @@
 		    <li id=""><a href="#">Edit</a><ul>
 				<li id="m21"><a href="#">Undo</a></li>
 				<li id="m22"><a href="#">Redo</a></li>
-	            <li id="m231"><a href="#">Bookmark&nbsp;an&nbsp;undo</a></li>
-	            <li id="m232"><a href="#">Load&nbsp;bookmarked&nbsp;undo</a></li>
-		 		<li id=""><a href="#">Settings</a><ul>
-	                <li id="m241"><a href="#">Project</a></li>
-	                <li id="m242"><a href="#">Player</a></li>
-	                <li id="m243"><a href="#">Slides</a></li>
-	                <li id="m244"><a href="#">Information</a></li>
-	                <li id="m245"><a href="#">Transcript</a></li>
-	            </ul>
-				<li id="m25"><a href="#">JSON</a></li>
+	            <li id="m23"><a href="#">Bookmark&nbsp;an&nbsp;undo</a></li>
+	            <li id="m24"><a href="#">Load&nbsp;bookmarked&nbsp;undo</a></li>
+		 		<li id="m25"><a href="#">Settings</a></il>
+		 		<li id="m26"><a href="#">JSON</a></il>
 			</ul></li>
 	 			<li id=""><a href="#">Content</a><ul>
 	                <li id="m31"><a href="#">Add new content</a></li>
@@ -94,8 +93,10 @@
 		<div id="paneDiv" class="pane" style="width:100%;height:100%"></div> 
 		<div id="footerDiv" class="footer" style="position:absolute;width:100%">
 			<span id="showName"></span>
+			<a id='getHelp' href='https://docs.google.com/document/d/1hMjG_Df0ifMjbT3a9j_KVjieMllkY0J_5UInOlkQweE/edit?usp=sharing' 
+				target='_blank' style='text-decoration:none;position:absolute'>
+				<img src="images/helpicon.gif"></a>
 		</div>
-	</div>
 <body>
 <script>
 
@@ -111,8 +112,9 @@
 	var curTime=0;																// Current time of show player
 	var qmf=null;																// File system
 	var curEdit=-1;																// Current row editing
-	var butsty=" style='border-radius:10px;color#666;padding-left:6px;padding-right:6px;color:#222;background-color:#ccc' ";	// Button styling
+	var butsty=" style='border-radius:10px;color#666;padding-left:12px;padding-right:12px;color:#222;background-color:#ccc;font-size:12px;' ";	// Button styling
 	var keyFlag="";																// Holds key flags												
+	var defTransDur=60;															// Default trancript line duration
 
 	
 	$(document).ready(function() {											// WHEN PAGE LOADED
@@ -123,6 +125,7 @@
 
 		qmf=new QmediaFile();													// Alloc file system
 		NewShow();																// Init show
+
 		$("#menu" ).menu({ position:{my:"left top", at: "left top+40" }});		// Set menu
 		$("#menu").on("menuselect", function(event,ui) { 						// On menu select
 				var id=ui.item[0].id.substr(1);									// Get id
@@ -135,7 +138,8 @@
 					case "14":	ChangePane("intro");	qmf.Save(1); 	break;	// Save as... 
 					case "15":	ChangePane("intro");	qmf.Delete(); 	break;	// Delete
 					case "16":	ChangePane("intro");	qmf.Delete(1); 	break;	// Undelete
-					case "25":	ChangePane("json");						break;	// Edit JSON
+					case "25":	ChangePane("settings");					break;	// Edit settings
+					case "26":	ChangePane("json");						break;	// Edit JSON
 					case "31":	ChangePane("addcontent");				break;	// Add content
 					case "32":	ChangePane("content");					break;	// Manage content
 					case "33": 	ChangePane("transcript");  				break;	// Transcript
@@ -147,6 +151,9 @@
 		Draw();
 		$(window).resize(Draw); 		
 		setInterval(function() { SendShivaMessage("Qmedia=time") },500); 		// Set timer 1-fps
+		var id=window.location.search.substring(1);								// Get query string
+		if (id && !isNaN(id)) 													// If a number,
+			qmf.LoadFile("qmf"+id);												// Load project
 		});	
 	
 	function NewShow() 														// NEW SHOW
@@ -218,7 +225,8 @@
 		$("#playerIF").prop("width",width);										// Player wid
 		$("#playerIF").prop("height",h+40);										// Hgt
 		$("#editDiv").css({width:w+"px",left:width+16+"px",height:h+"px"});		// Overall div
-		$("#footerDiv").css({});										
+		$("#getHelp").css({left:w-24+"px"});									// Help dot to right
+	
 		$("#showName").html("&nbsp; Current show: <b>"+curShow+"</b>");			// Show name
 		if (curPane == "json") {												// Editing pane
 			str="<textarea id='jsonEditor' style='width:"+(w-17)+"px;height:"+(h-55)+"px;border:none;font-size:13px;padding:8px;background-color:#f8f8f8'>"+JSON.stringify(curJson,null,'\t')+"</textarea></div>";
@@ -241,6 +249,7 @@
 			}
 		else if (curPane == "index") 		IndexEditPane();					// Index pane
 		else if (curPane == "transcript")   TranscriptEditPane();				// Transcript pane
+		else if (curPane == "settings")  	SettingsEditPane();					// Settings pane
 		else if (curPane == "assessment") {										// Assessment pane
 			str="<br><p style='font-size:18px'>&nbsp;<b>Edit Assessments</b></p>"
 			str+="&nbsp;&nbsp;Assessments are managed in this panel.<br><br>"
@@ -382,7 +391,7 @@
 		str+="<div style='font-size:36px;color:#999'><b>Sync Transcript</b></div>"	// Title
 		str+="<br><br><div style='max-height:300px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
 		str+="<table id='transTable' style='table-layout:fixed;font-size:13px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
-		str+="<tr><td width='50'><b>Time</b></td><td align='right' width='"+(w-20)+"'><b></td><td   width='"+(w+15)+"'><b>Anchor</b></td><td width='20'></td></tr>";	// Add header
+		str+="<tr><td width='50'><b>Time</b></td><td></td><td   width='"+(w+15)+"'><b>Anchor</b></td><td width='20'></td></tr>";	// Add header
 		str+="<tr><td colspan='4'><hr></td></tr>";								// Add rule
 		str+="</table></div><div style='font-size:12px'<br><br>";				// End table
 		str+="<button"+butsty+"id='addAncBut'>Add anchor</button>";				// Add button
@@ -405,9 +414,9 @@
 		$("#addAncBut").on("click",function() {									// ON ADD
 			if (!curJson.transText) 
 				return AlertBox("Need transcript text","Sorry, you need some transcript text before adding anchors");	// Needs text
-			if (!curJson.transVector)	{										// No vectors yet
+			if (!curJson.transVectors)	{										// No vectors yet
 				curJson.transVectors=[];										// Alloc it
-				curJson.transVectors.push({ t:0,c:0,d:60} );					// Add first			
+				curJson.transVectors.push({ t:0,c:0,d:defTransDur} );				// Add first			
 				curJson.transVectors.push({t:curJson.playerStop,c:curJson.transText ? curJson.transText.length : 0 });	// Add last			
 				}		
 			curJson.transVectors.push({t:curTime,c:""})							// Add to json
@@ -432,6 +441,7 @@
 	function MakeTransTable() 												// MAKE TABLE AND SORT BY TIME
 	{	
 		var i,n=0;
+		var nc=$("#paneDiv").width()/25;										// Chars left of anchor
 		var trsty=" style='height:20px;cursor:pointer;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
 		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='onClickTrans(this.id)'";
 		if (curJson.transVectors) {												// If any indices
@@ -443,8 +453,8 @@
 			str="<tr id='idx"+i+"' "+trsty+">";									// Row
 			s=curJson.transVectors[i].c;										// Start of line								
 			str+="<td style='color:#009900;:focus{outline:none}' id='idt"+i+"'>"+SecondsToTimecode(curJson.transVectors[i].t)+"</td>";	// Add time
-			str+="<td id='idl"+i+"' style='color:#999;overflow:hidden;white-space:nowrap;text-align:right'>"+curJson.transText.substring(s,s-15)+"&nbsp;</td>"; 		// Add line
-			str+="<td id='idr"+i+"' style='color:#000;overflow:hidden;white-space:nowrap'>"+curJson.transText.substring(s,s-0+50)+"</td>"; 	// Add line
+			str+="<td id='idl"+i+"' style='color:#999;overflow:hidden;white-space:nowrap;text-align:right'>"+curJson.transText.substring(s,s-nc)+"&nbsp;</td>"; 		// Add line
+			str+="<td id='idr"+i+"' style='color:#000;overflow:hidden;white-space:nowrap'>"+curJson.transText.substring(s,s-0+80)+"</td>"; 	// Add line
 			str+="<td  align='right'><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteTrans(this.id)'></td></tr>";	// Add trashcan
 			$("#transTable").append(str);										// Add row
 			}
@@ -464,8 +474,11 @@
 	function onClickTrans(id) 												// ON CLICK TRANS
 	{	
 		SendShivaMessage("Qmedia=pause");										// Pause
+		SendShivaMessage("Qmedia=pause");										// Pause
 		for (var i=0;i<curJson.transVectors.length;++i) {						// For each row
 			$("#idt"+i).css({"color":"#009900"});								// Restore
+			$("#idl"+i).css({"color":"#999"});									// Restore
+			$("#idr"+i).css({"color":"#000"});									// Restore
 			$("#idd"+i).css({"visibility":"hidden"});							// Restore
 			}	
 		curEdit=-1;																// No selected edit
@@ -474,9 +487,102 @@
 		curEdit=id.substr(3);													// Strip off prefix
 		SendShivaMessage("Qmedia=seek",""+curJson.transVectors[curEdit].t);		// Go to time
 		$("#idt"+curEdit).css({"color":"#990000"});								// Highlight
+		$("#idl"+curEdit).css({"color":"#990000"});								// Highlight
+		$("#idr"+curEdit).css({"color":"#990000"});								// Highlight
 		$("#idd"+curEdit).css({"visibility":"visible"});						// Show trashcan
 	}
 
+
+///////////// SETTINGS ////////////////
+
+
+	function SettingsEditPane()											// SETTINGS EDITOR
+	{
+		curEdit=-1;																// Clear
+		var str="<div style='padding:12px'><br>"								// Container div
+		str+="<div style='font-size:36px;color:#999'><b>Settings</b></div>"		// Title
+		str+="<br><br><div style='width:360px;max-height:500px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
+		str+="<table id='settingsTable' style='font-size:11px;padding:0px;border-collapse:collapse;'>";	// Add table
+		str+="<tr><td colspan=3><b>General<b></td></tr>";						// Heading
+		str+="<tr><td colspan=3><hr></td></tr>";								// Rule
+		str+="<tr><td width=18></td><td>Title</td><td><input class='bs' type='text' id='title' value='"+curJson.title+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Overall width</td><td><input class='bs' type='text' id='width' value='"+curJson.width+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>InfoMap source</td><td><input class='bs' type='text' id='infoMapSource' value='"+curJson.infoMapSource+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Transcript pane label</td><td><input class='bs' type='text' id='transLab' value='"+curJson.transLab+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Information pane label</td><td><input class='bs' type='text' id='infoLab' value='"+curJson.infoLab+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Index pane label</td><td><input class='bs' type='text' id='contentsLab' value='"+curJson.contentsLab+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Play when index clicked?</td><td>"+MakeSelect("contentsPlayOnClick",false,["true","false"],curJson.contentsPlayOnClick)+"</td></tr>";	// Get setting
+		str+="<tr><td colspan=3><b><br>Player<b></td></tr>";					// Heading
+		str+="<tr><td colspan=3><hr></td></tr>";								// Rule
+		str+="<tr><td></td><td>Media source (Id or URL)</td><td><input class='bs' type='text' id='playerSource' value='"+curJson.playerSource+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Start time (seconds)</td><td><input class='bs' type='text' id='playerStart' value='"+curJson.playerStart+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Stop time (seconds)</td><td><input class='bs' type='text' id='playerStop' value='"+curJson.playerStop+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Media aspect ratio (0-1)</td><td><input class='bs' type='text' id='playerAspect' value='"+curJson.playerAspect+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Initial slide/player ratio (0-1)</td><td><input class='bs' type='text' id='playerSlideRatio' value='"+curJson.playerSlideRatio+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Initial volume (0-100)</td><td><input class='bs' type='text' id='playerVolume' value='"+curJson.playerVolume+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Auto start</td><td>"+MakeSelect("playerAuto",false,["true","false"],curJson.playerAuto)+"</td></tr>";	// Get setting
+		str+="<tr><td></td><td>Show native controls</td><td>"+MakeSelect("playerControls",false,["true","false"],curJson.playerControls)+"</td></tr>";	// Get setting
+		str+="<tr><td></td><td>Quality</td><td>"+MakeSelect("playerQuality",false,["Default","Good","Better","Best"],curJson.playerQuality)+"</td></tr>";	// Get setting
+		str+="<tr><td></td><td>Speed (25-200%)</td><td>"+MakeSelect("playerSpeed",false,["25","50","100","150","200"],curJson.playerSpeed)+"</td></tr>";	// Get setting
+		str+="<tr><td colspan=3><b><br>Transcript<b></td></tr>";					// Heading
+		str+="<tr><td colspan=3><hr></td></tr>";								// Rule
+		str+="<tr><td></td><td>Initial transcript/info ratio (0-1)</td><td><input class='bs' type='text' id='transInfoRatio' value='"+curJson.transInfoRatio+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Height</td><td><input class='bs' type='text' id='transHgt' value='"+curJson.transHgt+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Initial language</td><td><input class='bs' type='text' id='transLanguage' value='"+curJson.transLanguage+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Languages</td><td><input class='bs' type='text' id='transLangs' value='"+curJson.transLangs+"'></td></tr>";	// Get setting
+		str+="</table></div><br>";												// End table
+		str+="&nbsp;&nbsp;<button"+butsty+"id='preBut2'>Preview</button>";		// Preview button
+		$("#paneDiv").html(str+"</div>");										// Put editor up	
+		
+			
+		$("#preBut2").on("click",function() {									// ON PREVIEW
+			Sound("click");														// Click
+			if ($("#title").val())		
+				curJson.title=$("#title").val();		
+			if ($("#width").val())
+				curJson.width=$("#width").val();		
+			if ($("#infoMapSource").val())
+				curJson.infoMapSource=$("#infoMapSource").val();
+			if ($("#transLab").val())	
+				curJson.transLab=$("#transLab").val();	
+			if ($("#infoLab").val())
+				curJson.infoLab=$("#infoLab").val();	
+			if ($("#contentsLab").val())
+				curJson.contentsLab=$("#contentsLab").val();	
+			if ($("#contentsPlayOnClick").val())
+				curJson.contentsPlayOnClick=$("#contentsPlayOnClick").val();		
+			curJson.playerSource=$("#playerSource").val();	
+			if ($("#playerStart").val())
+				curJson.playerStart=$("#playerStart").val();	
+			if ($("#playerStop").val())
+				curJson.playerEnd=$("#playerStop").val();	
+			if ($("#playerAspect").val())
+				curJson.playerAspect=$("#playerAspect").val();	
+			if ($("#playerSlideRatio").val())
+				curJson.playerSlideRatio=$("#playerSlideRatio").val();	
+			if ($("#playerVolume").val())
+				curJson.playerVolume=$("#playerVolume").val();	
+			if ($("#playerAuto").val())
+				curJson.playerAuto=$("#playerAuto").val();	
+			if ($("#playerControls").val())
+				curJson.playerControls=$("#playerControls").val();	
+			if ($("#playerQuality").val())
+				curJson.playerQuality=$("#playerQuality").val();	
+			if ($("#playerSpeed").val())
+				curJson.playerSpeed=$("#playerSpeed").val();	
+			if ($("#transInfoRatio").val())
+				curJson.transInfoRatio=$("#transInfoRatio").val();	
+			if ($("#transHgt").val())
+				curJson.transHgt=$("#transHgt").val()-0;	
+			if ($("#transLanguage").val())
+				curJson.transLanguage=$("#transLanguage").val();	
+			if ($("#transLangs").val())
+				curJson.transLangs=$("#transLangs").val();	
+			Preview();															// Run preview
+			});
+		
+
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EVENTS
@@ -508,6 +614,7 @@
 		else if (e.data.match(/ShivaAct=trans/))	{							// If a trans click
 			if (curPane == "transcript")	o=curJson.transVectors;				// Point at transcript
 			if (o && (curEdit != -1)) {											// Editing time
+				trace(e.data.split("|")[2]-0)
 				o[curEdit].c=e.data.split("|")[2]-0;							// Set it
 				SendShivaMessage("Qmedia=seek",""+o[curEdit].t);				// Go to time
 				MakeTransTable();												// Show new context
@@ -582,6 +689,24 @@
 		return str;																// Return timecode			
 	}
 		
+	function MakeSelect(id, multi, items, sel, extra, values)
+	{
+		var	str="<select class='bs' id='"+id+"'";
+		if (multi)
+			str+="multiple='multiple' size='"+multi+"'";
+		if (extra)
+			str+=extra;
+		str+=">";
+		for (i=0;i<items.length;++i) {
+			str+="<option";
+			if (sel == items[i])
+				str+=" selected='selected'"
+			if (values && values[i])
+				str+=" value='"+values[i]+"'";
+			str+=">"+items[i]+"</option>";
+			}	
+		return str+"</select>"
+	}
 	
 	
 </script>
