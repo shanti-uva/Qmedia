@@ -32,7 +32,7 @@
 			});
 	
 		$("#logBut").button().click(function() {								// LOGIN BUTTON
-			_this.ListFiles("load");											// Get list of files
+			_this.ListFiles();													// Get list of files
 			});
 	}	
 

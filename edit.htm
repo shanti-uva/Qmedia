@@ -84,7 +84,7 @@
 			</ul></li>
 	 			<li id=""><a href="#">Content</a><ul>
 	                <li id="m31"><a href="#">Add new content</a></li>
-	                <li id="m32"><a href="#">Sync content</a></li>
+	                <li id="m32"><a href="#">Sync media</a></li>
 	                <li id="m33"><a href="#">Sync transcript</a></li>
 	                <li id="m34"><a href="#">Edit index</a></li>
 	                <li id="m35"><a href="#">Edit assessments</a></li>
@@ -111,7 +111,9 @@
 	var curTime=0;																// Current time of show player
 	var qmf=null;																// File system
 	var curEdit=-1;																// Current row editing
-	var butsty=" style='border-radius:10px;color#666;padding-left:6px;padding-right:6px' ";	// Button styling
+	var butsty=" style='border-radius:10px;color#666;padding-left:6px;padding-right:6px;color:#222;background-color:#ccc' ";	// Button styling
+	var keyFlag="";																// Holds key flags												
+
 	
 	$(document).ready(function() {											// WHEN PAGE LOADED
 		if (window.addEventListener) 											// If supported this way
@@ -144,7 +146,7 @@
 			 	});
 		Draw();
 		$(window).resize(Draw); 		
-		setInterval(function() { SendShivaMessage("Qmedia=time") },1000); 		// Set timer 1-fps
+		setInterval(function() { SendShivaMessage("Qmedia=time") },500); 		// Set timer 1-fps
 		});	
 	
 	function NewShow() 														// NEW SHOW
@@ -176,9 +178,19 @@
    		Sound('ding'); 															// Ding
     	}
 
-	function Preview()														// PREVIEW SHOW
+	function Preview(time)													// PREVIEW SHOW
 	{
-		SendShivaMessage("Qmedia=data",JSON.stringify(curJson));				// Send to show player	
+		if (time) {																// If a rolling preview
+			var ta=curJson.playerAuto;											// Save old setting
+			var ts=curJson.playerStart;											// Save old setting
+			curJson.playerAuto="true";											// Set autoplay
+			curJson.playerStart=Math.max(curTime-0+time,0);						// Set start
+			}
+		SendShivaMessage("Qmedia=data",JSON.stringify(curJson));				// Send to show player	   		
+   		if (time) {																// If a rolling preview
+			curJson.playerAuto=ta;												// Restore old setting
+			curJson.playerStart=ts;												// Restore old setting
+			}
    	}
    	
    	
@@ -213,7 +225,7 @@
 			$("#paneDiv").html(str);											// Put editor up	
 			}
 		else if (curPane == "intro") {											// Startup pane
-			str="";	// Image
+			str="<br><br><p style='text-align:center'><img src='qlogo.png' width='80%'></p>";	// Image
 			$("#paneDiv").html(str);											// Put editor up	
 			}
 		else if (curPane == "addcontent") {										// Add content pane
@@ -227,13 +239,8 @@
 			str+="&nbsp;&nbsp;Current player time is: <b><span id='curTime'>"+SecondsToTimecode(curTime)+"</span></b>"
 			$("#paneDiv").html(str);											// Put editor up	
 			}
-		else if (curPane == "index") 		IndexEditPane();						// Index pane
-		else if (curPane == "transcript") {										// Transcript pane
-			str="<br><p style='font-size:18px'>&nbsp;<b>Sync transcript</b></p>"
-			str+="&nbsp;&nbsp;Transcript is synced is managed in this panel.<br><br>"
-			str+="&nbsp;&nbsp;Current player time is: <b><span id='curTime'>"+SecondsToTimecode(curTime)+"</span></b>"
-			$("#paneDiv").html(str);											// Put editor up	
-			}
+		else if (curPane == "index") 		IndexEditPane();					// Index pane
+		else if (curPane == "transcript")   TranscriptEditPane();				// Transcript pane
 		else if (curPane == "assessment") {										// Assessment pane
 			str="<br><p style='font-size:18px'>&nbsp;<b>Edit Assessments</b></p>"
 			str+="&nbsp;&nbsp;Assessments are managed in this panel.<br><br>"
@@ -249,7 +256,7 @@
 		curEdit=-1;																// Clear
 		var str="<div style='padding:12px'><br>"								// Container div
 		str+="<div style='font-size:36px;color:#999'><b>Edit Index</b></div>"	// Title
-		str+="<br><br><div style='overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
+		str+="<br><br><div style='max-height:300px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
 		str+="<table id='indexTable' style='font-size:12px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
 		str+="<tr><td><b>Time</b></td><td><b>Index</b></td><td><b>Style</b></td><td><b>Indent</b></td><td></td></tr>";	// Add header
 		str+="<tr><td colspan='5'><hr></td></tr>";								// Add rule
@@ -263,14 +270,23 @@
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 		MakeIndexTable();														// Make table
 	
+		$("#paneDiv").on("click",function(e) {									// ON OUTSIDE CLICK
+			if (e.target.id == "paneDiv") {										// If on pane
+				Sound("click");													// Click
+				onClickIndex();													// Deselect current edit row
+				}
+			});
+
 		$("#preBut").on("click",function() {									// ON PREVIEW
 			Sound("click");														// Click
+			curEdit=-1;															// Not editing anymore
 			MakeIndexTable();													// Remake table
 			Preview();															// Run preview
 			});
 		
 		$("#addBut").on("click",function() {									// ON ADD
 			curJson.indexVectors.push({t:curTime,c:""})							// Add to json
+			curEdit=-1;															// Not editing anymore
 			MakeIndexTable();													// Remake table
 			Sound("click");														// Click
 			});
@@ -284,8 +300,7 @@
 		curJson.indexVectors.sort(function(a,b) { return a.t-b.t });			// Sort by time
 		if (curJson.indexVectors)												// If any indices
 			n=curJson.indexVectors.length;										// Get length
-		for (i=0;i<n;++i) 														// For each index
-		 	$("#indexTable tr:gt(2)").remove();									// Remove all rows
+		$("#indexTable tr:gt(1)").remove();										// Remove all rows
 		for (i=0;i<n;++i) {														// For each index
 			l=s="-";															// Null indicator
 			if (curJson.indexVectors[i].l)	l=curJson.indexVectors[i].l;		// If an indent set
@@ -301,13 +316,12 @@
 			$("#idc"+i).on("blur", function() {									// ON BLUR OF CONTENT
 				var i=this.id.substr(3);										// Get id
 				curJson.indexVectors[i].c=$("#idc"+i).text();					// Get text
-				});
-				
+				});				
 			
 			}
 	}	
 
-	function onDeleteIndex(id) 												// ON DELETW INDEX
+	function onDeleteIndex(id) 												// ON DELETE INDEX
 	{	
 		id=id.substr(3);														// Strip off prefix
 		curJson.indexVectors.splice(id,1);										// Remove from json
@@ -317,13 +331,17 @@
 
 	function onClickIndex(id) 												// ON CLICK INDEX
 	{	
-		curEdit=id.substr(3);													// Strip off prefix
-		SendShivaMessage("Qmedia=seek",""+curJson.indexVectors[curEdit].t);		// Go to time
+		SendShivaMessage("Qmedia=pause");										// Pause
 		for (var i=0;i<curJson.indexVectors.length;++i) {						// For each index
 			$("#idt"+i).css({"color":"#009900"});								// Restore
 			$("#idc"+i).css({"color":"#000000"});								// Restore
 			$("#idd"+i).css({"visibility":"hidden"});							// Restore
 			}	
+		curEdit=-1;																// No selected edit
+		if (id == undefined)													// If deselecting
+			return;																// Quit
+		curEdit=id.substr(3);													// Strip off prefix
+		SendShivaMessage("Qmedia=seek",""+curJson.indexVectors[curEdit].t);		// Go to time
 		$("#idt"+curEdit).css({"color":"#990000"});								// Highlight
 		$("#idc"+curEdit).css({"color":"#990000"});								// Highlight
 		$("#idd"+curEdit).css({"visibility":"visible"});						// Show trashcan
@@ -353,6 +371,113 @@
 		curJson.indexVectors[id].l=s;											// Set level
 	}
 
+///////////// TRANSCRIPT ////////////////
+
+
+	function TranscriptEditPane()											// TRANSCRIPT EDITOR
+	{
+		curEdit=-1;																// Clear
+		var w=($("#paneDiv").width()-140)/2;									// Width of halves
+		var str="<div style='padding:12px'><br>"								// Container div
+		str+="<div style='font-size:36px;color:#999'><b>Sync Transcript</b></div>"	// Title
+		str+="<br><br><div style='max-height:300px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
+		str+="<table id='transTable' style='table-layout:fixed;font-size:13px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
+		str+="<tr><td width='50'><b>Time</b></td><td align='right' width='"+(w-20)+"'><b></td><td   width='"+(w+15)+"'><b>Anchor</b></td><td width='20'></td></tr>";	// Add header
+		str+="<tr><td colspan='4'><hr></td></tr>";								// Add rule
+		str+="</table></div><div style='font-size:12px'<br><br>";				// End table
+		str+="<button"+butsty+"id='addAncBut'>Add anchor</button>";				// Add button
+		str+="&nbsp;&nbsp;<button"+butsty+"id='preBut1'>Preview</button>";		// Preview button
+		str+="&nbsp;&nbsp;<button"+butsty+"id='pauseBut'>Pause</button>";		// Pause button
+		str+="<br><br><p><b>Transcript:</b></p><textarea id='transText' style='width:100%;border:1px solid #999;border-radius:8px;color:#999;font-size:12px'>"
+		str+=curJson.transText ? curJson.transText : "" +"</textarea>";
+		
+		$("#paneDiv").html(str+"</div>");										// Put editor up	
+		MakeTransTable();														// Make table
+	
+		$("#preBut1").on("click",function() {									// ON PREVIEW
+			Sound("click");														// Click
+			curEdit=-1;															// Not editing anymore
+			MakeTransTable();													// Remake table
+			curJson.transText=$("#transText").val();							// Update transcript text
+			Preview(-1);														// Run preview
+			});
+		
+		$("#addAncBut").on("click",function() {									// ON ADD
+			if (!curJson.transText) 
+				return AlertBox("Need transcript text","Sorry, you need some transcript text before adding anchors");	// Needs text
+			if (!curJson.transVector)	{										// No vectors yet
+				curJson.transVectors=[];										// Alloc it
+				curJson.transVectors.push({ t:0,c:0,d:60} );					// Add first			
+				curJson.transVectors.push({t:curJson.playerStop,c:curJson.transText ? curJson.transText.length : 0 });	// Add last			
+				}		
+			curJson.transVectors.push({t:curTime,c:""})							// Add to json
+			MakeTransTable();													// Remake table
+			Sound("click");														// Click
+			});
+
+		$("#pauseBut").on("click",function() {									// ON PAUSE
+			SendShivaMessage("Qmedia=pause");									// Pause
+			});
+
+		$("#paneDiv").on("click",function(e) {									// ON OUTSIDE CLICK
+			if (e.target.id == "paneDiv") {										// If on pane
+				Sound("click");													// Click
+				onClickIndex();													// Deselect current edit row
+				}
+			});
+
+	}
+
+	
+	function MakeTransTable() 												// MAKE TABLE AND SORT BY TIME
+	{	
+		var i,n=0;
+		var trsty=" style='height:20px;cursor:pointer;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
+		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='onClickTrans(this.id)'";
+		if (curJson.transVectors) {												// If any indices
+			curJson.transVectors.sort(function(a,b) { return a.t-b.t });		// Sort by time
+			n=curJson.transVectors.length;										// Get length
+			}
+		$("#transTable tr:gt(1)").remove();										// Remove all rows
+		for (i=0;i<n;++i) {														// For each index
+			str="<tr id='idx"+i+"' "+trsty+">";									// Row
+			s=curJson.transVectors[i].c;										// Start of line								
+			str+="<td style='color:#009900;:focus{outline:none}' id='idt"+i+"'>"+SecondsToTimecode(curJson.transVectors[i].t)+"</td>";	// Add time
+			str+="<td id='idl"+i+"' style='color:#999;overflow:hidden;white-space:nowrap;text-align:right'>"+curJson.transText.substring(s,s-15)+"&nbsp;</td>"; 		// Add line
+			str+="<td id='idr"+i+"' style='color:#000;overflow:hidden;white-space:nowrap'>"+curJson.transText.substring(s,s-0+50)+"</td>"; 	// Add line
+			str+="<td  align='right'><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteTrans(this.id)'></td></tr>";	// Add trashcan
+			$("#transTable").append(str);										// Add row
+			}
+		if (curEdit != -1) 	onClickTrans("idx"+curEdit);						// Highlight it
+		if (n && curJson.transText)												// If a transcript
+			curJson.transVectors[n-1].c=curJson.transText.length;				// Make last one end of text
+	}	
+
+	function onDeleteTrans(id) 												// ON DELETE TRANS
+	{	
+		id=id.substr(3);														// Strip off prefix
+		curJson.transVectors.splice(id,1);										// Remove from json
+		$("#idx"+id).remove();													// Remove from table
+		Sound("delete");														// Delete sound
+	}
+
+	function onClickTrans(id) 												// ON CLICK TRANS
+	{	
+		SendShivaMessage("Qmedia=pause");										// Pause
+		for (var i=0;i<curJson.transVectors.length;++i) {						// For each row
+			$("#idt"+i).css({"color":"#009900"});								// Restore
+			$("#idd"+i).css({"visibility":"hidden"});							// Restore
+			}	
+		curEdit=-1;																// No selected edit
+		if (id == undefined)													// If deselecting
+			return;																// Quit
+		curEdit=id.substr(3);													// Strip off prefix
+		SendShivaMessage("Qmedia=seek",""+curJson.transVectors[curEdit].t);		// Go to time
+		$("#idt"+curEdit).css({"color":"#990000"});								// Highlight
+		$("#idd"+curEdit).css({"visibility":"visible"});						// Show trashcan
+	}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EVENTS
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -360,16 +485,34 @@
 	
 	function shivaEventHandler(e)											// ON SHIVA EVENT
 	{
+		var o=null;															
 		if (e.data.match(/ShivaAct=time/))	{									// If a time
 			curTime=e.data.split("|")[1]-0;										// Isolate it
 			$("#curTime").text(SecondsToTimecode(curTime));						// Show time
-			if ((curPane == "index") && (curEdit != -1)) {						// Setting index time
+			if (curPane == "index")			o=curJson.indexVectors;				// Point at index
+			if (curPane == "transcript")	o=curJson.transVectors;				// Point at transcript
+			if (o && (curEdit != -1)) {											// Editing time
 				if (!isNaN(curTime)) {											// If a valid time
-					curJson.indexVectors[curEdit].t=curTime;					// Set it
-					$("#idt"+curEdit).text(SecondsToTimecode(curTime));			// Update row
+					var i,d=o[curEdit].t-curTime;								// Shift amount
+					o[curEdit].t=curTime;										// Set it
+					$("#idt"+curEdit).text(SecondsToTimecode(curTime));			// Update text
+					if (e.data.split("|")[2].match(/s/i)) {						// If shift key pressed
+						for (i=curEdit-0+1;i<o.length;++i) {					// For each subsequent row
+							o[i].t-=d;											// Shift
+							$("#idt"+i).text(SecondsToTimecode(o[i].t));		// Update text
+							}
+						}
 					}
 				}
 			}
+		else if (e.data.match(/ShivaAct=trans/))	{							// If a trans click
+			if (curPane == "transcript")	o=curJson.transVectors;				// Point at transcript
+			if (o && (curEdit != -1)) {											// Editing time
+				o[curEdit].c=e.data.split("|")[2]-0;							// Set it
+				SendShivaMessage("Qmedia=seek",""+o[curEdit].t);				// Go to time
+				MakeTransTable();												// Show new context
+				}											
+			}	
 		else
 			trace(e.data);
 	}	
