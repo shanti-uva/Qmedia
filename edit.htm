@@ -548,10 +548,9 @@
 		str+="<tr><td></td><td>Auto start</td><td>"+MakeSelect("playerAuto",false,["true","false"],curJson.playerAuto)+"</td></tr>";	// Get setting
 		str+="<tr><td></td><td>Show native controls</td><td>"+MakeSelect("playerControls",false,["true","false"],curJson.playerControls)+"</td></tr>";	// Get setting
 		str+="<tr><td></td><td>Quality</td><td>"+MakeSelect("playerQuality",false,["Default","Good","Better","Best"],curJson.playerQuality)+"</td></tr>";	// Get setting
-		str+="<tr><td></td><td>Speed (25-200%)</td><td>"+MakeSelect("playerSpeed",false,["25","50","100","150","200"],curJson.playerSpeed)+"</td></tr>";	// Get setting
 		str+="<tr><td colspan=3><b><br>Transcript<b></td></tr>";					// Heading
 		str+="<tr><td colspan=3><hr></td></tr>";								// Rule
-		str+="<tr><td></td><td>Initial transcript/info ratio (0-1)</td><td><input class='bs' type='text' id='transInfoRatio' value='"+curJson.transInfoRatio+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Initial trans/info ratio (0-1)</td><td><input class='bs' type='text' id='transInfoRatio' value='"+curJson.transInfoRatio+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Height</td><td><input class='bs' type='text' id='transHgt' value='"+curJson.transHgt+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Initial language</td><td><input class='bs' type='text' id='transLanguage' value='"+curJson.transLanguage+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Languages</td><td><input class='bs' type='text' id='transLangs' value='"+curJson.transLangs+"'></td></tr>";	// Get setting
@@ -593,8 +592,6 @@
 				curJson.playerControls=$("#playerControls").val();	
 			if ($("#playerQuality").val())
 				curJson.playerQuality=$("#playerQuality").val();	
-			if ($("#playerSpeed").val())
-				curJson.playerSpeed=$("#playerSpeed").val();	
 			if ($("#transInfoRatio").val())
 				curJson.transInfoRatio=$("#transInfoRatio").val();	
 			if ($("#transHgt").val())
