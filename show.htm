@@ -332,15 +332,16 @@
 						RunPlayer("init");										// Re-init
 					else{														// Load YT api
 						var tag=document.createElement('script');				// Create script
-						tag.src="//www.youtube.com/iframe_api";							// Set api url
+						tag.src="//www.youtube.com/iframe_api";					// Set api url
 						var firstScriptTag=document.getElementsByTagName('script')[0];	// Find 1st script
 						firstScriptTag.parentNode.insertBefore(tag,firstScriptTag);		// Load
 						}
 					}
 				else{															// Player is active
 					if (player.getVideoUrl().indexOf(sd.playerSource) == -1)	// Different clip
-						player.loadVideoById(show.playerSource,sd.playerStart);	// Reload clip
-					player.seekTo(sd.playerStart);								// Seek to start point
+						player.loadVideoById(show.playerSource);				// Reload clip
+					else
+						player.seekTo(sd.playerStart);							// Seek to start point
 					if (sd.playerAuto == "true")								// If autoplay
 						player.playVideo();										// Play video
 					}

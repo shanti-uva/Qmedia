@@ -94,11 +94,12 @@
 			dat["id"]=curShow;													// Add id
 			dat["email"]=_this.email;											// Add email
 			dat["password"]=_this.password;										// Add password
-			dat["private"]=+pri;												// Add private
+			dat["private"]=pri;													// Add private
 			dat["script"]="LoadShow("+JSON.stringify(curJson,null,'\t')+")";	// Add jsonp-wrapped script
 			if (curJson.title)													// If a title	
-					dat["title"]=curJson.title;									// Add title
-				$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat,  // Post data
+				dat["title"]=AddEscapes(curJson.title);							// Add title
+			trace(dat)
+			$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat,  // Post data
 				success:function(d) { 			
 					if (d == -1) 												// Error
 				 		AlertBox("Error","Sorry, there was an error loading that project.(1)");		
@@ -109,8 +110,9 @@
 				 	else if (d == -4) 											// Error
 				 		AlertBox("Error","Sorry, there was an error updating that project. (4)");		
 				 	else if (!isNaN(d)){										// Success if a number
-				 		this.curFile=d;											// Set current file
-						Sound("ding");
+				 		curShow=this.curFile=d;									// Set current file
+						Sound("ding");											// Ding
+						Draw();												// Redraw menu
 						}
 					},
 				error:function(xhr,status,error) { trace(error) },				// Show error
@@ -245,7 +247,7 @@
 		var x=$("#lightBoxDiv").width()/2-250;
 		var y=$("#lightBoxDiv").height()/2-200;
 		
-		str="<div id='lightBoxIntDiv' style='position:absolute;padding:16px;width:400px;font-size:12px";
+		str="<div id='lightBoxIntDiv' class='unselectable' style='position:absolute;padding:16px;width:400px;font-size:12px";
 		str+=";border-radius:12px;z-index:2003;"
 		str+="border:1px solid; left:"+x+"px;top:"+y+"px;background-color:#f8f8f8'>";
 		str+="<img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
@@ -276,7 +278,7 @@
 	{
 		$("#alertBoxDiv").remove();												// Remove any old ones
 		Sound("delete");														// Delete sound
-		$("body").append("<div id='alertBoxDiv'></div>");														
+		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
 		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
 		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>"+title+"</b></span></p>";
 		str+="<div style='font-size:14px;margin:16px'>"+content+"</div>";
@@ -292,7 +294,7 @@
 	{
 		Sound("delete");														// Delete sound
 		$("#alertBoxDiv").remove();												// Remove any old ones
-		$("body").append("<div id='alertBoxDiv'></div>");														
+		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
 		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
 		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>Are you sure?</b></span><p>";
 		str+="<div style='font-size:14px;margin:14px'>"+content+"</div>";
@@ -307,6 +309,16 @@
  		$(".ui-button").css({"border-radius":"30px","outline":"none"});
  	}
 
+	function AddEscapes(str)												// ESCAPE TEXT STRING
+	{
+		if (str) {																// If a string
+			str=""+str;															// Force as string
+			str=str.replace(/"/g,"\\\"");										// " to \"
+			str=str.replace(/'/g,"\\\'");										// ' to \'
+			}
+		return str;																// Return escaped string
+	}
+	
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{
 		if (p4 != undefined)

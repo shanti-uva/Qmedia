@@ -28,14 +28,7 @@ require_once('config.php');
 		$private=$_REQUEST['private'];							// Get it
 	if (isSet($_REQUEST['deleted'])) 							// If set
 		$deleted=$_REQUEST['deleted'];							// Get it
-	
-	$script=addEscapes($script);								// Escape script
-	$title=addEscapes($title);									// Title	
-	$private=addEscapes($private);								// Private
-	$email=addEscapes($email);									// Email	
-	$password=addEscapes($password);							// Password	
-	$id=addEscapes($id);										// Private
-					
+						
 	$query="SELECT * FROM qshow WHERE id = '".$id."'"; 			// Look existing one	
 	$result=mysql_query($query);								// Query
 	if ($result == false) {										// Bad query
@@ -44,15 +37,12 @@ require_once('config.php');
 		exit();													// Quit
 		}
 	if (!mysql_numrows($result)) {								// If not found, add it
-		$script=addEscapes($script);							// Escape script
-		$title=addEscapes($title);								// Title	
-		$private=addEscapes($private);							// Private
 		$query="INSERT INTO qshow (title, script, email, password, private) VALUES ('";
-		$query.=$title."','";
-		$query.=$script."','";
-		$query.=$email."','";
-		$query.=$password."','";
-		$query.=$private."')";
+		$query.=addEscapes($title)."','";
+		$query.=addEscapes($script)."','";
+		$query.=addEscapes($email)."','";
+		$query.=addEscapes($password)."','";
+		$query.=addEscapes($private)."')";
 		$result=mysql_query($query);							// Add row
 		if ($result == false)									// Bad save
 			print("-2");										// Show error 
@@ -77,13 +67,13 @@ require_once('config.php');
 		
 		$id=mysql_result($result,0,"id");						// Get id
 		if ($id != "") {										// If valid
-			$query="UPDATE qshow SET title='".$title."' WHERE id = '".$id."'";
+			$query="UPDATE qshow SET title='".addEscapes($title)."' WHERE id = '".$id."'";
 			$result=mysql_query($query);
-			$query="UPDATE qshow SET script='".$script."' WHERE id = '".$id."'";
+			$query="UPDATE qshow SET script='".addEscapes($script)."' WHERE id = '".$id."'";
 			$result=mysql_query($query);
-			$query="UPDATE qshow SET private='".$private."' WHERE id = '".$id."'";
+			$query="UPDATE qshow SET private='".addEscapes($private)."' WHERE id = '".$id."'";
 			$result=mysql_query($query);
-			$query="UPDATE qshow SET deleted='".$deleted."' WHERE id = '".$id."'";
+			$query="UPDATE qshow SET deleted='".addEscapes($deleted)."' WHERE id = '".$id."'";
 			$result=mysql_query($query);
 			$query="UPDATE qshow SET date='".date("Y-m-d H:i:s")."' WHERE id = '".$id."'";
 			$result=mysql_query($query);
@@ -100,7 +90,7 @@ require_once('config.php');
 	{
 		if (!$str)												// If nothing
 			return $str;										// Quit
-		$str=addslashes($str);									// Add slashes
+		$str=mysql_real_escape_string($str);					// Add slashes
 		$str=str_replace("\r","",$str);							// No crs
 		return $str;
 	}
