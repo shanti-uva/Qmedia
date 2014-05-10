@@ -665,7 +665,7 @@
 		str+="<tr><td><b>If wrong answer</b>&nbsp;</td><td><textarea class='bs' id='whyWrong'>"+(o.whyWrong ? o.whyWrong :'')+"</textarea></td></tr>";	// Get setting
 		str+="<tr><td><b>If partial answer</b>&nbsp;</td><td><textarea class='bs' id='whyPartial'>"+(o.whyPartial ? o.whyPartial :'')+"</textarea></td></tr>";	// Get setting
 		str+="<tr><td><b>Number of tries</b></td><td><input class='bs' type='text' id='numTries' value='"+(o.numTries ? o.numTries :'')+"'></td></tr>";	// Get setting
-		str+="<tr><td><hr></td><td><hr></td></tr><table>";
+		str+="<tr><td colspan=2><hr></td></tr>";
 		str+="<tr><td><b>Options</b></td><td><table>";
 		if (o.options) {
 			str+="";
@@ -679,11 +679,6 @@
 		str+="</table></div><br>";												// End step table
 		$("#pageDiv").html(str);	
 	}
-
- //               "optionType":"radio","options":["10%","30%","50%","*80%"]},
-
-
-
 
 ///////////// SETTINGS ////////////////
 
