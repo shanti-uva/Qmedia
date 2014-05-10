@@ -268,11 +268,8 @@
 		else if (curPane == "index") 		IndexEditPane();					// Index pane
 		else if (curPane == "transcript")   TranscriptEditPane();				// Transcript pane
 		else if (curPane == "settings")  	SettingsEditPane();					// Settings pane
-		else if (curPane == "assessment") {										// Assessment pane
-			str="<br><p style='font-size:18px'>&nbsp;<b>Edit Assessments</b></p>"
-			str+="&nbsp;&nbsp;Assessments are managed in this panel.<br><br>"
-			$("#paneDiv").html(str);											// Put editor up	
-			}
+		else if (curPane == "assessment") 	AssessmentEditPane();				// Assessment pane
+
 		$("#playerDiv").css({	"-webkit-transform-origin":"0 0", 				// Scale player window
 				"transform-origin":"0 0",			
 				"-webkit-transform":"matrix("+playerZoom+",0,0,"+playerZoom+",0,0)",
@@ -516,6 +513,141 @@
 		$("#idd"+curEdit).css({"visibility":"visible"});						// Show trashcan
 	}
 
+///////////// ASSESSMENT ////////////////
+
+
+	function AssessmentEditPane()											// ASSESSMENT EDITOR
+	{
+		curEdit=-1;																// Clear
+		var w=($("#paneDiv").width()-140)/2;									// Width of halves
+		var str="<div style='padding:12px'><br>"								// Container div
+		str+="<div style='font-size:36px;color:#999'><b>Edit Assessments</b></div>"	// Title
+		str+="<br><br><div style='display:inline-block;width:200px;max-height:200px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
+		str+="<table id='assessTable' style='font-size:13px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
+		str+="<tr><td><b>Name</b></td><td width='20'></td></tr>";				// Add header
+		str+="<tr><td colspan='2'><hr></td></tr>";								// Add rule
+		str+="</table></div>&nbsp;&nbsp;&nbsp;"									// End table
+	
+		str+="<div style='vertical-align:top;display:inline-block;width:100px;max-height:200px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
+		str+="<table id='pageTable' style='font-size:13px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
+		str+="<tr><td><b>Page</b></td><td width='20'></td></tr>";				// Add header
+		str+="<tr><td colspan='2'><hr></td></tr>";								// Add rule
+		str+="</table></div><div style='font-size:12px'<br><p><hr></p>";			// End table
+
+		str+="<button"+butsty+"id='addAssessBut'>Add assessment</button>";	// Add button
+		str+="&nbsp;&nbsp;<button"+butsty+"id='addPageBut'>Add page</button>";	// Add button
+		str+="&nbsp;&nbsp;<button"+butsty+"id='preBut3'>Preview</button>";		// Preview button
+			
+		$("#paneDiv").html(str+"</div>");										// Put editor up	
+		MakeAssessTable();														// Make table
+			
+		$("#addAssessBut").on("click",function() {								// ON ADD
+			if (!curJson.assessments)											// No assessmenrts yet
+				curJson.assessments=[];											// Alloc it
+			curJson.assessments.push({name:"untitled"})							// Add to json
+			MakeAssessTable();													// Remake table
+			Sound("click");														// Click
+			});
+		
+		$("#preBut3").on("click",function() {									// ON PREVIEW
+			Sound("click");														// Click
+			curEdit=-1;															// Not editing anymore
+			MakeAssessTable();													// Remake table
+			});
+	
+	}
+
+	function MakeAssessTable() 												// MAKE TABLE 
+	{	
+		var i,n=0,str;
+		var nc=($("#paneDiv").width()-60)/18;										// Chars left of anchor
+		var trsty=" style='height:20px;cursor:pointer;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
+		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='onClickAssess(this.id)'";
+		if (curJson.assessments) {												// If any indices
+			n=curJson.assessments.length;										// Get length
+			}
+		$("#assessTable tr:gt(1)").remove();									// Remove all rows
+		for (i=0;i<n;++i) {														// For each index
+			str="<tr id='idx"+i+"' "+trsty+">";									// Row
+			str+="<td id='idn"+i+"' contenteditable=true>"+curJson.assessments[i].name+"</td>"; 	// Add assessment name
+			str+="<td align='right'><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteAssess(this.id)'></td></tr>";	// Add trashcan
+			$("#assessTable").append(str);										// Add row
+			
+			$("#idn"+i).on("blur", function() {									// ON BLUR OF CONTENT
+				var i=this.id.substr(3);										// Get id
+				curJson.assessments[i].name=$("#idn"+i).text();					// Get text
+				});				
+			}
+
+		if (curEdit != -1) 	onClickAssess("idx"+curEdit);						// Highlight it
+	}	
+
+	function onDeleteAssess(id) 												// ON DELETE ASSESS
+	{	
+		id=id.substr(3);														// Strip off prefix
+		curJson.assessments.splice(id,1);										// Remove from json
+		$("#idx"+id).remove();													// Remove from table
+		Sound("delete");														// Delete sound
+	}
+
+	function onClickAssess(id) 												// ON CLICK ASSESS
+	{	
+		for (var i=0;i<curJson.assessments.length;++i) {						// For each row
+			$("#idn"+i).css({"color":"#000"});									// Restore
+			$("#idd"+i).css({"visibility":"hidden"});							// Restore
+			}	
+		curEdit=-1;																// No selected edit
+		if (id == undefined)													// If deselecting
+			return;																// Quit
+		curEdit=id.substr(3);													// Strip off prefix
+		$("#idn"+curEdit).css({"color":"#990000"});								// Highlight
+		$("#idd"+curEdit).css({"visibility":"visible"});						// Show trashcan
+		Sound("click");															// Click
+		}
+
+	function MakePageTable() 												// MAKE TABLE 
+	{	
+		var i,n=0,str;
+		var nc=($("#paneDiv").width()-60)/18;										// Chars left of anchor
+		var trsty=" style='height:20px;cursor:pointer;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
+		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='onClickAssess(this.id)'";
+		if (curJson.assessments) {												// If any indices
+			n=curJson.assessments.length;										// Get length
+			}
+		$("#assessTable tr:gt(1)").remove();									// Remove all rows
+		for (i=0;i<n;++i) {														// For each index
+			str="<tr id='idx"+i+"' "+trsty+">";									// Row
+			str+="<td id='idn"+i+"' contenteditable=true>"+curJson.assessments[i].name+"</td>"; 	// Add assessment name
+			str+="<td align='right'><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteAssess(this.id)'></td></tr>";	// Add trashcan
+			$("#assessTable").append(str);										// Add row
+			}
+
+		if (curEdit != -1) 	onClickAssess("idx"+curPage);						// Highlight it
+	}	
+
+	function onDeletePage(id) 												// ON DELETE PAGE
+	{	
+		id=id.substr(3);														// Strip off prefix
+		curJson.assessments[curEdit].pages.splice(id,1);						// Remove from json
+		$("#idpx"+id).remove();													// Remove from table
+		Sound("delete");														// Delete sound
+	}
+
+	function onClickPage(id) 												// ON CLICK PAGE
+	{	
+		for (var i=0;i<curJson.assessments[curEdit].pages;++i) {					// For each row
+			$("#idp"+i).css({"color":"#000"});									// Restore
+			$("#idt"+i).css({"visibility":"hidden"});							// Restore
+			}	
+		curPage=-1;																// No selected edit
+		if (id == undefined)													// If deselecting
+			return;																// Quit
+		curPage=id.substr(3);													// Strip off prefix
+		$("#idp"+curEdit).css({"color":"#990000"});								// Highlight
+		$("#idt"+curEdit).css({"visibility":"visible"});						// Show trashcan
+		Sound("click");															// Click
+		}
+
 
 ///////////// SETTINGS ////////////////
 
@@ -635,7 +767,6 @@
 		else if (e.data.match(/ShivaAct=trans/))	{							// If a trans click
 			if (curPane == "transcript")	o=curJson.transVectors;				// Point at transcript
 			if (o && (curEdit != -1)) {											// Editing time
-				trace(e.data.split("|")[2]-0)
 				o[curEdit].c=e.data.split("|")[2]-0;							// Set it
 				SendShivaMessage("Qmedia=seek",""+o[curEdit].t);				// Go to time
 				MakeTransTable();												// Show new context
