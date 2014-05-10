@@ -593,14 +593,14 @@
 	function onClickAssess(id) 												// ON CLICK ASSESS
 	{	
 		for (var i=0;i<curJson.assessments.length;++i) {						// For each row
-			$("#idn"+i).css({"color":"#000"});									// Restore
+			$("#idn"+i).css({"color":"#000","font-weight":"normal"});			// Restore
 			$("#idd"+i).css({"visibility":"hidden"});							// Restore
 			}	
 		curEdit=-1;																// No selected edit
 		if (id == undefined)													// If deselecting
 			return;																// Quit
 		curEdit=id.substr(3);													// Strip off prefix
-		$("#idn"+curEdit).css({"color":"#990000"});								// Highlight
+		$("#idn"+curEdit).css({"color":"#990000","font-weight":"bold"});		// Highlight
 		$("#idd"+curEdit).css({"visibility":"visible"});						// Show trashcan
 		Sound("click");															// Click
 		}
@@ -635,15 +635,15 @@
 
 	function onClickPage(id) 												// ON CLICK PAGE
 	{	
-		for (var i=0;i<curJson.assessments[curEdit].pages;++i) {					// For each row
-			$("#idp"+i).css({"color":"#000"});									// Restore
+		for (var i=0;i<curJson.assessments[curEdit].pages;++i) {				// For each row
+			$("#idp"+i).css({"color":"#000","font-weight":"normal"});			// Restore
 			$("#idt"+i).css({"visibility":"hidden"});							// Restore
 			}	
 		curPage=-1;																// No selected edit
 		if (id == undefined)													// If deselecting
 			return;																// Quit
 		curPage=id.substr(3);													// Strip off prefix
-		$("#idp"+curEdit).css({"color":"#990000"});								// Highlight
+		$("#idp"+curEdit).css({"color":"#990000","font-weight":"bold"});		// Highlight
 		$("#idt"+curEdit).css({"visibility":"visible"});						// Show trashcan
 		Sound("click");															// Click
 		}
