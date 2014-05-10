@@ -47,8 +47,7 @@
 		.ui-menu .ui-menu .ui-menu li { float:left;display:block; }	
  		.ui-menu .ui-menu { 		    overflow: visible !important; }
 		.bs {			border-radius:10px;padding-left:8px;padding-right:8px;padding-top:1px;
-						border:1px solid #999;font-size:11px;height;20px;
-						}	 
+						border:1px solid #999;font-size:12px;height;20px;
 
 
  	</style>
@@ -63,7 +62,7 @@
 </head>
 
 	<div id='playerDiv' class='unselectable' >
-		<iframe class="player" id="playerIF" src="show.htm" height="100%" scrolling="no"></iframe>
+		<iframe class="player" id="playerIF" src="!show.htm" height="100%" scrolling="no"></iframe>
 	</div>
 	<div id="editDiv" class="editor unselectable" style="position:absolute;top:16px;z-index:4"> 
 		 <ul id="menu" style="margin:1px">
@@ -115,7 +114,7 @@
 	var curJson=null;															// Holds current JSON
 	var curTime=0;																// Current time of show player
 	var qmf=null;																// File system
-	var curEdit=-1;																// Current row editing
+	var curPage=curEdit=-1;														// Current row editing
 	var butsty=" style='border-radius:10px;color#666;padding-left:12px;padding-right:12px;color:#222;background-color:#ccc;font-size:12px;' ";	// Button styling
 	var keyFlag="";																// Holds key flags												
 	var defTransDur=60;															// Default trancript line duration
@@ -205,6 +204,7 @@
 
 	function Preview(time)													// PREVIEW SHOW
 	{
+		Do();																	// Save for undo
 		if (time) {																// If a rolling preview
 			var ta=curJson.playerAuto;											// Save old setting
 			var ts=curJson.playerStart;											// Save old setting
@@ -519,25 +519,26 @@
 	function AssessmentEditPane()											// ASSESSMENT EDITOR
 	{
 		curEdit=-1;																// Clear
-		var w=($("#paneDiv").width()-140)/2;									// Width of halves
+		var w=($("#paneDiv").width()-75)/2;										// Width of halves
 		var str="<div style='padding:12px'><br>"								// Container div
 		str+="<div style='font-size:36px;color:#999'><b>Edit Assessments</b></div>"	// Title
-		str+="<br><br><div style='display:inline-block;width:200px;max-height:200px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
+		str+="<br><br><div style='display:inline-block;width:"+w+"px;max-height:200px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
 		str+="<table id='assessTable' style='font-size:13px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
 		str+="<tr><td><b>Name</b></td><td width='20'></td></tr>";				// Add header
 		str+="<tr><td colspan='2'><hr></td></tr>";								// Add rule
 		str+="</table></div>&nbsp;&nbsp;&nbsp;"									// End table
 	
-		str+="<div style='vertical-align:top;display:inline-block;width:100px;max-height:200px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
-		str+="<table id='pageTable' style='font-size:13px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
-		str+="<tr><td><b>Page</b></td><td width='20'></td></tr>";				// Add header
+		str+="<div style='vertical-align:top;display:inline-block;width:"+w+"px;max-height:200px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
+		str+="<table id='pageTable' style='table-layout:fixed;font-size:13px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
+		str+="<tr><td><b>Step</b></td><td width='20'></td></tr>";				// Add header
 		str+="<tr><td colspan='2'><hr></td></tr>";								// Add rule
-		str+="</table></div><div style='font-size:12px'<br><p><hr></p>";			// End table
+		str+="</table></div><div style='font-size:12px'<br><p><hr></p>";		// End table
 
 		str+="<button"+butsty+"id='addAssessBut'>Add assessment</button>";	// Add button
-		str+="&nbsp;&nbsp;<button"+butsty+"id='addPageBut'>Add page</button>";	// Add button
+		str+="&nbsp;&nbsp;<button"+butsty+"id='addPageBut'>Add step</button>";	// Add button
 		str+="&nbsp;&nbsp;<button"+butsty+"id='preBut3'>Preview</button>";		// Preview button
-			
+		str+="<br><br><div id='pageDiv' style='display:none;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
+		
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 		MakeAssessTable();														// Make table
 			
@@ -560,7 +561,6 @@
 	function MakeAssessTable() 												// MAKE TABLE 
 	{	
 		var i,n=0,str;
-		var nc=($("#paneDiv").width()-60)/18;										// Chars left of anchor
 		var trsty=" style='height:20px;cursor:pointer;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
 		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='onClickAssess(this.id)'";
 		if (curJson.assessments) {												// If any indices
@@ -602,51 +602,87 @@
 		curEdit=id.substr(3);													// Strip off prefix
 		$("#idn"+curEdit).css({"color":"#990000","font-weight":"bold"});		// Highlight
 		$("#idd"+curEdit).css({"visibility":"visible"});						// Show trashcan
+		curPage=-1;																// No selected edit
+		MakePageTable();														// Make page table
+		$("#pageDiv").slideUp(300);												// Hide the page
 		Sound("click");															// Click
 		}
 
 	function MakePageTable() 												// MAKE TABLE 
 	{	
 		var i,n=0,str;
-		var nc=($("#paneDiv").width()-60)/18;										// Chars left of anchor
 		var trsty=" style='height:20px;cursor:pointer;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
-		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='onClickAssess(this.id)'";
-		if (curJson.assessments) {												// If any indices
-			n=curJson.assessments.length;										// Get length
+		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='onClickPage(this.id)'";
+		if (curJson.assessments[curEdit] && curJson.assessments[curEdit].pages) {	// If any indices
+			n=curJson.assessments[curEdit].pages.length;						// Get length
 			}
-		$("#assessTable tr:gt(1)").remove();									// Remove all rows
+		$("#pageTable tr:gt(1)").remove();										// Remove all rows
 		for (i=0;i<n;++i) {														// For each index
-			str="<tr id='idx"+i+"' "+trsty+">";									// Row
-			str+="<td id='idn"+i+"' contenteditable=true>"+curJson.assessments[i].name+"</td>"; 	// Add assessment name
-			str+="<td align='right'><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteAssess(this.id)'></td></tr>";	// Add trashcan
-			$("#assessTable").append(str);										// Add row
+			str="<tr id='idp"+i+"' "+trsty+">";									// Row
+			str+="<td id='idt"+i+"' style='overflow:hidden;white-space:nowrap'>"+(i+1)+". "+curJson.assessments[curEdit].pages[i].title+"</td>"; 	// Add assessment name
+			str+="<td align='right'><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeletePage(this.id)'></td></tr>";	// Add trashcan
+			$("#pageTable").append(str);										// Add row
 			}
-
-		if (curEdit != -1) 	onClickAssess("idx"+curPage);						// Highlight it
+		if (curPage != -1) 	onClickPage("idp"+curPage);							// Highlight it
 	}	
 
 	function onDeletePage(id) 												// ON DELETE PAGE
 	{	
 		id=id.substr(3);														// Strip off prefix
 		curJson.assessments[curEdit].pages.splice(id,1);						// Remove from json
-		$("#idpx"+id).remove();													// Remove from table
+		$("#idp"+id).remove();													// Remove from table
 		Sound("delete");														// Delete sound
 	}
 
 	function onClickPage(id) 												// ON CLICK PAGE
 	{	
-		for (var i=0;i<curJson.assessments[curEdit].pages;++i) {				// For each row
-			$("#idp"+i).css({"color":"#000","font-weight":"normal"});			// Restore
-			$("#idt"+i).css({"visibility":"hidden"});							// Restore
+		for (var i=0;i<curJson.assessments[curEdit].pages.length;++i) {			// For each row
+			$("#idt"+i).css({"color":"#000","font-weight":"normal"});			// Restore
+			$("#idd"+i).css({"visibility":"hidden"});							// Restore
 			}	
 		curPage=-1;																// No selected edit
 		if (id == undefined)													// If deselecting
 			return;																// Quit
 		curPage=id.substr(3);													// Strip off prefix
-		$("#idp"+curEdit).css({"color":"#990000","font-weight":"bold"});		// Highlight
-		$("#idt"+curEdit).css({"visibility":"visible"});						// Show trashcan
+		$("#idt"+curPage).css({"color":"#990000","font-weight":"bold"});		// Highlight
+		$("#idd"+curPage).css({"visibility":"visible"});						// Show trashcan
+		EditPage();																// Edit page
+		$("#pageDiv").slideDown(300);											// Show the page
 		Sound("click");															// Click
 		}
+
+	function EditPage()
+	{
+		var i,str;
+		var o=curJson.assessments[curEdit].pages[curPage];						// Point at page
+		str="<table style='font-size:11px;padding:0px;border-collapse:collapse;'>";	// Add table
+		str+="<tr><td><b>Step yype</b></td><td>"+MakeSelect("optionType",false,["Radio","Checkbox","Cloze","Draw","FindTime","Write"],o.optionType)+"</td></tr>";	// Get setting
+		str+="<tr><td><b>Title</b></td><td><input class='bs' type='text' id='title' value='"+(o.title ? o.title :'')+"'></td></tr>";	// Get setting
+		str+="<tr><td><b>Text</b></td><td><textarea class='bs' id='prompt'>"+(o.text ? o.text :'')+"</textarea></td></tr>";	// Get setting
+		str+="<tr><td><b>Prompt</b></td><td><textarea class='bs' id='prompt'>"+(o.prompt ? o.prompt :'')+"</textarea></td></tr>";	// Get setting
+		str+="<tr><td><b>Image</b></td><td><input class='bs' type='text' id='pic' value='"+(o.pic ? o.pic :'')+"'></td></tr>";	// Get setting
+		str+="<tr><td><b>If right answer</b></td><td><textarea class='bs' id='whyRight'>"+(o.whyRight ? o.whyRight :'')+"</textarea></td></tr>";	// Get setting
+		str+="<tr><td><b>If wrong answer</b>&nbsp;</td><td><textarea class='bs' id='whyWrong'>"+(o.whyWrong ? o.whyWrong :'')+"</textarea></td></tr>";	// Get setting
+		str+="<tr><td><b>If partial answer</b>&nbsp;</td><td><textarea class='bs' id='whyPartial'>"+(o.whyPartial ? o.whyPartial :'')+"</textarea></td></tr>";	// Get setting
+		str+="<tr><td><b>Number of tries</b></td><td><input class='bs' type='text' id='numTries' value='"+(o.numTries ? o.numTries :'')+"'></td></tr>";	// Get setting
+		str+="<tr><td><hr></td><td><hr></td></tr><table>";
+		str+="<tr><td><b>Options</b></td><td><table>";
+		if (o.options) {
+			str+="";
+			for (i=0;i<o.options.length;++i) {
+				str+="<tr><td id='ido"+i+"'><input class='bs' type='text' id='ido' value='"+(o.options[i] ? o.options[i] :'')+"'>"; 	// Add index
+				str+="&nbsp;&nbsp;<img id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteOption(this.id)'</td></tr>"
+				}
+			}		
+		str+="<tr><td><button"+butsty+"id='addOpt'>Add new option</button></td><td></td></tr>";	// Add button
+		str+="</table></td></tr>";												// End options table
+		str+="</table></div><br>";												// End step table
+		$("#pageDiv").html(str);	
+	}
+
+ //               "optionType":"radio","options":["10%","30%","50%","*80%"]},
+
+
 
 
 ///////////// SETTINGS ////////////////
@@ -795,6 +831,7 @@
 	
 	function Do(name)														// SAVE SHOW IN SESSION STORAGE
 	{
+		return;
 		var str=JSON.stringify(curJson);										// Stringify
 		if (name)																// If a bookmarked show
 			sessionStorage["do"+name]=str;										// Save show
