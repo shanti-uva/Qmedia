@@ -13,7 +13,8 @@ require_once('config.php');
 	$title="";													
 	$script="";												
 	$private='0';												
-	$deleted='0';												
+	$deleted='0';
+	$ver=0;												
 
 	$email=$_REQUEST['email'];									// Get email
 	$password=$_REQUEST['password'];							// Get password
@@ -28,7 +29,9 @@ require_once('config.php');
 		$private=$_REQUEST['private'];							// Get it
 	if (isSet($_REQUEST['deleted'])) 							// If set
 		$deleted=$_REQUEST['deleted'];							// Get it
-						
+	if (isSet($_REQUEST['ver'])) 								// If set
+		$ver=$_REQUEST['ver'];									// Get it
+								
 	$query="SELECT * FROM qshow WHERE id = '".$id."'"; 			// Look existing one	
 	$result=mysql_query($query);								// Query
 	if ($result == false) {										// Bad query
@@ -37,11 +40,12 @@ require_once('config.php');
 		exit();													// Quit
 		}
 	if (!mysql_numrows($result)) {								// If not found, add it
-		$query="INSERT INTO qshow (title, script, email, password, private) VALUES ('";
+		$query="INSERT INTO qshow (title, script, email, password, version, private) VALUES ('";
 		$query.=addEscapes($title)."','";
 		$query.=addEscapes($script)."','";
 		$query.=addEscapes($email)."','";
 		$query.=addEscapes($password)."','";
+		$query.=addEscapes($ver)."','";
 		$query.=addEscapes($private)."')";
 		$result=mysql_query($query);							// Add row
 		if ($result == false)									// Bad save

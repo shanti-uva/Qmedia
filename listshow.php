@@ -6,9 +6,13 @@ require_once('config.php');
 			
 
 	$deleted=0;
+	$ver=0;
 	if (isSet($_REQUEST['deleted'])) 		 					// If set
 		$deleted=addslashes($_REQUEST['deleted']);				// Get deleted
-	$query="SELECT * FROM qshow WHERE deleted = '$deleted'";	// Query start
+	if (isSet($_REQUEST['ver'])) 		 						// If set
+		$ver=addslashes($_REQUEST['ver']);						// Get deleted
+		
+	$query="SELECT * FROM qshow WHERE deleted = '$deleted' AND version = '$ver'";	// Query start
 	if (isSet($_REQUEST['email'])) 		 						// If set
 		$query.=" AND email = '".addslashes($_REQUEST['email'])."' ORDER by date DESC";	// WHERE email search
 	$result=mysql_query($query);								// Query
