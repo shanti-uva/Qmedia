@@ -1248,6 +1248,7 @@
 					}
 			}
 		else if (what == "next") { 												// Go to next slide
+			searchMode=false;													// Cancel search mode
 			var n=showVectors[slidePane].length-1;								// Last vector
 			for (i=n-1;i>=0;i--) 												// For each vector
 				if (playerNow >= showVectors[slidePane][i].ps) {				// In this one

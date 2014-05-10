@@ -5,7 +5,7 @@ LoadShow({
 		"infoLab":"More information",
         "botMarkup":"Click <a href='//docs.google.com/presentation/d/18LLvvy3rMbRexOj_UmPI3JBhcymq5Ok1w7swoKeb50c/pub' target='_blank'> here </a> for a short slide show about Qmedia",
         "infoMapSource":"//www.viseyes.org/shiva/go.htm?e=1133",
-		"transHgt":400,
+		"transHgt":300,
 		"transInfoRatio":0.5,
 		"transLab":"Transcript",
 		"transLangs":"None|English|Spanish|French|Tibetan",
@@ -83,6 +83,8 @@ LoadShow({
 			],	
 		"infoVectors": [ 
 			{ "t":0,   "c":"info.jpg" },
+    	    { "t":20,  "c":"disqus.htm?qmediaplayer|1" },
+            { "t":44,  "c":"info.jpg", "r":0.5 },   
 			{ "t":83,  "c":"//www.viseyes.org/shiva/graphr/?x^3/20", "r":0.4 },	
 			{ "t":98,  "c":"info.jpg", "r":0.5 },	
 			{ "t":140, "c":"//www.viseyes.org/shiva/go.htm?e=1121", "m":"This is a live visualization" },	
