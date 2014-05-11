@@ -50,7 +50,7 @@
 						border:1px solid #999;font-size:12px;height;20px;
 						}
 		.is {			border-radius:10px;padding-left:8px;padding-right:8px;padding-top:1px;
-						border:1px solid #999;font-size:12px;height;20px;width:120px;
+						border:1px solid #999;font-size:12px;height;20px;width:200px;
 						]
 
 
@@ -670,7 +670,7 @@
 		str+="<tr><td><b>Image</b></td><td><input class='is' type='text' id='pic' value='"+(o.pic ? o.pic :'')+"'></td></tr>";	// Get setting
 		str+="<tr><td><b>If right answer</b></td><td><textarea class='is' id='whyRight'>"+(o.whyRight ? o.whyRight :'')+"</textarea></td></tr>";	// Get setting
 		str+="<tr><td><b>If wrong answer</b>&nbsp;</td><td><textarea class='is' id='whyWrong'>"+(o.whyWrong ? o.whyWrong :'')+"</textarea></td></tr>";	// Get setting
-		str+="<tr><td><b>If partial answer</b>&nbsp;</td><td><textarea class=']=is' id='whyPartial'>"+(o.whyPartial ? o.whyPartial :'')+"</textarea></td></tr>";	// Get setting
+		str+="<tr><td><b>If partial answer</b>&nbsp;</td><td><textarea class='is' id='whyPartial'>"+(o.whyPartial ? o.whyPartial :'')+"</textarea></td></tr>";	// Get setting
 		str+="<tr><td><b>Number of tries</b></td><td><input class='is' type='text' id='numTries' value='"+(o.numTries ? o.numTries :'')+"'></td></tr>";	// Get setting
 		str+="<tr><td colspan=2><hr></td></tr>";
 		str+="<tr><td><b>Options</b></td><td><dl id='optionsTable'>";
@@ -708,6 +708,8 @@
 
 	function onAddOption() 												// ON DELETE ASSESS
 	{	
+		if (!curJson.assessments[curEdit].pages[curPage].options)				// First one
+			curJson.assessments[curEdit].pages[curPage].options=[];				// Alloc array
 		curJson.assessments[curEdit].pages[curPage].options.push("");			// Add new option from json
 		Sound("click");															// Delete sound
 		EditPage();																// Redraw page
