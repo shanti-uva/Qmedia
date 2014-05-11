@@ -142,11 +142,12 @@
 				}
 			}
 		if ((d.options) && (d.optionType == "cloze")) {							// Cloze
-			var ss,s=d.options;
+			var s=d.text;
 			i=0;																// Reset counter
+			$("#textDiv").html("");												// No text
 			var imp="<input style='text-align:center;width:80px;border:none;border-bottom:1px solid;padding-left:4px;color:#000099' type='text' id='opt";
-			while ((ss=s.match(/@\((.+?)\)/))) 									// While a blank
-				s=s.replace(/@\((.+?)\)/,imp+(i++)+"'>");						// Replace with text box
+			while (s.match(/__+/)) 												// While a blank
+				s=s.replace(/__+/,imp+(i++)+"'>");								// Replace with text box
 			str="<p style='margin-left:40px;margin-right:40px'>"+s+"</p>";		// Add cloze
 			}
 		if ((d.options) && ((d.optionType == "sort") || (d.optionType == "match"))) {	// Sort/match
@@ -209,11 +210,8 @@
 					}
 			if (d.optionType == "radio")	ans=correct ? "right" : "wrong"		// Radio
 			else if (d.optionType == "cloze") {									// Cloze
-				i=0;															// Reset
-				s=d.options;													// Make a copy
-				while ((ss=s.match(/@\((.+?)\)/))) {							// While an option
-					s=s.replace(/@\((.+?)\)/,"");								// Remove
-					v=ss[1].split(";");											// Get parts
+				for (i=0;i<d.options.length;++i) {								// For each option
+					v=d.options[i].split(";");									// Get parts
 					ans=$("#opt"+i).val();										// Get answer
 					for (var j=0;j<v.length;++j) 								// For each possibility
 						if (ans.toLowerCase() == v[j].toLowerCase()) {			// If a match		
@@ -222,7 +220,6 @@
 							}
 					if (j == v.length)											// Didn't find it
 						wrong++;												// Add to wrongs
-					++i;														// Next opt
 					}
 				ans="wrong";													// Assume wrong
 				if (correct == i)				ans="right";					// Correct				

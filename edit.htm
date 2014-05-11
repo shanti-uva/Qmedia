@@ -520,6 +520,21 @@
 ///////////// ASSESSMENT ////////////////
 
 
+	function PreviewAssessment()											// PREVIEW ASSESSMENT														
+	{
+		if (curEdit == -1) 														// If noting selected
+			return;																// Quit
+		var h=$("#paneDiv").height()-$("#addAssessBut").offset().top-50;		// Room for the page editor
+		$("#pageDiv").css({height:h+"px",width:"400px"});						// Size appropriately
+			
+		$("#pageDiv").html("<iframe class='player' id='assessIF' src='assess.htm' width='99%' height='99%' 'scrolling='no'></iframe>");
+		$("#assessIF").on("load", function() {									// When loaded
+			$("#pageDiv").slideDown(300);										// Show the page
+			var str="ShivaAct=data|"+JSON.stringify(curJson.assessments[curEdit]);	// Get data
+			$("#assessIF")[0].contentWindow.postMessage(str,"*");				// Send data to wind
+			});
+	}	
+
 	function AssessmentEditPane()											// ASSESSMENT EDITOR
 	{
 		curEdit=-1;																// Clear
@@ -538,15 +553,24 @@
 		str+="<dt><hr></dt>";													// Add rule
 		str+="</dl></div><div style='font-size:12px'<br><p><hr></p>";			// End table
 
-		str+="<button"+butsty+"id='addAssessBut'>Add assessment</button>";		// Add button
-		str+="&nbsp;&nbsp;<button"+butsty+" onclick='onAddPage()'>Add step</button>";	// Add button
-		str+="&nbsp;&nbsp;<button"+butsty+"id='preBut3'>Preview</button>";		// Preview button
+		str+="<button"+butsty+"id='addAssessBut'>Add assessment</button>";						// Add assess button
+		str+="&nbsp;&nbsp;<button"+butsty+"onclick='onAddPage()'>Add step</button>";			// Add page button
+		str+="&nbsp;&nbsp;<button"+butsty+"onclick='PreviewAssessment()'>Preview</button>";		// Preview button
 		str+="<br><br><div id='pageDiv' style='display:none;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
 		
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 		$("#pageTable").sortable();												// Make it sortable
 		MakeAssessTable();														// Make table
 			
+		$("#pageTable").on("sortstop", function(e, ui) {						// If sorted
+			var t=$.parseJSON(JSON.stringify(curJson.assessments[curEdit].pages));	// Clone
+			var v=$("#pageTable").sortable("toArray");							// Get new order
+ 			for (i=2;i<v.length;++i)											// For each option
+ 				curJson.assessments[curEdit].pages[i-2]=t[v[i].substr(3)];		// Reorder array
+ 			MakePageTable();													// Show pages
+ 			});
+
+	
 		$("#addAssessBut").on("click",function() {								// ON ADD
 			if (!curJson.assessments)											// No assessmenrts yet
 				curJson.assessments=[];											// Alloc it
@@ -661,11 +685,11 @@
 		var i,str;
 		var o=curJson.assessments[curEdit].pages[curPage];						// Point at page
 		var h=$("#paneDiv").height()-$("#addAssessBut").offset().top-50;		// Room for the page editor
-		$("#pageDiv").css("height",h+"px");										// Size appropriatelt
+		$("#pageDiv").css({height:h+"px",width:"auto"});						// Size appropriately
 		str="<table style='font-size:11px;padding:0px;border-collapse:collapse;'>";	// Add table
-		str+="<tr><td><b>Step type</b></td><td>"+MakeSelect("optionType",false,["Radio","Checkbox","Cloze","Draw","FindTime","Write"],o.optionType)+"</td></tr>";	// Get setting
+		str+="<tr><td><b>Step type</b></td><td>"+MakeSelect("optionType",false,["radio","checkbox","cloze","draw","findtime","write"],o.optionType)+"</td></tr>";	// Get setting
 		str+="<tr><td><b>Title</b></td><td><input class='is' type='text' id='title' value='"+(o.title ? o.title :'')+"'></td></tr>";	// Get setting
-		str+="<tr><td><b>Text</b></td><td><textarea class='is' id='prompt'>"+(o.text ? o.text :'')+"</textarea></td></tr>";	// Get setting
+		str+="<tr><td><b>Text</b></td><td><textarea class='is' id='text'>"+(o.text ? o.text :'')+"</textarea></td></tr>";	// Get setting
 		str+="<tr><td><b>Prompt</b></td><td><textarea class='is' id='prompt'>"+(o.prompt ? o.prompt :'')+"</textarea></td></tr>";	// Get setting
 		str+="<tr><td><b>Image</b></td><td><input class='is' type='text' id='pic' value='"+(o.pic ? o.pic :'')+"'></td></tr>";	// Get setting
 		str+="<tr><td><b>If right answer</b></td><td><textarea class='is' id='whyRight'>"+(o.whyRight ? o.whyRight :'')+"</textarea></td></tr>";	// Get setting
@@ -677,7 +701,7 @@
 		if (o.options) {
 			str+="";
 			for (i=0;i<o.options.length;++i) {
-				str+="<dt id='ido"+i+"'><input class='bs' type='text' id='ido' value='"+(o.options[i] ? o.options[i] :'')+"'>"; 	// Add index
+				str+="<dt id='ido"+i+"'><input class='bs' type='text' id='idr"+i+"' value='"+(o.options[i] ? o.options[i] :'')+"'>"; 	// Add index
 				str+="&nbsp;&nbsp;<span style='color:#666;cursor:ns-resize;background-color:#ddd;border-radius:4px;font-size:10px;padding-bottom:2px;vertical-align:1px;border:1px solid #999'>&nbsp;&uarr;&darr;&nbsp;</span>";
 				str+="&nbsp;&nbsp;<img id='idd"+i+"' style='vertical-align:middle;cursor:pointer' src='images/trashdot.gif' onclick='onDeleteOption(this.id)'</dt>"
 				}
@@ -689,6 +713,28 @@
 		str+="<button"+butsty+"style='color:#990000' onclick='onDeletePage()'>Delete this step</button></td><td>";			// Delete step button
 		$("#pageDiv").html(str);	
 		$("#optionsTable").sortable();
+	
+		$("#optionType").on("change", function() { o.optionType=$(this).val();});// Extract value	
+		$("#title").on("change", function() { o.title=$(this).val(); });		// Extract value	
+		$("#text").on("change", function() { o.text=$(this).val(); });			// Extract value	
+		$("#prompt").on("change", function() { o.prompt=$(this).val(); });		// Extract value	
+		$("#pic").on("change",function() { o.pic=$(this).val(); });				// Extract value	
+		$("#whyRight").on("change", function() { o.whyRight=$(this).val(); });	// Extract value	
+		$("#whyWrong").on("change", function() { o.whyWrong=$(this).val(); });	// Extract value	
+		$("#whyPartial").on("change", function() { o.whyPartial=$(this).val()});// Extract value	
+		$("#numTries").on("change", function() { o.numTries=$(this).val(); });	// Extract value	
+		$("#optionsTable").on("sortstop", function(e, ui) {						// If sorted
+			var v=$("#optionsTable").sortable("toArray");						// Get new order
+ 			for (i=0;i<v.length-1;++i)											// For each option, less add but
+ 				o.options[i]=$("#idr"+v[i].substr(3)).val();					// Reorder array
+ 			});
+		if (o.options)															// If options set
+			for (i=0;i<o.options.length;++i)									// For each option
+		 		$("#idr"+i).on("change", function() { 							// Extract value	
+		 			var id=$(this)[0].id.substr(3);								// Extract id
+		 			o.options[id]=$(this).val(); 								// Set it
+		 			});
+			
 	}
 
 	function onDeletePage() 													// ON DELETE PAGE
@@ -706,7 +752,7 @@
 		EditPage();																// Redraw page
 	}
 
-	function onAddOption() 												// ON DELETE ASSESS
+	function onAddOption() 														// ON DELETE ASSESS
 	{	
 		if (!curJson.assessments[curEdit].pages[curPage].options)				// First one
 			curJson.assessments[curEdit].pages[curPage].options=[];				// Alloc array
@@ -714,6 +760,7 @@
 		Sound("click");															// Delete sound
 		EditPage();																// Redraw page
 	}
+
 
 ///////////// SETTINGS ////////////////
 
@@ -755,49 +802,32 @@
 		str+="&nbsp;&nbsp;<button"+butsty+"id='preBut2'>Preview</button>";		// Preview button
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 		
+		$("#title").on("change", function() { curJson.title=$(this).val(); });	// Extract value	
+		$("#width").on("change", function() { curJson.width=$(this).val(); });	// Extract value	
+		$("#infoMapSource").on("change", function() { curJson.infoMapSource=$(this).val(); });	// Extract value	
+		$("#transLab").on("change", function() { curJson.transLab=$(this).val(); });	// Extract value	
+		$("#infoLab").on("change", function() { curJson.infoLab=$(this).val(); });		// Extract value	
+		$("#contentsLab").on("change", function() { curJson.contentsLab=$(this).val(); });	// Extract value	
+		$("#transLab").on("change", function() { curJson.transLab=$(this).val(); });	// Extract value	
+		$("#contentsPlayOnClick").on("change", function() { curJson.contentsPlayOnClick=$(this).val(); });	// Extract value	
+		$("#playerSource").on("change", function() { curJson.playerSource=$(this).val(); });	// Extract value	
+		$("#playerStart").on("change", function() { curJson.playerStart=$(this).val(); });	// Extract value	
+		$("#playerStop").on("change", function() { curJson.playerStop=$(this).val(); });	// Extract value	
+		$("#playerAspect").on("change", function() { curJson.playerAspect=$(this).val(); });	// Extract value	
+		$("#playerSlideRatio").on("change", function() { curJson.playerSlideRatio=$(this).val(); });	// Extract value	
+		$("#playerControls").on("change", function() { curJson.playerControls=$(this).val(); });	// Extract value	
+		$("#playerAuto").on("change", function() { curJson.playerAuto=$(this).val(); });	// Extract value	
+		$("#playerVolume").on("change", function() { curJson.playerVolume=$(this).val(); });	// Extract value	
+		$("#playerQuality").on("change", function() { curJson.playerQuality=$(this).val(); });	// Extract value	
+		$("#transInfoRatio").on("change", function() { curJson.transInfoRatio=$(this).val(); });	// Extract value	
+		$("#transHgt").on("change", function() { curJson.transHgt=$(this).val(); });	// Extract value	
+		$("#transLanguage").on("change", function() { curJson.transLanguage=$(this).val(); });	// Extract value	
+		$("#transLangs").on("change", function() { curJson.transLangs=$(this).val(); });	// Extract value	
+	
 			
 		$("#preBut2").on("click",function() {									// ON PREVIEW
 			Sound("click");														// Click
-			if ($("#title").val())		
-				curJson.title=$("#title").val();		
-			if ($("#width").val())
-				curJson.width=$("#width").val();		
-			if ($("#infoMapSource").val())
-				curJson.infoMapSource=$("#infoMapSource").val();
-			if ($("#transLab").val())	
-				curJson.transLab=$("#transLab").val();	
-			if ($("#infoLab").val())
-				curJson.infoLab=$("#infoLab").val();	
-			if ($("#contentsLab").val())
-				curJson.contentsLab=$("#contentsLab").val();	
-			if ($("#contentsPlayOnClick").val())
-				curJson.contentsPlayOnClick=$("#contentsPlayOnClick").val();		
-			curJson.playerSource=$("#playerSource").val();	
-			if ($("#playerStart").val())
-				curJson.playerStart=$("#playerStart").val();	
-			if ($("#playerStop").val())
-				curJson.playerEnd=$("#playerStop").val();	
-			if ($("#playerAspect").val())
-				curJson.playerAspect=$("#playerAspect").val();	
-			if ($("#playerSlideRatio").val())
-				curJson.playerSlideRatio=$("#playerSlideRatio").val();	
-			if ($("#playerVolume").val())
-				curJson.playerVolume=$("#playerVolume").val();	
-			if ($("#playerAuto").val())
-				curJson.playerAuto=$("#playerAuto").val();	
-			if ($("#playerControls").val())
-				curJson.playerControls=$("#playerControls").val();	
-			if ($("#playerQuality").val())
-				curJson.playerQuality=$("#playerQuality").val();	
-			if ($("#transInfoRatio").val())
-				curJson.transInfoRatio=$("#transInfoRatio").val();	
-			if ($("#transHgt").val())
-				curJson.transHgt=$("#transHgt").val()-0;	
-			if ($("#transLanguage").val())
-				curJson.transLanguage=$("#transLanguage").val();	
-			if ($("#transLangs").val())
-				curJson.transLangs=$("#transLangs").val();	
-			Preview();															// Run preview
+				Preview();															// Run preview
 			});
 		
 

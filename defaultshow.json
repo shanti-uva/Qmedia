@@ -123,7 +123,8 @@ LoadShow({
                 "text":"President Clinton listed some statistics about how people live.",
                 "prompt":"Fill in the blanks with the amounts he mentioned",
                 "optionType":"cloze",
-                "options":"\"It is, first of all, profoundly unequal: @(one half;half;1/2;a half) the world's people still living on less than @(two;2) dollars a day; a @(billion) people with no access to clean water\";"},
+                "text":"\"It is, first of all, profoundly unequal: ______ the world's people still living on less than ______ dollars a day; a ______ people with no access to clean water\"",
+                "options":["one half;half;1/2;a half", "two;2", "billion"]},
 
                 {"title":"Draw a concept map",
                 "text":"President Clinton says the world is interdependent, but insufficient. What does he mean by that?",
