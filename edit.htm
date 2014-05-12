@@ -66,7 +66,7 @@
 </head>
 
 	<div id='playerDiv' class='unselectable' >
-		<iframe class="player" id="playerIF" src="!show.htm" height="100%" scrolling="no"></iframe>
+		<iframe class="player" id="playerIF" src="show.htm" height="100%" scrolling="no"></iframe>
 	</div>
 	<div id="editDiv" class="editor unselectable" style="position:absolute;top:16px;z-index:4"> 
 		 <ul id="menu" style="margin:1px">
@@ -87,11 +87,10 @@
 		 		<li id="m26"><a href="#">JSON</a></il>
 			</ul></li>
 	 			<li id=""><a href="#">Content</a><ul>
-	                <li id="m31"><a href="#">Add new content</a></li>
-	                <li id="m32"><a href="#">Sync media</a></li>
-	                <li id="m33"><a href="#">Sync transcript</a></li>
-	                <li id="m34"><a href="#">Edit index</a></li>
-	                <li id="m35"><a href="#">Edit assessments</a></li>
+	                <li id="m31"><a href="#">Sync content</a></li>
+	                <li id="m32"><a href="#">Sync transcript</a></li>
+	                <li id="m33"><a href="#">Edit index</a></li>
+	                <li id="m34"><a href="#">Edit assessments</a></li>
 	            </ul>
 			<li id="m4" ><a href="#">Preview</a><li>
 		</ul>
@@ -147,11 +146,10 @@
 					case "16":	ChangePane("intro");	qmf.Delete(1); 	break;	// Undelete
 					case "25":	ChangePane("settings");					break;	// Edit settings
 					case "26":	ChangePane("json");						break;	// Edit JSON
-					case "31":	ChangePane("addcontent");				break;	// Add content
-					case "32":	ChangePane("content");					break;	// Manage content
-					case "33": 	ChangePane("transcript");  				break;	// Transcript
-					case "34": 	ChangePane("index");  					break;	// Index 
-					case "35": 	ChangePane("assessment");  				break;	// Assessment content
+					case "31":	ChangePane("content");					break;	// Manage content
+					case "32": 	ChangePane("transcript");  				break;	// Transcript
+					case "33": 	ChangePane("index");  					break;	// Index 
+					case "34": 	ChangePane("assessment");  				break;	// Assessment content
 					case "4":	ChangePane(curPane);	Preview();		break;	// Preview
 					}
 			 	});
@@ -215,6 +213,7 @@
 			curJson.playerAuto="true";											// Set autoplay
 			curJson.playerStart=Math.max(curTime-0+time,0);						// Set start
 			}
+		Sound("click");															// Click
 		SendShivaMessage("Qmedia=data",JSON.stringify(curJson));				// Send to show player	   		
    		if (time) {																// If a rolling preview
 			curJson.playerAuto=ta;												// Restore old setting
@@ -258,17 +257,7 @@
 			str="<br><br><p style='text-align:center'><img src='qlogo.png' width='80%'></p>";	// Image
 			$("#paneDiv").html(str);											// Put editor up	
 			}
-		else if (curPane == "addcontent") {										// Add content pane
-			str="<br><p style='font-size:18px'>&nbsp;<b>Add new content</b></p>"
-			str+="&nbsp;&nbspThis is the content bin, where content is added to bin.<br><br>"
-			$("#paneDiv").html(str);											// Put editor up	
-			}
-		else if (curPane == "content") {										// Content pane
-			str="<br><p style='font-size:18px'>&nbsp;<b>Sync content</b></p>"
-			str+="&nbsp;&nbsp;Content is synced in this panel.<br><br>"
-			str+="&nbsp;&nbsp;Current player time is: <b><span id='curTime'>"+SecondsToTimecode(curTime)+"</span></b>"
-			$("#paneDiv").html(str);											// Put editor up	
-			}
+		else if (curPane == "content") 		ContentEditPane();					// Content pane
 		else if (curPane == "index") 		IndexEditPane();					// Index pane
 		else if (curPane == "transcript")   TranscriptEditPane();				// Transcript pane
 		else if (curPane == "settings")  	SettingsEditPane();					// Settings pane
@@ -555,7 +544,7 @@
 
 		str+="<button"+butsty+"id='addAssessBut'>Add assessment</button>";						// Add assess button
 		str+="&nbsp;&nbsp;<button"+butsty+"onclick='onAddPage()'>Add step</button>";			// Add page button
-		str+="&nbsp;&nbsp;<button"+butsty+"onclick='PreviewAssessment()'>Preview</button>";		// Preview button
+		str+="&nbsp;&nbsp;<button"+butsty+"onclick='PreviewAssessment()'>Preview assessment</button>";		// Preview button
 		str+="<br><br><div id='pageDiv' style='display:none;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
 		
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
@@ -762,6 +751,150 @@
 	}
 
 
+///////////// CONTENT ////////////////
+
+	var conPtr=null
+
+	function ContentEditPane()												// CONTENT EDITOR
+	{
+		curEdit=-1;																// Clear
+		conPtr=curJson.slideVectors;											// Start on slides
+		var h=$("#paneDiv").height()-220;										// Max height
+		var str="<div style='padding:12px'><br>"								// Container div
+		str+="<div style='display:inline-block;font-size:36px;color:#999'><b>Sync Content";
+		str+="<span style='font-size:12px'>&nbsp;&nbsp;in the&nbsp;<span></b></div>"// Title
+		str+=MakeSelect("contentType",false,["Slide pane","Information pane","Player pane"]);		// Get setting
+		str+="<br><br><div style='max-height:"+h+"px;overflow-x:hidden;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
+		str+="<table id='contentTable' style='font-size:12px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
+		str+="</table></div><div style='font-size:12px'<br><br>";				// End table
+		str+="<button"+butsty+"id='addConBut'>Add a new content</button>";		// Add button
+		str+="&nbsp;&nbsp;<button"+butsty+"onclick='Preview()'>Preview</button>";	// Preview button
+		$("#paneDiv").html(str+"</div>");										// Put editor up	
+		MakeContentTable();														// Make table
+	
+		$("#paneDiv").on("click",function(e) {									// ON OUTSIDE CLICK
+			if (e.target.id == "paneDiv") {										// If on pane
+				Sound("click");													// Click
+				onClickContent();												// Deselect current edit row
+				MakeContentTable();												// Make table
+				}
+			});
+
+		$("#contentType").on("click",function(e) {								// ON OUTSIDE CLICK
+			var s=$("#contentType").val();										// Get selection
+				if (s.match(/info/i)) 	conPtr=curJson.infoVectors;				// Point at info
+			else if (s.match(/play/i)) 	conPtr=curJson.playerVectors;			// Point at player
+			else if (s.match(/slide/i)) conPtr=curJson.slideVectors;			// Point at slides
+			MakeContentTable();													// Make table
+			});
+		
+		$("#addConBut").on("click",function() {									// ON ADD
+			conPtr.push({t:curTime,c:""})										// Add to json
+			curEdit=-1;															// Not editing anymore
+			MakeContentTable();													// Remake table
+			Sound("click");														// Click
+			});
+	}
+	
+	function MakeContentTable() 											// MAKE TABLE AND SORT BY TIME
+	{	
+		var i,o,n=0,pic;
+		var trsty=" style='height:20px;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
+		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='onClickContent(this.id)'";
+		if (conPtr)	{															// If any indices
+			n=conPtr.length;													// Get length
+			conPtr.sort(function(a,b) { return a.t-b.t });						// Sort by time
+			}
+		$("#contentTable").empty();												// Remove all rows
+		for (i=0;i<n;++i) {														// For each index
+			o=conPtr[i];														// Point at row
+			str="<tr id='idx"+i+"' "+trsty+">";													// Row
+			str+="<td style='color:#009900' id='idt"+i+"'>"+SecondsToTimecode(o.t)+"&nbsp;&nbsp;</td>";	// Add time
+			pic="images/webthumb.jpg";											// Assume web content
+			if (o.c && o.c.match(/\.png|.gif|\.jpg|\.jpeg/i)) 					// An image
+				pic=o.c;														// Point at image
+			str+="<td style='vertical-align:top;width:115px'><img id='idp"+i+"' style='border:1px solid #999' height='60' width='100' src='"+pic+"'></td>";	// Add thumbnail
+			str+="<td style='vertical-align:top;white-space:nowrap;'>";
+			str+="<div style='height:22px;display:inline-block;width:65px;color:#777'><b>Source:</b></div><span style='padding-right:60px;cursor:text' id='idc"+i+"' contenteditable=true>"+(o.c ? o.c : '')+"</span><br>";
+			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Prompt:</b></div><span style='padding-right:60px;cursor:text' id='idm"+i+"' contenteditable=true>"+(o.m ? o.m : '')+"</span><br>";
+			
+			str+="<div style='display:inline-block;width:65px;color:#777'><b>Settings:</b></div>";
+			str+="<input id='idr"+i+"' type='text' style='width:70px;height:15px' class='is' value='";
+			str+=(o.r) ? Math.round(o.r*100)+"% split'> ": "No split'> ";	
+			if (!o.z)							pic="No zoom";
+			else if (o.z.split("|")[2] < 1)		pic="Inset";
+			else								pic="Zoom";							
+			
+			str+=MakeSelect("idz"+i,false,["No zoom","Zoom","Inset"],pic);	
+			str+=MakeSelect("ida"+i,false,["No action","Play","Pause","Seek to", "Play to","Send"],o.p);	
+			str+="</td><td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteContent(this.id)'></td></tr><tr><td colspan=3><hr></td></tr>";	// Add trashcan
+			$("#contentTable").append(str);										// Add row
+			
+			$("#idm"+i).on("blur", function() {									// ON BLUR OF PROMPT
+					var i=this.id.substr(3);									// Get id
+					conPtr[i].m=$("#idm"+i).text();								// Get text
+					});				
+			
+			$("#idc"+i).on("blur", function() {									// ON BLUR OF SOURCE
+					var i=this.id.substr(3);									// Get id
+					conPtr[i].c=$("#idc"+i).text();								// Get text
+					});				
+
+			$("#idr"+i).on("click", function() {								// ON BLUR OF SOURCE
+					var id=this.id.substr(3);									// Get id
+ 					var r=Math.round(conPtr[id].r*100);							// Get current val
+ 					if (isNaN(r))	r="";										// Not a number, use blank
+ 					GetTextBox("Pane ratio", "Type the ratio between the panes (0 to 100):",r,
+ 						function(r) {											// On entry
+ 							if (!isNaN(r)) {									// If a number
+ 								conPtr[id].r=Math.max(0,Math.min(r/100,1));		// Cap 0-1
+							 	MakeContentTable();								// Show
+							 	}							
+ 							}); 
+ 					});				
+
+			$("#idz"+i).on("click", function() {								// ON BLUR OF SOURCE
+					var id=this.id.substr(3);									// Get id
+					
+					GetTextBox("Zoom", "Type the zoom settings:",conPtr[id].z ? conPtr[id].z : "",
+ 						function(z) {											// On entry
+							conPtr[id].z=z;										// 
+						 	MakeContentTable();									// Show
+							});
+ 					});				
+			}
+		}	
+
+	function onDeleteContent(id) 												// ON DELETE CONTENT
+	{	
+		id=id.substr(3);														// Strip off prefix
+		conPtr.splice(id,1);													// Remove from json
+		$("#idx"+id).remove();													// Remove from table
+		Sound("delete");														// Delete sound
+	}
+
+	function onClickContent(id) 												// ON CLICK CONTENT
+	{	
+		SendShivaMessage("Qmedia=pause");										// Pause
+		curEdit=-1;																// No selected edit
+		if (id == undefined)													// If deselecting
+			return;																// Quit
+		curEdit=id.substr(3);													// Strip off prefix
+		for (var i=0;i<conPtr.length;++i) {										// For each index
+			$("#idt"+i).css({"color":"#009900","font-weight":"normal"});		// Restore
+			$("#idd"+i).css({"visibility":"hidden"});							// Restore
+			}	
+		curEdit=-1;																// No selected edit
+		if (id == undefined)													// If deselecting
+			return;																// Quit
+		Sound("click");															// Click
+		curEdit=id.substr(3);													// Strip off prefix
+		SendShivaMessage("Qmedia=seek",""+conPtr[curEdit].t);					// Go to time
+		$("#idt"+curEdit).css({"color":"#990000","font-weight":"bold"});		// Highlight	
+		$("#idd"+curEdit).css({"visibility":"visible"});						// Show trashcan
+	}
+	
+
 ///////////// SETTINGS ////////////////
 
 
@@ -846,6 +979,8 @@
 			$("#curTime").text(SecondsToTimecode(curTime));						// Show time
 			if (curPane == "index")			o=curJson.indexVectors;				// Point at index
 			if (curPane == "transcript")	o=curJson.transVectors;				// Point at transcript
+			if (curPane == "content")		o=conPtr;							// Point at player/info/slides		
+	
 			if (o && (curEdit != -1)) {											// Editing time
 				if (!isNaN(curTime)) {											// If a valid time
 					var i,d=o[curEdit].t-curTime;								// Shift amount

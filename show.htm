@@ -1299,7 +1299,8 @@
 		var i,o,d="";
 		if (!rlc)																// No run length data
 			return;																// Quit		
-		showVectors[pane]=[];														
+		showVectors[pane]=[];													// Alloc new array														
+		rlc.push({t:sd.PlayerStop,c:"" });										// Cap last one at show end
 		for (i=0;i<rlc.length-1;++i) {											// For each run length
 			o={};																// New obj
 			o.ps=rlc[i].t;														// Time start

@@ -290,18 +290,19 @@
   		$(".ui-button").css({"border-radius":"30px","outline":"none"});
 	}
 
-	function ConfirmBox(content, callback)									// COMFIRM BOX
+	function GetTextBox(title, content, def, callback)					// GET TEXT LINE BOX
 	{
-		Sound("delete");														// Delete sound
-		$("#alertBoxDiv").remove();												// Remove any old ones
+		Sound("click");														// Ding sound
+		$("#alertBoxDiv").remove();											// Remove any old ones
 		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
 		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
-		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>Are you sure?</b></span><p>";
-		str+="<div style='font-size:14px;margin:14px'>"+content+"</div>";
+		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>"+title+"</b></span><p>";
+		str+="<div style='font-size:14px;margin:14px'>"+content;
+		str+="<p><input class='is' type='text' id='gtBoxTt' value='"+def+"'></p></div>";
 		$("#alertBoxDiv").append(str);	
 		$("#alertBoxDiv").dialog({ width:400, buttons: {
-					            	"Yes": function() { $(this).remove(); callback() },
-					            	"No":  function() { $(this).remove(); }
+					            	"OK": 		function() { callback($("#gtBoxTt").val()); $(this).remove(); },
+					            	"Cancel":  	function() { $(this).remove(); }
 									}});	
 		$(".ui-dialog-titlebar").hide();
 		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
