@@ -422,7 +422,7 @@
 		$("#slider").width(wid-sw);												// Slider width
 		w=wid*r2;																// Transcript width
 		$("#transDiv").css({ left:cw+"px",width:(w-cw-8)+"px",height:sd.transHgt+"px",top:ct+"px"});
-		$("#transSiz").css({ left:(w+8)+"px",height:sd.transHgt+"px",top:(ct)+"px"});// Pos transcript sizer
+		$("#transSiz").css({ left:(w+8)+"px",height:sd.transHgt+"px",top:ct+"px"});// Pos transcript sizer
 		w=wid*(1-sd.transInfoRatio)-8;											// Info window width
 		if (w > wid-50) {														// All info
 			w+=8;																// Remove border
@@ -431,7 +431,7 @@
 			}
 		$("#infoDiv").css({ left:(wid-w+8)+"px",width:Math.max(w,0)+"px",height:sd.transHgt+"px",top:ct+"px"});
 		if (sd.transHgt) {														// If a height set
-			ct+=sd.transHgt;													// Add it to top					
+			ct+=(sd.transHgt-0);													// Add it to top					
 			$("#transHgt").css("opacity",1);									// Show
 			}
 		else																	// No bottom

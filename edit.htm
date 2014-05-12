@@ -87,8 +87,7 @@
 		 		<li id="m26"><a href="#">JSON</a></il>
 			</ul></li>
 	 			<li id=""><a href="#">Content</a><ul>
-	                <li id="m31"><a href="#">Sync content</a></li>
-	                <li id="m32"><a href="#">Sync transcript</a></li>
+	                <li id="m31"><a href="#">Edit graphic content</a></li>
 	                <li id="m33"><a href="#">Edit index</a></li>
 	                <li id="m34"><a href="#">Edit assessments</a></li>
 	            </ul>
@@ -258,7 +257,7 @@
 			$("#paneDiv").html(str);											// Put editor up	
 			}
 		else if (curPane == "intro") {											// Startup pane
-			str="<br><br><p style='text-align:center'><img src='qlogo.png' width='80%'></p>";	// Image
+			str="<br><br><p style='text-align:center'><img style='opacity:.15' src='qlogo.png' width='80%'></p>";	// Image
 			$("#paneDiv").html(str);											// Put editor up	
 			}
 		else if (curPane == "content") 		ContentEditPane();					// Content pane
@@ -924,6 +923,7 @@
 		str+="<tr><td></td><td>Information pane label</td><td><input class='bs' type='text' id='infoLab' value='"+(curJson.infoLab ? curJson.infoLab : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Index pane label</td><td><input class='bs' type='text' id='contentsLab' value='"+(curJson.contentsLab ? curJson.contentsLab : '' )+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Play when index clicked?</td><td>"+MakeSelect("contentsPlayOnClick",false,["true","false"],curJson.contentsPlayOnClick)+"</td></tr>";	// Get setting
+		str+="<tr><td></td><td>Lower panel height</td><td><input class='bs' type='text' id='transHgt' value='"+(curJson.transHgt ? curJson.transHgt : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td colspan=3><b><br>Player<b></td></tr>";					// Heading
 		str+="<tr><td colspan=3><hr></td></tr>";								// Rule
 		str+="<tr><td></td><td>Media source (Id or URL)</td><td><input class='bs' type='text' id='playerSource' value='"+(curJson.playerSource ? curJson.playerSource : '')+"'></td></tr>";	// Get setting
@@ -938,7 +938,6 @@
 		str+="<tr><td colspan=3><b><br>Transcript<b></td></tr>";					// Heading
 		str+="<tr><td colspan=3><hr></td></tr>";								// Rule
 		str+="<tr><td></td><td>Initial trans/info ratio (0-1)</td><td><input class='bs' type='text' id='transInfoRatio' value='"+(curJson.transInfoRatio ? curJson.transInfoRatio : '')+"'></td></tr>";	// Get setting
-		str+="<tr><td></td><td>Height</td><td><input class='bs' type='text' id='transHgt' value='"+(curJson.transHgt ? curJson.transHgt : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Initial language</td><td><input class='bs' type='text' id='transLanguage' value='"+(curJson.transLanguage ? curJson.transLanguage : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Languages</td><td><input class='bs' type='text' id='transLangs' value='"+(curJson.transLangs ? curJson.transLangs : '')+"'></td></tr>";	// Get setting
 		str+="</table></div><br>";												// End table
