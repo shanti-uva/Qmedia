@@ -823,7 +823,7 @@
 			pic="images/webthumb.jpg";											// Assume web content
 			if (o.c && o.c.match(/\.png|.gif|\.jpg|\.jpeg/i)) 					// An image
 				pic=o.c;														// Point at image
-			str+="<td style='vertical-align:top'><img style='border:1px solid #999' height='60' width='100' src='"+pic+"'></td>&nbsp;&nbsp;";	// Add thumbnail
+			str+="<td style='vertical-align:top'><img style='border:1px solid #999' height='60' width='100' src='"+pic+"'>&nbsp;&nbsp;</td>";	// Add thumbnail
 			str+="<td style='vertical-align:top;white-space:nowrap;'>";
 			str+="<div style='height:22px;display:inline-block;width:65px;color:#777'><b>Source:</b></div><span style='padding-right:60px;cursor:text' id='idc"+i+"' contenteditable=true>"+(o.c ? o.c : '')+"</span><br>";
 			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Prompt:</b></div><span style='padding-right:60px;cursor:text' id='idm"+i+"' contenteditable=true>"+(o.m ? o.m : '')+"</span><br>";
