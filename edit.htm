@@ -184,6 +184,10 @@
 		curJson.playerSource="3_T9Un5hWAg";
 		curJson.playerAspect=.5625;
 		curJson.infoLab="";
+		curShow=qmf.curFile="";													// Clear curshow
+		curEdit=-1;																// Not editing anything
+		Preview();																// Preview
+		Draw();																	// Show curshow number as vlanml
 	}
 
 	function LoadShow(data)													// LOAD A SHOW
@@ -758,6 +762,12 @@
 	function ContentEditPane()												// CONTENT EDITOR
 	{
 		curEdit=-1;																// Clear
+		if (!curJson.slideVectors)												// If not alloc'd  yet
+			curJson.slideVectors=[];											// Alloc array
+		if (!curJson.infoVectors)												// If not alloc'd  yet
+			curJson.infoVectors=[];												// Alloc array
+		if (!curJson.playerVectors)												// If not alloc'd  yet
+			curJson.playerVectors=[];											// Alloc array
 		conPtr=curJson.slideVectors;											// Start on slides
 		var h=$("#paneDiv").height()-220;										// Max height
 		var str="<div style='padding:12px'><br>"								// Container div
@@ -813,7 +823,7 @@
 			pic="images/webthumb.jpg";											// Assume web content
 			if (o.c && o.c.match(/\.png|.gif|\.jpg|\.jpeg/i)) 					// An image
 				pic=o.c;														// Point at image
-			str+="<td style='vertical-align:top;><img id='idp"+i+"' style='border:1px solid #999' height='60' width='100' src='"+pic+"'></td>&nbsp;&nbsp;";	// Add thumbnail
+			str+="<td style='vertical-align:top'><img style='border:1px solid #999' height='60' width='100' src='"+pic+"'></td>&nbsp;&nbsp;";	// Add thumbnail
 			str+="<td style='vertical-align:top;white-space:nowrap;'>";
 			str+="<div style='height:22px;display:inline-block;width:65px;color:#777'><b>Source:</b></div><span style='padding-right:60px;cursor:text' id='idc"+i+"' contenteditable=true>"+(o.c ? o.c : '')+"</span><br>";
 			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Prompt:</b></div><span style='padding-right:60px;cursor:text' id='idm"+i+"' contenteditable=true>"+(o.m ? o.m : '')+"</span><br>";

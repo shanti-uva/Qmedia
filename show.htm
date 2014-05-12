@@ -308,6 +308,7 @@
 		notesText="";															// No notes
 		MakeIndex(show.indexVectors);											// Fill TOC contents
 		MakeTranscript();														// Load transcript
+		$("#slideControlsDiv").css("display","initial");						// Show controls
 		if (!show.slideVectors)													// If no slides
 			$("#slideControlsDiv").css("display","none");						// Hide controls
 		var tag=document.createElement('script');								// Create script
@@ -1290,7 +1291,7 @@
 		var y=$("#playerDiv").css("top").replace(/px/,"")-30+$("#playerDiv").height()/2;
 		$("#popup").remove();
 		var str="<div id='popup' style='position:absolute;display:none;background-color:#eee;left:"+x+"px;top:"+y+"px;border:1px solid;padding:12px' class='rounded-corners'>"+msg+"</div>";
-		$("body").append(str)
+		$("body").append(str);
 		$("#popup").show().delay(700).hide(300)
 		}
 
