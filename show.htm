@@ -1241,7 +1241,8 @@
 		if (what == "show") 													// Show
 			ShowContent(slidePane,"slideDiv", dontResize);						// Show content
 		else if (what == "last") { 												// Go to previous slide
-		var n=showVectors[slidePane].length-1;									// Last vector
+			searchMode=false;													// Cancel search mode
+			var n=showVectors[slidePane].length-1;								// Last vector
 			for (i=n;i>0;i--) 													// For each vector
 				if (playerNow >= showVectors[slidePane][i].ps) {				// In this one
 					RunPlayer("scrub",showVectors[slidePane][i-1].ps);			// Go there
