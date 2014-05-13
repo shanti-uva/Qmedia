@@ -88,6 +88,7 @@
 			</ul></li>
 	 			<li id=""><a href="#">Content</a><ul>
 	                <li id="m31"><a href="#">Edit graphic content</a></li>
+	                <li id="m32"><a href="#">Edit transcript</a></li>
 	                <li id="m33"><a href="#">Edit index</a></li>
 	                <li id="m34"><a href="#">Edit assessments</a></li>
 	            </ul>
@@ -305,7 +306,6 @@
 			});
 
 		$("#preBut").on("click",function() {									// ON PREVIEW
-			Sound("click");														// Click
 			curEdit=-1;															// Not editing anymore
 			MakeIndexTable();													// Remake table
 			Preview();															// Run preview
@@ -422,7 +422,6 @@
 		MakeTransTable();														// Make table
 	
 		$("#preBut1").on("click",function() {									// ON PREVIEW
-			Sound("click");														// Click
 			curEdit=-1;															// Not editing anymore
 			MakeTransTable();													// Remake table
 			curJson.transText=$("#transText").val();							// Update transcript text
@@ -777,7 +776,7 @@
 		str+="<table id='contentTable' style='font-size:12px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
 		str+="</table></div><div style='font-size:12px'<br><br>";				// End table
 		str+="<button"+butsty+"id='addConBut'>Add a new content</button>";		// Add button
-		str+="&nbsp;&nbsp;<button"+butsty+"onclick='Preview()'>Preview</button>";	// Preview button
+		str+="&nbsp;&nbsp;<button"+butsty+"onclick='onPreviewContent()'>Preview</button>";	// Preview button
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 		MakeContentTable();														// Make table
 	
@@ -864,7 +863,6 @@
 
 			$("#idz"+i).on("click", function() {								// ON BLUR OF SOURCE
 					var id=this.id.substr(3);									// Get id
-					
 					GetTextBox("Zoom", "Type the zoom settings:",conPtr[id].z ? conPtr[id].z : "",
  						function(z) {											// On entry
 							conPtr[id].z=z;										// 
@@ -880,6 +878,13 @@
 		conPtr.splice(id,1);													// Remove from json
 		$("#idx"+id).remove();													// Remove from table
 		Sound("delete");														// Delete sound
+	}
+
+	function onPreviewContent(id) 												// ON PREVIEW CONTENT
+	{	
+		curEdit=-1;																// Not select
+		MakeContentTable();														// Redraw table
+		Preview();																// Preview()
 	}
 
 	function onClickContent(id) 												// ON CLICK CONTENT
@@ -941,7 +946,7 @@
 		str+="<tr><td></td><td>Initial language</td><td><input class='bs' type='text' id='transLanguage' value='"+(curJson.transLanguage ? curJson.transLanguage : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Languages</td><td><input class='bs' type='text' id='transLangs' value='"+(curJson.transLangs ? curJson.transLangs : '')+"'></td></tr>";	// Get setting
 		str+="</table></div><br>";												// End table
-		str+="&nbsp;&nbsp;<button"+butsty+"id='preBut2'>Preview</button>";		// Preview button
+		str+="&nbsp;&nbsp;<button"+butsty+"onclick='Preview()'>Preview</button>";	// Preview button
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 		
 		$("#title").on("change", function() { curJson.title=$(this).val(); });	// Extract value	
@@ -965,14 +970,6 @@
 		$("#transHgt").on("change", function() { curJson.transHgt=$(this).val(); });	// Extract value	
 		$("#transLanguage").on("change", function() { curJson.transLanguage=$(this).val(); });	// Extract value	
 		$("#transLangs").on("change", function() { curJson.transLangs=$(this).val(); });	// Extract value	
-	
-			
-		$("#preBut2").on("click",function() {									// ON PREVIEW
-			Sound("click");														// Click
-				Preview();															// Run preview
-			});
-		
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
