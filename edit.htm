@@ -333,7 +333,7 @@
 			if (curJson.indexVectors[i].l)	l=curJson.indexVectors[i].l;		// If an indent set
 			if (curJson.indexVectors[i].s)	s=curJson.indexVectors[i].s.toUpperCase();			// If style set
 			str="<tr id='idx"+i+"' "+trsty+">";													// Row
-			str+="<td style='color:#009900;width:60px;:focus{outline:none}' id='idt"+i+"'>"+SecondsToTimecode(curJson.indexVectors[i].t)+"</td>";	// Add time
+			str+="<td> <input style='color:#009900;width:50px;font-family:monospace;border:none;background-color:transparent;font-weight:bold' type='text' id='idt"+i+"' value='"+SecondsToTimecode(curJson.indexVectors[i].t)+"'></td>"; 	// Add index
 			str+="<td> <input style='width:95%;border:none;background-color:transparent' type='text' id='idc"+i+"' value='"+curJson.indexVectors[i].c+"'></td>"; 	// Add index
 			str+="<td id='ids"+i+"' onclick='onClickIndexStyle(this.id)'>"+s+"</td>";			// Add style
 			str+="<td id='idi"+i+"' onclick='onClickIndexIndent(this.id)'>"+l+"</td>"			// Add indent
@@ -343,6 +343,11 @@
 			$("#idc"+i).on("blur", function() {									// ON BLUR OF CONTENT
 				var i=this.id.substr(3);										// Get id
 				curJson.indexVectors[i].c=$("#idc"+i).val();					// Get text
+				});				
+			
+			$("#idt"+i).on("blur", function() {									// ON BLUR OF TIME
+				var i=this.id.substr(3);										// Get id
+				curJson.indexVectors[i].t=TimecodeToSeconds($("#idt"+i).val());	// Get text
 				});				
 			
 			}
@@ -468,12 +473,18 @@
 		for (i=0;i<n;++i) {														// For each index
 			str="<tr id='idx"+i+"' "+trsty+">";									// Row
 			s=curJson.transVectors[i].c;										// Start of line								
-			str+="<td style='color:#009900;:focus{outline:none}' id='idt"+i+"'>"+SecondsToTimecode(curJson.transVectors[i].t)+"</td>";	// Add time
+			str+="<td> <input style='color:#009900;width:50px;font-family:monospace;border:none;background-color:transparent;font-weight:bold' type='text' id='idt"+i+"' value='"+SecondsToTimecode(curJson.transVectors[i].t)+"'></td>"; 	// Add index
 			str+="<td id='idl"+i+"' style='color:#999;overflow:hidden;white-space:nowrap;text-align:right'>"+curJson.transText.substring(s,s-nc)+"&nbsp;</td>"; 		// Add line
 			str+="<td id='idr"+i+"' style='color:#000;overflow:hidden;white-space:nowrap'>"+curJson.transText.substring(s,s-0+80)+"</td>"; 	// Add line
 			str+="<td  align='right'><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteTrans(this.id)'></td></tr>";	// Add trashcan
 			$("#transTable").append(str);										// Add row
+			
+			$("#idt"+i).on("blur", function() {									// ON BLUR OF TIME
+				var i=this.id.substr(3);										// Get id
+				curJson.transVectors[i].t=TimecodeToSeconds($("#idt"+i).val());	// Get text
+				});				
 			}
+		
 		if (curEdit != -1) 	onClickTrans("idx"+curEdit);						// Highlight it
 		if (n && curJson.transText)												// If a transcript
 			curJson.transVectors[n-1].c=curJson.transText.length;				// Make last one end of text
@@ -816,15 +827,15 @@
 		$("#contentTable").empty();												// Remove all rows
 		for (i=0;i<n;++i) {														// For each index
 			o=conPtr[i];														// Point at row
-			str="<tr id='idx"+i+"' "+trsty+">";													// Row
-			str+="<td style='color:#009900;width:50px' id='idt"+i+"'>"+SecondsToTimecode(o.t)+"</td>";	// Add time
+			str="<tr id='idx"+i+"' "+trsty+">";									// Row
+			str+="<td width='40'> <input style='color:#009900;width:50px;font-family:monospace;border:none;background-color:transparent;font-weight:bold' type='text' id='idt"+i+"' value='"+SecondsToTimecode(o.t)+"'></td>"; 	// Add index
 			pic="images/webthumb.jpg";											// Assume web content
 			if (o.c && o.c.match(/\.png|.gif|\.jpg|\.jpeg/i)) 					// An image
 				pic=o.c;														// Point at image
 			str+="<td style='width:115px'><img style='border:1px solid #999' height='60' width='100' src='"+pic+"'></td>";	// Add thumbnail
 			str+="<td><div style='height:18px;display:inline-block;width:65px;color:#777'><b>Source:</b></div>"
 			if (o.c && o.c.match(/</))											// If markup
-				str+="<textarea rows='1' style='border:none;background-color:transparent;width:300px' type='text' id='idc"+i+"'>"+(o.c ? o.c : '')+"</textarea>";
+				str+="<textarea rows='1' style='border:none;background-color:transparent;width:300px;vertical-align:bottom' type='text' id='idc"+i+"'>"+(o.c ? o.c : '')+"</textarea>";
 			else
 				str+="<input style='border:none;background-color:transparent;width:300px' type='text' id='idc"+i+"' value='"+(o.c ? o.c : '')+"'>";
 			str+="<br><div style='height:18px;display:inline-block;width:65px;color:#777'><b>Prompt:</b></div><input style='border:none;background-color:transparent;width:300px' type='text' id='idm"+i+"' value='"+(o.m ? o.m : '')+"'><br>";
@@ -842,6 +853,11 @@
 			str+="</td><td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteContent(this.id)'></td></tr><tr><td colspan='3'><hr></td></tr>";	// Add trashcan
 			$("#contentTable").append(str);										// Add row
 			
+			$("#idt"+i).on("blur", function() {									// ON BLUR OF TIME
+				var i=this.id.substr(3);										// Get id
+				conPtr[i].t=TimecodeToSeconds($("#idt"+i).val());				// Get text
+				});				
+
 			$("#idm"+i).on("blur", function() {									// ON BLUR OF PROMPT
 					var i=this.id.substr(3);									// Get id
 					conPtr[i].m=$("#idm"+i).val();								// Get text
@@ -874,7 +890,8 @@
 							});
  					});				
 			}
-		}	
+	}	
+
 
 	function onDeleteContent(id) 												// ON DELETE CONTENT
 	{	
@@ -1085,6 +1102,18 @@
 		return str;																// Return timecode			
 	}
 		
+	function TimecodeToSeconds(timecode) 									// CONVERT TIMECODE TO SECONDS
+	{
+		var h=0,m=0;
+		var v=(""+timecode).split(":");											// Split by colons
+		var s=v[0]																// Add them
+	 	if (v.length == 2)														// Just minutes, seconds
+			s=v[1],m=v[0];														// Add them
+		else if (v.length == 3)													// Hours, minutes, seconds
+			s=v[2],m=v[1],h=v[0];												// Add them
+		return(Number(h*3600)+Number(m*60)+Number(s));							// Convert
+	}
+
 	function MakeSelect(id, multi, items, sel, extra, values)				// CREATE SELECT WIDGET
 	{
 		var	str="<select class='bs' id='"+id+"'";
