@@ -822,8 +822,12 @@
 			if (o.c && o.c.match(/\.png|.gif|\.jpg|\.jpeg/i)) 					// An image
 				pic=o.c;														// Point at image
 			str+="<td style='width:115px'><img style='border:1px solid #999' height='60' width='100' src='"+pic+"'></td>";	// Add thumbnail
-			str+="<td><div style='height:18px;display:inline-block;width:65px;color:#777'><b>Source:</b></div><input style='border:none;background-color:transparent;width:300px' type='text' id='idc"+i+"' value='"+(o.c ? o.c : '')+"'><br>";
-			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Prompt:</b></div><input style='border:none;background-color:transparent;width:300px' type='text' id='idm"+i+"' value='"+(o.m ? o.m : '')+"'><br>";
+			str+="<td><div style='height:18px;display:inline-block;width:65px;color:#777'><b>Source:</b></div>"
+			if (o.c && o.c.match(/</))											// If markup
+				str+="<textarea rows='1' style='border:none;background-color:transparent;width:300px' type='text' id='idc"+i+"'>"+(o.c ? o.c : '')+"</textarea>";
+			else
+				str+="<input style='border:none;background-color:transparent;width:300px' type='text' id='idc"+i+"' value='"+(o.c ? o.c : '')+"'>";
+			str+="<br><div style='height:18px;display:inline-block;width:65px;color:#777'><b>Prompt:</b></div><input style='border:none;background-color:transparent;width:300px' type='text' id='idm"+i+"' value='"+(o.m ? o.m : '')+"'><br>";
 			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Settings:</b></div>";
 			if (conPtr != curJson.playerVectors) { 								// Not in player
 				str+="<input id='idr"+i+"' type='text' style='width:70px;height:15px' class='is' value='";
