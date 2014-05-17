@@ -1005,24 +1005,6 @@
 		var o=null;															
 		if (e.data.match(/ShivaAct=time/))	{									// If a time
 			curTime=e.data.split("|")[1]-0;										// Isolate it
-			$("#curTime").text(SecondsToTimecode(curTime));						// Show time
-			if (curPane == "index")			o=curJson.indexVectors;				// Point at index
-			if (curPane == "transcript")	o=curJson.transVectors;				// Point at transcript
-			if (curPane == "content")		o=conPtr;							// Point at player/info/slides		
-	
-			if (o && (curEdit != -1)) {											// Editing time
-				if (!isNaN(curTime)) {											// If a valid time
-					var i,d=o[curEdit].t-curTime;								// Shift amount
-					o[curEdit].t=curTime;										// Set it
-					$("#idt"+curEdit).text(SecondsToTimecode(curTime));			// Update text
-					if (e.data.split("|")[2].match(/s/i)) {						// If shift key pressed
-						for (i=curEdit-0+1;i<o.length;++i) {					// For each subsequent row
-							o[i].t-=d;											// Shift
-							$("#idt"+i).text(SecondsToTimecode(o[i].t));		// Update text
-							}
-						}
-					}
-				}
 			}
 		else if (e.data.match(/ShivaAct=trans/))	{							// If a trans click
 			if (curPane == "transcript")	o=curJson.transVectors;				// Point at transcript
