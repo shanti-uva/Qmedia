@@ -1,7 +1,7 @@
 LoadShow({
 		"title":"Bill Clinton speaks at TED Conference",
         "contentsLab":"Contents",
-        "contentsPlayOnClick":"true",
+        "contentsPlayOnClick":"false",
 		"infoLab":"More information",
         "botMarkup":"Click <a href='//docs.google.com/presentation/d/18LLvvy3rMbRexOj_UmPI3JBhcymq5Ok1w7swoKeb50c/pub' target='_blank'> here </a> for a short slide show about Qmedia",
         "infoMapSource":"//www.viseyes.org/shiva/go.htm?e=1133",
@@ -25,17 +25,19 @@ LoadShow({
 		"playerStop":367,
 		"playerVolume":75,
 		"width":1000,
-		"indexVectors":[ 
-			{"t":0,    "c":"Opening credits"},
-			{"t":16,   "c":"My TED wish"},
-			{"t":44,   "c":"An unequal world"},
-			{"t":109,  "c":"An unstable world"},
-			{"t":137,  "c":"The world I want to see"},
-			{"t":178,  "c":"London"},
-			{"t":220,  "c":"Power of people"},
-			{"t":304,  "c":"Clinton foundation"},
-			{"t":361,  "c":"Closing remarks"} 
-			],
+       "indexVectors": [
+            {   "t": 0,  "c": "Opening credits",       "s": "B"      },
+            {   "t": 16, "c": "My TED wish",           "l": "1"      },
+            {   "t": 20, "c": "Disqus commenting",     "l": "1"      },
+            {   "t": 44, "c": "An unequal world",      "l": "0",     },
+            {   "t": 68.5, "c": "Assessment demo",     "l": "1"      },
+            {   "t": 109, "c": "An unstable world",    "l": "1"      },
+            {   "t": 137, "c": "The world I want to see",  "s": "B"  },
+            {   "t": 177, "c": "London",               "l": "1"      },
+            {   "t": 220, "c": "Power of people",      "l": "1"      },
+            {   "t": 304, "c": "Clinton foundation",   "l": "1"      },
+            {   "t": 361, "c": "Closing remarks",      "s": "B"      }
+     		],
 		"playerVectors": [
 			{ "t":0,   "c":"" },
             { "t":34,  "c":"//icons.iconarchive.com/icons/gakuseisean/radium/256/Globe-Connected-icon.png", "z":".17|.17|.3|2|.15|.15|.001","m":"Notice Picture-in-picture of globe"},   

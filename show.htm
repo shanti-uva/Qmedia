@@ -51,6 +51,9 @@
 		.prompt { 		font-family:Verdana,Geneva,sans-serif; font-size:10px;
 						color:#000;width:100%;text-align:right;padding-top:4px;background-color:#fff;
 						}
+		.is {			border-radius:10px;padding-left:8px;padding-right:8px;padding-top:1px;
+						border:1px solid #999;font-size:12px;height;20px;width:200px;
+						]
 
  	</style>
 
@@ -147,6 +150,7 @@
 	var shivaLib=null;															// Holds shiva
 	var searchMode=false;														// Don't trigger anything
 	var keyFlag="";																// Holds key flags												
+	var userName="",password="";												// Login info
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INIT
@@ -281,6 +285,8 @@
 
 	function LoadShow(show)													// LOAD SHOW CONTENT
 	{
+		if (show.logIn == "true") 												// If requiring a log in
+			Login();															// Get un/pw
 		if (show.playerAspect == undefined) 									// No aspect spec'd
 			show.playerAspect=0.5625;											// Assign one
 		if (show.playerSlideRatio == undefined) 								// No ratio spec'd
@@ -667,7 +673,7 @@
 		var tran=sd.transText;													// Copy original
 		if (start != end) {														// If something to highlight
 			var str=tran.substring(0,start);									// Pre highlight
-			str+="<span style='background-color:#e0ffe0";						// Add style
+			str+="<span style='background-color:#ddeeff";						// Add style
 			if (end == undefined)	str+=";background-color:#ffaaaa",end=start-0+1;	// Highlighting one char
 			str+="'>"+tran.substring(start,end);								// Highlight portion
 			str+="</span>";														// End style
@@ -679,7 +685,7 @@
 
 	function MakeIndex(toc)													// MAKE INDEX
 	{
-		var i,j,ply;
+		var i,j;
 		if (!toc) {																// No toc
 			$("#contentDiv").css("display","none");								// Hide it
 			$("#contentDiv").width(0);											// Squeeze
@@ -689,13 +695,11 @@
 		$("#contentDiv").width("auto");											// Auto size
 		var str="<div style='cursor:pointer;padding-left:12px'>"				// Set up
 		for (i=0;i<toc.length;++i) {											// For each title
-			ply="play";															// Assume click to play
-			if (sd.contentsPlayOnClick == "false")	ply="scrub";				// Otherwise seek when clicked
-			str+="<div onclick='RunPlayer(\""+ply+"\","+toc[i].t+")'";			// Add handler						
+			str+="<div id='toc"+i+"' ";											// Add handler						
 			str+="title='"+SecondsToTimecode(toc[i].t)+"'>";					// Add timecode tooltip
 			for (j=0;j<toc[i].l;++j) 											// Tab in based on level					
 				str+="&nbsp;&nbsp;&nbsp;"										// Add spaces
-			if (!toc[i].l)														// Top level
+			if (!(toc[i].l-0))													// Top level
 				str+="<span style='color:#aaa'><b>&bull; </b></span>"; 			// Add bullet
 			else 																// Sub-level
 				str+="<span style='color:#aaa'><b>- </b></span>"; 				// Add d
@@ -707,6 +711,18 @@
 			str+="</div>";														// End div
 			}
 		$("#contentsText").html(str+"</div>");									// Set div contents
+		
+		for (i=0;i<toc.length;++i) 												// For each index
+			$("#toc"+i).on("click", function() {								// Add hander
+				var id=this.id.substr(3);										// Get id
+				searchMode=false;												// Allow other events
+				playerNow=sd.indexVectors[id].t-0;								// Set time
+	//			RunPlayer("show");												// Resize panes
+				if (sd.contentsPlayOnClick == "false")							// Otherwise seek when clicked
+					RunPlayer("scrub",playerNow);											// Seek
+				else
+					RunPlayer("play");											// Play
+			});
 	}
 
 	function MakeTranscript()												// CREATE TRANSCRIPT
@@ -1378,6 +1394,30 @@
 					$("#prompt").animate({ opacity:1},1000); 					// Reshow
 					});
 	}
+
+	function Login()														// LOG IN
+	{
+		Sound("click");															// Click sound
+		$("#alertBoxDiv").remove();											// Remove any old ones
+		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
+		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
+		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>Login</b></span><p>";
+		str+="<div style='font-size:14px;margin:14px'>Please type your username or email, and password:<br></div>";
+		str+="<table style='font-size:14px;margin:14px'>";
+		str+="<tr><td>User name </td><td><input class='is' type='text' id='gtBoxUn'></td></tr>";
+		str+="<tr><td>Password</td><td><input class='is' type='text' id='gtBoxPw'></td></tr></table>";
+		$("#alertBoxDiv").append(str);	
+		$("#alertBoxDiv").dialog({ width:400, modal:true, buttons: {
+		            	"OK": function() { 
+		            			userName=$("#gtBoxUn").val(); 
+		            			password=$("#gtBoxPw").val(); 
+		            			$(this).remove(); }
+						}});	
+		$(".ui-dialog-titlebar").hide();
+		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
+		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
+ 		$(".ui-button").css({"border-radius":"30px","outline":"none"});
+ 	}
 
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{

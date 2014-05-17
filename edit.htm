@@ -334,7 +334,7 @@
 			if (curJson.indexVectors[i].s)	s=curJson.indexVectors[i].s.toUpperCase();			// If style set
 			str="<tr id='idx"+i+"' "+trsty+">";													// Row
 			str+="<td style='color:#009900;width:60px;:focus{outline:none}' id='idt"+i+"'>"+SecondsToTimecode(curJson.indexVectors[i].t)+"</td>";	// Add time
-			str+="<td id='idc"+i+"' contenteditable=true>"+curJson.indexVectors[i].c+"</td>"; 	// Add index
+			str+="<td> <input style='width:95%;border:none;background-color:transparent' type='text' id='idc"+i+"' value='"+curJson.indexVectors[i].c+"'></td>"; 	// Add index
 			str+="<td id='ids"+i+"' onclick='onClickIndexStyle(this.id)'>"+s+"</td>";			// Add style
 			str+="<td id='idi"+i+"' onclick='onClickIndexIndent(this.id)'>"+l+"</td>"			// Add indent
 			str+="<td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteIndex(this.id)'></td></tr>";	// Add trashcan
@@ -342,7 +342,7 @@
 			
 			$("#idc"+i).on("blur", function() {									// ON BLUR OF CONTENT
 				var i=this.id.substr(3);										// Get id
-				curJson.indexVectors[i].c=$("#idc"+i).text();					// Get text
+				curJson.indexVectors[i].c=$("#idc"+i).val();					// Get text
 				});				
 			
 			}
@@ -588,13 +588,13 @@
 		$("#assessTable tr:gt(1)").remove();									// Remove all rows
 		for (i=0;i<n;++i) {														// For each index
 			str="<tr id='ida"+i+"' "+trsty+">";									// Row
-			str+="<td id='idn"+i+"' contenteditable=true>"+curJson.assessments[i].name+"</td>"; 	// Add assessment name
+			str+="<td> <input style='width:95%;border:none;background-color:transparent' type='text' id='idn"+i+"' value='"+curJson.assessments[i].name+"'></td>"; 	// Add name
 			str+="<td align='right'><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteAssess(this.id)'></td></tr>";	// Add trashcan
 			$("#assessTable").append(str);										// Add row
 			
 			$("#idn"+i).on("blur", function() {									// ON BLUR OF CONTENT
 				var i=this.id.substr(3);										// Get id
-				curJson.assessments[i].name=$("#idn"+i).text();					// Get text
+				curJson.assessments[i].name=$("#idn"+i).val();					// Get text
 				});				
 			}
 
@@ -769,7 +769,7 @@
 		conPtr=curJson.slideVectors;											// Start on slides
 		var h=$("#paneDiv").height()-220;										// Max height
 		var str="<div style='padding:12px'><br>"								// Container div
-		str+="<div style='display:inline-block;font-size:36px;color:#999'><b>Sync Content";
+		str+="<div style='display:inline-block;font-size:36px;color:#999'><b>Edit Content";
 		str+="<span style='font-size:12px'>&nbsp;&nbsp;in the&nbsp;<span></b></div>"// Title
 		str+=MakeSelect("contentType",false,["Slide pane","Information pane","Player pane"]);		// Get setting
 		str+="<br><br><div style='max-height:"+h+"px;overflow-x:hidden;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
@@ -817,35 +817,35 @@
 		for (i=0;i<n;++i) {														// For each index
 			o=conPtr[i];														// Point at row
 			str="<tr id='idx"+i+"' "+trsty+">";													// Row
-			str+="<td style='color:#009900' id='idt"+i+"'>"+SecondsToTimecode(o.t)+"&nbsp;&nbsp;</td>";	// Add time
+			str+="<td style='color:#009900;width:50px' id='idt"+i+"'>"+SecondsToTimecode(o.t)+"</td>";	// Add time
 			pic="images/webthumb.jpg";											// Assume web content
 			if (o.c && o.c.match(/\.png|.gif|\.jpg|\.jpeg/i)) 					// An image
 				pic=o.c;														// Point at image
-			str+="<td style='vertical-align:top'><img style='border:1px solid #999' height='60' width='100' src='"+pic+"'>&nbsp;&nbsp;</td>";	// Add thumbnail
-			str+="<td style='vertical-align:top;white-space:nowrap;'>";
-			str+="<div style='height:22px;display:inline-block;width:65px;color:#777'><b>Source:</b></div><span style='padding-right:60px;cursor:text' id='idc"+i+"' contenteditable=true>"+(o.c ? o.c : '')+"</span><br>";
-			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Prompt:</b></div><span style='padding-right:60px;cursor:text' id='idm"+i+"' contenteditable=true>"+(o.m ? o.m : '')+"</span><br>";
-			
-			str+="<div style='display:inline-block;width:65px;color:#777'><b>Settings:</b></div>";
-			str+="<input id='idr"+i+"' type='text' style='width:70px;height:15px' class='is' value='";
-			str+=(o.r) ? Math.round(o.r*100)+"% split'> ": "No split'> ";	
+			str+="<td style='width:115px'><img style='border:1px solid #999' height='60' width='100' src='"+pic+"'></td>";	// Add thumbnail
+			str+="<td><div style='height:18px;display:inline-block;width:65px;color:#777'><b>Source:</b></div><input style='border:none;background-color:transparent;width:300px' type='text' id='idc"+i+"' value='"+(o.c ? o.c : '')+"'><br>";
+			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Prompt:</b></div><input style='border:none;background-color:transparent;width:300px' type='text' id='idm"+i+"' value='"+(o.m ? o.m : '')+"'><br>";
+			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Settings:</b></div>";
+			if (conPtr != curJson.playerVectors) { 								// Not in player
+				str+="<input id='idr"+i+"' type='text' style='width:70px;height:15px' class='is' value='";
+				str+=(o.r) ? Math.round(o.r*100)+"% split'> ": "No split'> ";			
+				}
 			if (!o.z)							pic="No zoom";
 			else if (o.z.split("|")[2] < 1)		pic="Inset";
 			else								pic="Zoom";							
-			
 			str+=MakeSelect("idz"+i,false,["No zoom","Zoom","Inset"],pic);	
-			str+=MakeSelect("ida"+i,false,["No action","Play","Pause","Seek to", "Play to","Send"],o.p);	
-			str+="</td><td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteContent(this.id)'></td></tr><tr><td colspan=3><hr></td></tr>";	// Add trashcan
+			if (conPtr != curJson.playerVectors) 								// Not in player
+				str+=MakeSelect("ida"+i,false,["No action","Play","Pause","Seek to", "Play to","Send"],o.p);	
+			str+="</td><td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteContent(this.id)'></td></tr><tr><td colspan='3'><hr></td></tr>";	// Add trashcan
 			$("#contentTable").append(str);										// Add row
 			
 			$("#idm"+i).on("blur", function() {									// ON BLUR OF PROMPT
 					var i=this.id.substr(3);									// Get id
-					conPtr[i].m=$("#idm"+i).text();								// Get text
+					conPtr[i].m=$("#idm"+i).val();								// Get text
 					});				
 			
 			$("#idc"+i).on("blur", function() {									// ON BLUR OF SOURCE
 					var i=this.id.substr(3);									// Get id
-					conPtr[i].c=$("#idc"+i).text();								// Get text
+					conPtr[i].c=$("#idc"+i).val();								// Get text
 					});				
 
 			$("#idr"+i).on("click", function() {								// ON BLUR OF SOURCE
@@ -928,6 +928,7 @@
 		str+="<tr><td></td><td>Information pane label</td><td><input class='bs' type='text' id='infoLab' value='"+(curJson.infoLab ? curJson.infoLab : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Index pane label</td><td><input class='bs' type='text' id='contentsLab' value='"+(curJson.contentsLab ? curJson.contentsLab : '' )+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Play when index clicked?</td><td>"+MakeSelect("contentsPlayOnClick",false,["true","false"],curJson.contentsPlayOnClick)+"</td></tr>";	// Get setting
+		str+="<tr><td></td><td>Require user login?</td><td>"+MakeSelect("logIn",false,["true","false"],curJson.logIn ? curJson.logIn : 'false' )+"</td></tr>";	// Get setting
 		str+="<tr><td></td><td>Lower panel height</td><td><input class='bs' type='text' id='transHgt' value='"+(curJson.transHgt ? curJson.transHgt : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td colspan=3><b><br>Player<b></td></tr>";					// Heading
 		str+="<tr><td colspan=3><hr></td></tr>";								// Rule
@@ -957,6 +958,7 @@
 		$("#contentsLab").on("change", function() { curJson.contentsLab=$(this).val(); });	// Extract value	
 		$("#transLab").on("change", function() { curJson.transLab=$(this).val(); });	// Extract value	
 		$("#contentsPlayOnClick").on("change", function() { curJson.contentsPlayOnClick=$(this).val(); });	// Extract value	
+		$("#logIn").on("change", function() { curJson.logIn=$(this).val(); });	// Extract value	
 		$("#playerSource").on("change", function() { curJson.playerSource=$(this).val(); });	// Extract value	
 		$("#playerStart").on("change", function() { curJson.playerStart=$(this).val(); });	// Extract value	
 		$("#playerStop").on("change", function() { curJson.playerStop=$(this).val(); });	// Extract value	
