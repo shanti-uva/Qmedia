@@ -829,7 +829,7 @@
 			else								pic="Zoom";							
 			str+=MakeSelect("idz"+i,false,["No zoom","Zoom","Inset"],pic);	
 			if (conPtr != curJson.playerVectors) 								// Not in player
-				str+=MakeSelect("ida"+i,false,["No action","Play","Pause","Seek to", "Play to","Send"],o.p);	
+				str+=MakeSelect("ida"+i,false,["No action","play","pause","seek", "jump","send"],o.p);	
 			str+="</td><td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteContent(this.id)'></td></tr><tr><td colspan='3'><hr></td></tr>";	// Add trashcan
 			$("#contentTable").append(str);										// Add row
 			
@@ -848,7 +848,6 @@
 					$("#idc"+i).css({"color":"#000000"});						// Restore	
 					$("#idd"+i).css({"visibility":"hidden"});					// Restore
 					}	
-				trace(e)
 				if (e.target.id.match(/idt/))									// Clicked on time
 					curEdit=id;													// Set time editing
 				Sound("click");													// Click
@@ -890,7 +889,7 @@
  							}); 
  					});				
 
-			$("#idz"+i).on("click", function() {								// ON BLUR OF SOURCE
+			$("#idz"+i).on("click", function() {								// ON CLICK ZOOM
 					var id=this.id.substr(3);									// Get id
 					GetTextBox("Zoom", "Type the zoom settings:",conPtr[id].z ? conPtr[id].z : "",
  						function(z) {											// On entry
@@ -898,6 +897,14 @@
 						 	MakeContentTable();									// Show
 							});
  					});				
+
+			$("#ida"+i).on("change", function() {								// ON CHANGE ACTION
+					var id=this.id.substr(3);									// Get id
+					var str=$("#ida"+id).val();									// Get val
+					if (str.match(/action/))	str="";							// Null
+					conPtr[id].p=str;											// Set val
+					});				
+
 			}
 	}	
 
