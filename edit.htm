@@ -298,13 +298,6 @@
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 		MakeIndexTable();														// Make table
 	
-		$("#paneDiv").on("click",function(e) {									// ON OUTSIDE CLICK
-			if (e.target.id == "paneDiv") {										// If on pane
-				Sound("click");													// Click
-				onClickIndex();													// Deselect current edit row
-				}
-			});
-
 		$("#preBut").on("click",function() {									// ON PREVIEW
 			curEdit=-1;															// Not editing anymore
 			MakeIndexTable();													// Remake table
@@ -323,15 +316,15 @@
 	{	
 		var i,n=0,l,s;
 		var trsty=" style='height:20px;cursor:pointer;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
-		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='onClickIndex(this.id)'";
+		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"'";
 		curJson.indexVectors.sort(function(a,b) { return a.t-b.t });			// Sort by time
 		if (curJson.indexVectors)												// If any indices
 			n=curJson.indexVectors.length;										// Get length
 		$("#indexTable tr:gt(1)").remove();										// Remove all rows
 		for (i=0;i<n;++i) {														// For each index
 			l=s="-";															// Null indicator
-			if (curJson.indexVectors[i].l)	l=curJson.indexVectors[i].l;		// If an indent set
-			if (curJson.indexVectors[i].s)	s=curJson.indexVectors[i].s.toUpperCase();			// If style set
+			if (curJson.indexVectors[i].l-0)	l=curJson.indexVectors[i].l;				// If an indent set
+			if (curJson.indexVectors[i].s)		s=curJson.indexVectors[i].s.toUpperCase();	// If style set
 			str="<tr id='idx"+i+"' "+trsty+">";													// Row
 			str+="<td> <input style='color:#009900;width:50px;font-family:monospace;border:none;background-color:transparent;font-weight:bold' type='text' id='idt"+i+"' value='"+SecondsToTimecode(curJson.indexVectors[i].t)+"'></td>"; 	// Add index
 			str+="<td> <input style='width:95%;border:none;background-color:transparent' type='text' id='idc"+i+"' value='"+curJson.indexVectors[i].c+"'></td>"; 	// Add index
@@ -349,7 +342,27 @@
 				var i=this.id.substr(3);										// Get id
 				curJson.indexVectors[i].t=TimecodeToSeconds($("#idt"+i).val());	// Get text
 				});				
-			
+		
+			$("#idx"+i).on("click", function(e) {								// ON ROW CLICK
+				var id=e.target.id.substr(3);									// Extract id
+				if (e.target.id.match(/idt/))									// If on time col				
+					curEdit=id;													// Get time id
+				else															// Anywhere else
+					curEdit=-1;													// Not editing time
+				SendShivaMessage("Qmedia=pause");								// Pause
+				for (var i=0;i<curJson.indexVectors.length;++i) {				// For each index
+					$("#idt"+i).css({"color":"#009900"});						// Restore
+					$("#idc"+i).css({"color":"#000000"});						// Restore
+					$("#idd"+i).css({"visibility":"hidden"});					// Restore
+					}	
+				SendShivaMessage("Qmedia=seek",""+curJson.indexVectors[id].t);	// Go to time
+				
+				if (e.target.id.match(/idt/))									// Click on time								
+					$("#idt"+id).css({"color":"#990000"});						// Highlight time
+				if (e.target.id.match(/idc/))									// Click on index								
+					$("#idc"+id).css({"color":"#990000"});						// Highlight index
+				$("#idd"+id).css({"visibility":"visible"});						// Show trashcan
+				});			
 			}
 	}	
 
@@ -359,24 +372,6 @@
 		curJson.indexVectors.splice(id,1);										// Remove from json
 		$("#idx"+id).remove();													// Remove from table
 		Sound("delete");														// Delete sound
-	}
-
-	function onClickIndex(id) 												// ON CLICK INDEX
-	{	
-		SendShivaMessage("Qmedia=pause");										// Pause
-		for (var i=0;i<curJson.indexVectors.length;++i) {						// For each index
-			$("#idt"+i).css({"color":"#009900"});								// Restore
-			$("#idc"+i).css({"color":"#000000"});								// Restore
-			$("#idd"+i).css({"visibility":"hidden"});							// Restore
-			}	
-		curEdit=-1;																// No selected edit
-		if (id == undefined)													// If deselecting
-			return;																// Quit
-		curEdit=id.substr(3);													// Strip off prefix
-		SendShivaMessage("Qmedia=seek",""+curJson.indexVectors[curEdit].t);		// Go to time
-		$("#idt"+curEdit).css({"color":"#990000"});								// Highlight
-		$("#idc"+curEdit).css({"color":"#990000"});								// Highlight
-		$("#idd"+curEdit).css({"visibility":"visible"});						// Show trashcan
 	}
 
 	function onClickIndexStyle(id) 											// ON CLICK INDEX STYLE
@@ -399,7 +394,7 @@
 		else if (s == "1")		s="2";						
 		else if (s == "2")		s="3";
 		else if (s == "3")		s="0";
-		$("#idi"+id).text(s);													// Set row
+		$("#idi"+id).text(s == "0" ? "-" : s);									// Set row
 		curJson.indexVectors[id].l=s;											// Set level
 	}
 
@@ -448,13 +443,6 @@
 
 		$("#pauseBut").on("click",function() {									// ON PAUSE
 			SendShivaMessage("Qmedia=pause");									// Pause
-			});
-
-		$("#paneDiv").on("click",function(e) {									// ON OUTSIDE CLICK
-			if (e.target.id == "paneDiv") {										// If on pane
-				Sound("click");													// Click
-				onClickIndex();													// Deselect current edit row
-				}
 			});
 
 	}
@@ -791,14 +779,6 @@
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 		MakeContentTable();														// Make table
 	
-		$("#paneDiv").on("click",function(e) {									// ON OUTSIDE CLICK
-			if (e.target.id == "paneDiv") {										// If on pane
-				Sound("click");													// Click
-				onClickContent();												// Deselect current edit row
-				MakeContentTable();												// Make table
-				}
-			});
-
 		$("#contentType").on("click",function(e) {								// ON OUTSIDE CLICK
 			var s=$("#contentType").val();										// Get selection
 				if (s.match(/info/i)) 	conPtr=curJson.infoVectors;				// Point at info
@@ -819,7 +799,7 @@
 	{	
 		var i,o,n=0,pic;
 		var trsty=" style='height:20px;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
-		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"' onclick='onClickContent(this.id)'";
+		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"'";
 		if (conPtr)	{															// If any indices
 			n=conPtr.length;													// Get length
 			conPtr.sort(function(a,b) { return a.t-b.t });						// Sort by time
@@ -833,7 +813,7 @@
 			if (o.c && o.c.match(/\.png|.gif|\.jpg|\.jpeg/i)) 					// An image
 				pic=o.c;														// Point at image
 			str+="<td style='width:115px'><img style='border:1px solid #999' height='60' width='100' src='"+pic+"'></td>";	// Add thumbnail
-			str+="<td><div style='height:18px;display:inline-block;width:65px;color:#777'><b>Source:</b></div>"
+			str+="<td style='white-space:nowrap'><div style='height:18px;display:inline-block;width:65px;color:#777'><b>Source:</b></div>"
 			if (o.c && o.c.match(/</))											// If markup
 				str+="<textarea rows='1' style='border:none;background-color:transparent;width:300px;vertical-align:bottom' type='text' id='idc"+i+"'>"+(o.c ? o.c : '')+"</textarea>";
 			else
@@ -853,6 +833,35 @@
 			str+="</td><td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteContent(this.id)'></td></tr><tr><td colspan='3'><hr></td></tr>";	// Add trashcan
 			$("#contentTable").append(str);										// Add row
 			
+			$("#idx"+i).on("click", function(e) {								// ON ROW CLICK
+				var id=e.currentTarget.id.substr(3);							// Extract id
+				if (e.target.id.match(/idt/))									// If on time col				
+					curEdit=id;													// Set time id
+				else															// Anywhere else
+					curEdit=-1;													// Not editing time
+				SendShivaMessage("Qmedia=pause");								// Pause
+				if (id == undefined)											// If deselecting
+					return;														// Quit
+				for (var i=0;i<conPtr.length;++i) {								// For each index
+					$("#idt"+i).css({"color":"#009900","font-weight":"normal"});// Restore
+					$("#idm"+i).css({"color":"#000000"});						// Restore	
+					$("#idc"+i).css({"color":"#000000"});						// Restore	
+					$("#idd"+i).css({"visibility":"hidden"});					// Restore
+					}	
+				trace(e)
+				if (e.target.id.match(/idt/))									// Clicked on time
+					curEdit=id;													// Set time editing
+				Sound("click");													// Click
+				SendShivaMessage("Qmedia=seek",""+conPtr[id].t);				// Go to time
+				if (e.target.id.match(/idt/))									// If on time col				
+					$("#idt"+id).css({"color":"#990000","font-weight":"bold"});	// Highlight	
+				else if (e.target.id.match(/idm/))								// If on prompt col				
+					$("#idm"+id).css({"color":"#990000"});						// Highlight	
+				else if (e.target.id.match(/idc/))								// If on source col				
+					$("#idc"+id).css({"color":"#990000"});						// Highlight	
+				$("#idd"+id).css({"visibility":"visible"});						// Show trashcan
+				});
+
 			$("#idt"+i).on("blur", function() {									// ON BLUR OF TIME
 				var i=this.id.substr(3);										// Get id
 				conPtr[i].t=TimecodeToSeconds($("#idt"+i).val());				// Get text
@@ -908,27 +917,6 @@
 		Preview();																// Preview()
 	}
 
-	function onClickContent(id) 												// ON CLICK CONTENT
-	{	
-		SendShivaMessage("Qmedia=pause");										// Pause
-		curEdit=-1;																// No selected edit
-		if (id == undefined)													// If deselecting
-			return;																// Quit
-		curEdit=id.substr(3);													// Strip off prefix
-		for (var i=0;i<conPtr.length;++i) {										// For each index
-			$("#idt"+i).css({"color":"#009900","font-weight":"normal"});		// Restore
-			$("#idd"+i).css({"visibility":"hidden"});							// Restore
-			}	
-		curEdit=-1;																// No selected edit
-		if (id == undefined)													// If deselecting
-			return;																// Quit
-		Sound("click");															// Click
-		curEdit=id.substr(3);													// Strip off prefix
-		SendShivaMessage("Qmedia=seek",""+conPtr[curEdit].t);					// Go to time
-		$("#idt"+curEdit).css({"color":"#990000","font-weight":"bold"});		// Highlight	
-		$("#idd"+curEdit).css({"visibility":"visible"});						// Show trashcan
-	}
-	
 
 ///////////// SETTINGS ////////////////
 
@@ -1005,6 +993,22 @@
 		var o=null;															
 		if (e.data.match(/ShivaAct=time/))	{									// If a time
 			curTime=e.data.split("|")[1]-0;										// Isolate it
+			if (curPane == "index")			o=curJson.indexVectors;				// Point at index
+			if (curPane == "transcript")	o=curJson.transVectors;				// Point at transcript
+			if (curPane == "content")		o=conPtr;							// Point at player/info/slides		
+			if (o && (curEdit != -1)) {											// Editing time
+				if (!isNaN(curTime)) {											// If a valid time
+					var i,d=o[curEdit].t-curTime;								// Shift amount
+					o[curEdit].t=curTime;										// Set it
+					$("#idt"+curEdit).val(SecondsToTimecode(curTime));			// Update text
+					if (e.data.split("|")[2].match(/s/i)) {						// If shift key pressed
+						for (i=curEdit-0+1;i<o.length;++i) {					// For each subsequent row
+							o[i].t-=d;											// Shift
+							$("#idt"+i).val(SecondsToTimecode(o[i].t));			// Update text
+							}
+						}
+					}
+				}
 			}
 		else if (e.data.match(/ShivaAct=trans/))	{							// If a trans click
 			if (curPane == "transcript")	o=curJson.transVectors;				// Point at transcript
