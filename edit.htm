@@ -923,8 +923,8 @@
   		if (!conPtr[num].z)								zs="No zoom";
 		else if (conPtr[num].z.split("|")[2] < 1)		zs="Inset";
         str+=MakeSelect("contentsPlayOnClick",false,["No zoom","Zoom","Inset"],zs)
-		str+=" Duration: <input class='is' type='text' style='width:30px'>";
- 		str+=" Set start: <input name='which' type='radio'> Set end: <input name='which' checked=checked type='radio'>";
+		str+="&nbsp;&nbsp;&nbsp; Duration: <input class='is' type='text' style='width:20px'>";
+ 		str+="&nbsp;&nbsp;&nbsp; Set start: <input name='which' type='radio'> Set end: <input name='which' checked=checked type='radio'>";
   		str+="<div style='overflow:hidden;font-size:14px;border:1px solid #999;background-color:#ddd;width:578px;height:"+(578*curJson.playerAspect)+"px'>";
 		str+="<div style='width:100%' id='imgpz'><img src='"+conPtr[num].c+"' width='100%'></div>";
 		str+="<div>";
