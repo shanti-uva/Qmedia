@@ -14,6 +14,7 @@
 		.rounded-corners { -moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;}
 		tr.odd { 		background-color:#e0e0e0; }
 		td:focus {		outline:none;	}
+		select:focus {	outline:none;	}
 		.ui-autocomplete { max-height: 300px; overflow-y: auto; }
 	
  		.unselectable { -moz-user-select: none;     -khtml-user-select: none;
@@ -829,7 +830,7 @@
 			if (!o.z)							pic="No zoom";
 			else if (o.z.split("|")[2] < 1)		pic="Inset";
 			else								pic="Zoom";							
-			str+=MakeSelect("idz"+i,false,["No zoom","Zoom","Inset"],pic);	
+				str+="<input id='idz"+i+"' type='text' style='width:70px;height:15px' class='is' value='"+pic+"'>";
 			if (conPtr != curJson.playerVectors) 								// Not in player
 				str+=MakeSelect("ida"+i,false,["No action","play","pause","seek", "jump","send"],o.p);	
 			str+="</td><td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteContent(this.id)'></td></tr><tr><td colspan='3'><hr></td></tr>";	// Add trashcan
@@ -894,7 +895,8 @@
 
 			$("#idz"+i).on("click", function() {								// ON CLICK ZOOM
 					var id=this.id.substr(3);									// Get id
-					GetTextBox("Zoom", "Type the zoom settings:",conPtr[id].z ? conPtr[id].z : "",
+//					GetTextBox("Zoom", "Type the zoom settings:",conPtr[id].z ? conPtr[id].z : "",
+					ZoomEditor(id,
  						function(z) {											// On entry
 							conPtr[id].z=z;										// 
 						 	MakeContentTable();									// Show
@@ -911,6 +913,33 @@
 			}
 	}	
 
+	function ZoomEditor(num, callback) 									// SET ZOOM BOX
+	{
+		var zs="Zoom";
+		$("#alertBoxDiv").remove();											// Remove any old ones
+		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
+		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
+		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#000000'><b>Set zoom</b></span><br><br><p>";
+  		if (!conPtr[num].z)								zs="No zoom";
+		else if (conPtr[num].z.split("|")[2] < 1)		zs="Inset";
+        str+=MakeSelect("contentsPlayOnClick",false,["No zoom","Zoom","Inset"],zs)
+		str+=" Duration: <input class='is' type='text' style='width:30px'>";
+ 		str+=" Set start: <input name='which' type='radio'> Set end: <input name='which' checked=checked type='radio'>";
+  		str+="<div style='overflow:hidden;font-size:14px;border:1px solid #999;background-color:#ddd;width:578px;height:"+(578*curJson.playerAspect)+"px'>";
+		str+="<div style='width:100%' id='imgpz'><img src='"+conPtr[num].c+"' width='100%'></div>";
+		str+="<div>";
+		$("#alertBoxDiv").append(str);	
+		$("#imgpz").resizable({ containment: "parent", aspectRatio:true });
+		$("#imgpz").draggable({ containment: "parent" });
+		$("#alertBoxDiv").dialog({ width:600, buttons: {
+					            	"OK": 		function() { callback($("#gtBoxTt").val()); $(this).remove(); },
+					            	"Cancel":  	function() { $(this).remove(); }
+									}});	
+		$(".ui-dialog-titlebar").hide();
+		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
+		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
+ 		$(".ui-button").css({"border-radius":"30px","outline":"none"});
+ 	}
 
 	function onDeleteContent(id) 												// ON DELETE CONTENT
 	{	
