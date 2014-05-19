@@ -456,18 +456,19 @@
 
 	function AnimatePanes(end, dur, which)									// ANIMATE CHANGE OF PANE RATIO
 	{
+
+
+
 		var start;
 		if (isMobile && (playerMode == "play") && (playerType == "youtube"))	// Playing on ipad 
 			return;																// Don't resize
 		if (which == slidePane) 	 	start=sd.playerSlideRatio;				// Get current player ratio
-		else if (which == playerPane) 	start=sd.playerSlideRatio;				// Get current player ratio
 		else if (which == infoPane)  	start=sd.transInfoRatio;				// Get current transcript ratio
 		var dif=Math.abs(end-start);											// Difference
 		if ((dif < .05) || (paneAnimationTimer)) {								// If close enough or animating alredy
 			clearInterval(paneAnimationTimer);									// Kill timer
 			paneAnimationTimer=null;											// Clear timer var
 			if (which == slidePane) 	 	sd.playerSlideRatio=end;			// Set player ratio
-			else if (which == playerPane) 	sd.transInfoRatio=end;				// Set player ratio
 			else if (which == infoPane) 	sd.transInfoRatio=end;				// Set transcript ratio
 			if (dif)															// If not there yet
 				ResizePanes();													// Resize
@@ -494,7 +495,6 @@
 				}
 			if (which == slidePane) 	 	sd.playerSlideRatio=pos;			// Set player ratio
 			else if (which == infoPane) 	sd.transInfoRatio=pos;				// Set transcript ratio
-			else if (which == playerPane) 	sd.playerSlideRatio=pos;			// Set player ratio
 			ResizePanes();														// Resize
 			}
 	}
@@ -523,8 +523,10 @@
 							AnimateContent(this.id,o);							// Animate image, if set
 							})
 						}
-					else if (src.match(/</))									// Markup
+					else if (src.match(/</)) {									// Markup
+						ResizePanes();											// Force to proper size
 						$("#overlayDiv").html(src);								// Populate overlay
+						}
 					else{														// An iframe
 						if (src.match(/assess=/)) {								// If an assessment
 							RunPlayer("pause");									// Pause player
@@ -760,7 +762,7 @@
  			var y=sd.transText.indexOf(s.focusNode.textContent);				// Char pos of paragraph
 	 		y=y+s.anchorOffset;													// Position in text
 			if (y > 1) {														// If a valid position
- 				SendShivaMessage("ShivaAct=trans",y);							// Send that position 
+ 				SendShivaMessage("ShivaAct=transclick",y);						// Send that position 
 	 			RunPlayer("scrub",GetTimeFromCharPos(y),true);					// Show
 				}
  			});
@@ -779,8 +781,8 @@
 			cursorAt:{left:0},													// Cursor offext
 			cursor: "col-resize", axis:"x",										// X-only
 			stop: function(event, ui) {											// When done
-				SendShivaMessage("ShivaAct=transwid",sd.transInfoRatio);			// Send that position has changed
-				ResizePanes;													// Resize panes when done
+				SendShivaMessage("ShivaAct=transwid",sd.transInfoRatio);		// Send that position has changed
+				ResizePanes();													// Resize panes when done
 				},
 			drag: function(event, ui) {											// On drag
 				var wid=Math.min($("body").width(),sd.width);					// Cap at screen size

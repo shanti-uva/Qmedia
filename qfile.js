@@ -316,7 +316,7 @@
 		$("#alertBoxDiv").remove();											// Remove any old ones
 		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
 		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
-		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>"+title+"</b></span><p>";
+		str+="<span id='gtBoxTi'style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>"+title+"</b></span><p>";
 		str+="<div style='font-size:14px;margin:14px'>"+content;
 		str+="<p><input class='is' type='text' id='gtBoxTt' value='"+def+"'></p></div>";
 		$("#alertBoxDiv").append(str);	
