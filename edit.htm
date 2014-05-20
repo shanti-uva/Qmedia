@@ -67,7 +67,7 @@
 </head>
 
 	<div id='playerDiv' class='unselectable' >
-		<iframe class="player" id="playerIF" src="show.htm" height="100%" scrolling="no"></iframe>
+		<iframe class="player" id="playerIF" src="!show.htm" height="100%" scrolling="no"></iframe>
 	</div>
 	<div id="editDiv" class="editor unselectable" style="position:absolute;top:16px;z-index:4"> 
 		 <ul id="menu" style="margin:1px">
@@ -915,9 +915,10 @@
 
 	function ZoomEditor(num, callback) 									// SET ZOOM BOX
 	{
+		var off=0;
+		var zoom=[.5,.5,1,1];
 		var zs="Zoom";
 		$("#alertBoxDiv").remove();											// Remove any old ones
-		var zoom=[.0,.0,1,1];
 		if (conPtr[num].z)													// If an old one
 			zoom=conPtr[num].z.split("|");									// Get zoom members
 		if (!zoom[3])	zoom[3]=1;											// Make defaule duration
@@ -927,43 +928,84 @@
 		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#000000'><b>Set zoom</b></span><br><br><p>";
   		if (!conPtr[num].z)			zs="No zoom";
 		else if (zoom[2] < 1)		zs="Inset";
-        str+=MakeSelect("contentsPlayOnClick",false,["No zoom","Zoom","Inset"],zs)
-		str+="&nbsp;&nbsp;&nbsp; Duration: <input  id='pzdur' class='is' type='text' value='"+zoom[3]+"' style='width:20px'>";
- 		str+="&nbsp;&nbsp;&nbsp; Set start: <input name='which' type='radio'> Set end: <input name='which' checked=checked type='radio'>";
+        str+=MakeSelect("zoomType",false,["No zoom","Zoom","Inset"],zs)+"&nbsp;&nbsp;";
+       	str+=MakeSelect("whichpz",false,["Set end","Set start","No start"]);
+		str+="&nbsp;&nbsp;&nbsp;<span id='pzdurspan'>Duration &nbsp;<input id='pzdur' class='is' type='text' value='"+zoom[3]+"' style='text-align:center;width:20px'></span>";
   		str+="<div id='pzdiv' style='overflow:hidden;font-size:14px;border:1px solid #999;background-color:#ddd;width:600px;height:"+h+"px'>";
 		str+="<div style='position:absolute;width:1px;background-color:#bbb;height:"+h+"px;left:25%'></div>"
 		str+="<div style='position:absolute;width:1px;background-color:#666;height:"+h+"px;left:50%'></div>"
 		str+="<div style='position:absolute;width:1px;background-color:#bbb;height:"+h+"px;left:75%'></div>"
-		str+="<div style='position:relative;height:1px;background-color:#bbb;width:600px;top:25%'></div>"
-		str+="<div style='position:relative;height:1px;background-color:#666;width:600px;top:50%'></div>"
-		str+="<div style='position:relative;height:1px;background-color:#bbb;width:600px;top:75%'></div>"
-		str+="<div style='position:absolute;width:"+(zoom[2]*100)+"%' id='imgpz'><img src='"+conPtr[num].c+"' width='100%'></div>";
+		str+="<div style='position:relative;height:1px;background-color:#bbb;width:100%;top:25%'></div>"
+		str+="<div style='position:relative;height:1px;background-color:#666;width:100%;;top:50%'></div>"
+		str+="<div style='position:relative;height:1px;background-color:#bbb;width:100%;top:75%'></div>"
+		str+="<div id='imgpz'><img src='"+conPtr[num].c+"' width='100%'></div>";
 		str+="</div>";
 		$("#alertBoxDiv").append(str);	
 		
+		function showZoom() {
+			var t=$("#zoomType").val();											// Get type
+			if (t == "No zoom") {												// No zoom set
+				$("#whichpz").hide(500);										// Hide which
+				$("#pzdurspan").hide(500);										// And dur
+				}
+			else{																// A zoom or inset	
+				$("#whichpz").show(500);										// Show which
+				$("#pzdurspan").show(500);										// And dur
+				}
+			
+			$("#imgpz").css("left",600*(zoom[0+off]-zoom[2+off]/2)+"px");		// Left
+			$("#imgpz").css("top",(600*curJson.playerAspect)*(zoom[1+off]-zoom[2+off]/2)-3+"px");	// Top
+			$("#imgpz").width(zoom[2+off]*600);									// Zoom
+			}
+			
+		showZoom(zoom,off);
+			
 		$("#imgpz").resizable({ aspectRatio:true, maxWidth:600, 
-								stop:function() {
-									zoom[2]=$("#imgpz").width()/600;
-									}	
-								});
+			stop:function() {
+				zoom[2+off]=$("#imgpz").width()/600;
+				}	
+			});
+		
 		$("#imgpz").draggable({ 
-								stop:function(e, ui) {
-									zoom[0]=(ui.position.left+$("#imgpz").width()/2)/600;
-									zoom[1]=(ui.position.top+$("#imgpz").height()/2)/600*curJson.playerAspect;
-									trace($("#imgpz").position.top)
-									trace(ui.position.top,$("#imgpz").height(),600*curJson.playerAspect)
-									}	
-								});
+			stop:function(e, ui) {
+				var dx=$("#imgpz").offset().left-$("#pzdiv").offset().left;
+				var dy=$("#imgpz").offset().top-$("#pzdiv").offset().top;
+				zoom[0+off]=(dx/600)+(zoom[2+off]/2);
+				zoom[1+off]=(dy/(curJson.playerAspect*600))+(zoom[2+off]/2);
+				}	
+			});
 	
 		$("#alertBoxDiv").dialog({ width:622, buttons: {
 	    	"OK": 		function() {
 	    		 			var z=zoom[0]+"|"+zoom[1]+"|"+zoom[2]+"|"+$("#pzdur").val();
-	    		 			trace(z)
+	    		 			for (var i=4;i<zoom.length;++i)	z+="|"+zoom[i]
 	    		 			callback(z);
 	    		 			$(this).remove();
 	    		 			},
 	    	"Cancel":  	function() { $(this).remove(); }
-									}});	
+							}});	
+		
+		$("#zoomType").on("change",function() {									// ON CHANGE TYPE
+			var t=$("#zoomType").val();											// Get type
+			if (t == "Inset") 		zoom=[.5,.5,.5,1];							// Inset start
+			else 					zoom=[.5,.5,1,1];							// Zoom/none start
+			showZoom();															// Redraw
+			});
+
+		$("#whichpz").on("change",function() {									// ON CHANGE TYPE
+			var w=$("#whichpz").val();											// Get which
+			off=0;																// Set offset to end
+			if (w == "Set start") {												// Start pos
+				if (!zoom[4]) zoom[4]=.5;										// Add left
+				if (!zoom[5]) zoom[5]=.5;										// Add top
+				if (!zoom[6]) zoom[6]=zoom[2];									// Add zoom
+				off=4;															// Set offset to start
+				}
+			else if (w == "No start") 											// Remove start
+				zoom=[zoom[0],zoom[1],zoom[2],zoom[3]];
+			showZoom();															// Redraw
+			});
+
 		$(".ui-dialog-titlebar").hide();
 		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
 		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
