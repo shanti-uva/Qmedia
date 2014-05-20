@@ -933,11 +933,11 @@
   		str+="<div id='pzdiv' style='overflow:hidden;font-size:14px;border:1px solid #999;background-color:#ddd;width:600px;height:"+h+"px'>";
 		str+="<div style='position:absolute;width:1px;background-color:#bbb;height:"+h+"px;left:25%'></div>"
 		str+="<div style='position:absolute;width:1px;background-color:#666;height:"+h+"px;left:50%'></div>"
-		str+="<div style='position:absolute;width:1px;background-color:#	;height:"+h+"px;left:75%'></div>"
+		str+="<div style='position:absolute;width:1px;background-color:#bbb;height:"+h+"px;left:75%'></div>"
 		str+="<div style='position:relative;height:1px;background-color:#bbb;width:600px;top:25%'></div>"
 		str+="<div style='position:relative;height:1px;background-color:#666;width:600px;top:50%'></div>"
-		str+="<div style='position:relative;height:1px;background-color:#bbb;width:600px;top:75%'</div>"
-		str+="<div style='position:absolute;top:-260px;width:"+(zoom[2]*100)+"%' id='imgpz'><img src='"+conPtr[num].c+"' width='100%'></div>";
+		str+="<div style='position:relative;height:1px;background-color:#bbb;width:600px;top:75%'></div>"
+		str+="<div style='position:absolute;width:"+(zoom[2]*100)+"%' id='imgpz'><img src='"+conPtr[num].c+"' width='100%'></div>";
 		str+="</div>";
 		$("#alertBoxDiv").append(str);	
 		
@@ -950,7 +950,7 @@
 								stop:function(e, ui) {
 									zoom[0]=(ui.position.left+$("#imgpz").width()/2)/600;
 									zoom[1]=(ui.position.top+$("#imgpz").height()/2)/600*curJson.playerAspect;
-									trace(ui)
+									trace($("#imgpz").position.top)
 									trace(ui.position.top,$("#imgpz").height(),600*curJson.playerAspect)
 									}	
 								});
