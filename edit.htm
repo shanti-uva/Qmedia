@@ -824,13 +824,13 @@
 			str+="<br><div style='height:18px;display:inline-block;width:65px;color:#777'><b>Prompt:</b></div><input style='border:none;background-color:transparent;width:300px' type='text' id='idm"+i+"' value='"+(o.m ? o.m : '')+"'><br>";
 			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Settings:</b></div>";
 			if (conPtr != curJson.playerVectors) { 								// Not in player
-				str+="<input id='idr"+i+"' type='text' style='width:70px;height:15px' class='is' value='";
-				str+=(o.r) ? Math.round(o.r*100)+"% split'> ": "No split'> ";			
+				str+="<input id='idr"+i+"' type='text' style='text-align:center;width:70px;height:15px' class='is' value='";
+				str+=(o.r) ? Math.round(o.r*100)+"% split'> ": "No split'> &nbsp;&nbsp;";			
 				}
 			if (!o.z)							pic="No zoom";
 			else if (o.z.split("|")[2] < 1)		pic="Inset";
 			else								pic="Zoom";							
-				str+="<input id='idz"+i+"' type='text' style='width:70px;height:15px' class='is' value='"+pic+"'>";
+				str+="<input id='idz"+i+"' type='text' style='text-align:center;width:70px;height:15px' class='is' value='"+pic+"'>&nbsp;";
 			if (conPtr != curJson.playerVectors) 								// Not in player
 				str+=MakeSelect("ida"+i,false,["No action","play","pause","seek", "jump","send"],o.p);	
 			str+="</td><td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteContent(this.id)'></td></tr><tr><td colspan='3'><hr></td></tr>";	// Add trashcan
@@ -917,23 +917,52 @@
 	{
 		var zs="Zoom";
 		$("#alertBoxDiv").remove();											// Remove any old ones
-		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
+		var zoom=[.0,.0,1,1];
+		if (conPtr[num].z)													// If an old one
+			zoom=conPtr[num].z.split("|");									// Get zoom members
+		if (!zoom[3])	zoom[3]=1;											// Make defaule duration
+		var h=Math.round(600*curJson.playerAspect);							// Height
+		$("body").append("<div style='overflow:hidden;' class='unselectable' id='alertBoxDiv'></div>");														
 		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
 		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#000000'><b>Set zoom</b></span><br><br><p>";
-  		if (!conPtr[num].z)								zs="No zoom";
-		else if (conPtr[num].z.split("|")[2] < 1)		zs="Inset";
+  		if (!conPtr[num].z)			zs="No zoom";
+		else if (zoom[2] < 1)		zs="Inset";
         str+=MakeSelect("contentsPlayOnClick",false,["No zoom","Zoom","Inset"],zs)
-		str+="&nbsp;&nbsp;&nbsp; Duration: <input class='is' type='text' style='width:20px'>";
+		str+="&nbsp;&nbsp;&nbsp; Duration: <input  id='pzdur' class='is' type='text' value='"+zoom[3]+"' style='width:20px'>";
  		str+="&nbsp;&nbsp;&nbsp; Set start: <input name='which' type='radio'> Set end: <input name='which' checked=checked type='radio'>";
-  		str+="<div style='overflow:hidden;font-size:14px;border:1px solid #999;background-color:#ddd;width:578px;height:"+(578*curJson.playerAspect)+"px'>";
-		str+="<div style='width:100%' id='imgpz'><img src='"+conPtr[num].c+"' width='100%'></div>";
-		str+="<div>";
+  		str+="<div id='pzdiv' style='overflow:hidden;font-size:14px;border:1px solid #999;background-color:#ddd;width:600px;height:"+h+"px'>";
+		str+="<div style='position:absolute;width:1px;background-color:#bbb;height:"+h+"px;left:25%'></div>"
+		str+="<div style='position:absolute;width:1px;background-color:#666;height:"+h+"px;left:50%'></div>"
+		str+="<div style='position:absolute;width:1px;background-color:#	;height:"+h+"px;left:75%'></div>"
+		str+="<div style='position:relative;height:1px;background-color:#bbb;width:600px;top:25%'></div>"
+		str+="<div style='position:relative;height:1px;background-color:#666;width:600px;top:50%'></div>"
+		str+="<div style='position:relative;height:1px;background-color:#bbb;width:600px;top:75%'</div>"
+		str+="<div style='position:absolute;top:-260px;width:"+(zoom[2]*100)+"%' id='imgpz'><img src='"+conPtr[num].c+"' width='100%'></div>";
+		str+="</div>";
 		$("#alertBoxDiv").append(str);	
-		$("#imgpz").resizable({ containment: "parent", aspectRatio:true });
-		$("#imgpz").draggable({ containment: "parent" });
-		$("#alertBoxDiv").dialog({ width:600, buttons: {
-					            	"OK": 		function() { callback($("#gtBoxTt").val()); $(this).remove(); },
-					            	"Cancel":  	function() { $(this).remove(); }
+		
+		$("#imgpz").resizable({ aspectRatio:true, maxWidth:600, 
+								stop:function() {
+									zoom[2]=$("#imgpz").width()/600;
+									}	
+								});
+		$("#imgpz").draggable({ 
+								stop:function(e, ui) {
+									zoom[0]=(ui.position.left+$("#imgpz").width()/2)/600;
+									zoom[1]=(ui.position.top+$("#imgpz").height()/2)/600*curJson.playerAspect;
+									trace(ui)
+									trace(ui.position.top,$("#imgpz").height(),600*curJson.playerAspect)
+									}	
+								});
+	
+		$("#alertBoxDiv").dialog({ width:622, buttons: {
+	    	"OK": 		function() {
+	    		 			var z=zoom[0]+"|"+zoom[1]+"|"+zoom[2]+"|"+$("#pzdur").val();
+	    		 			trace(z)
+	    		 			callback(z);
+	    		 			$(this).remove();
+	    		 			},
+	    	"Cancel":  	function() { $(this).remove(); }
 									}});	
 		$(".ui-dialog-titlebar").hide();
 		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
