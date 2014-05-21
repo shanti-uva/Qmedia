@@ -67,7 +67,7 @@
 </head>
 
 	<div id='playerDiv' class='unselectable' >
-		<iframe class="player" id="playerIF" src="!show.htm" height="100%" scrolling="no"></iframe>
+		<iframe class="player" id="playerIF" src="show.htm" height="100%" scrolling="no"></iframe>
 	</div>
 	<div id="editDiv" class="editor unselectable" style="position:absolute;top:16px;z-index:4"> 
 		 <ul id="menu" style="margin:1px">
@@ -914,7 +914,7 @@
 
 	function ZoomEditor(num, callback) 									// SET ZOOM BOX
 	{
-		var off=0,imgHgt=0;
+		var off=0,imgHgt=0,imgAsp=0;
 		var zoom=[.5,.5,1,1];
 		var zs="Zoom";
 		$("#alertBoxDiv").remove();											// Remove any old ones
@@ -937,16 +937,18 @@
 		str+="<div style='position:relative;height:1px;background-color:#bbb;width:100%;top:25%'></div>"
 		str+="<div style='position:relative;height:1px;background-color:#666;width:100%;;top:50%'></div>"
 		str+="<div style='position:relative;height:1px;background-color:#bbb;width:100%;top:75%'></div>"
-		str+="<div style='style='visibility:hidden;position:relative;top:0px;left:0px' id='imgpz'><img id='imgpzi' src='"+conPtr[num].c+"' width='100%'></div>";
+		str+="<div id='imgins' style='position:relative;top:-3px;left:0px'><img id='imginsi' src='"+conPtr[num].c+"' width='100%'></div>";
+		str+="<div id='imgzbx' style='position:absolute;top:-3px;border:2px solid yellow;background-color:rgba(200,200,200,.5'></div>";
+		
 		str+="</div>";
 		$("#alertBoxDiv").append(str);	
-		showZoom();
 		
-		$("#imgpzi").on("load",function() {									// WHEN CONTENT LOADED
+		$("#imginsi").on("load",function() {									// WHEN CONTENT LOADED
 			imgHgt=this.height;													// Save original height
+			imgAsp=this.height/this.width;										// Save original aspect ratio
+			showZoom();															// Setup
 			});
 				
-			
 		function showZoom() {
 			var t=$("#zoomType").val();											// Get type
 			if (t == "No zoom") {												// No zoom set
@@ -958,39 +960,75 @@
 				$("#pzdurspan").show(500);										// And dur
 				}
 			if (t == "Zoom") {													// If pan/zoom
-				$("#imgpz").css({border:"none",top:"0px",left:"0px",width:"600px"});	// No border, full size
-				$("#pzdiv").height(imgHgt);										// Set height
-				}
-			else{
-				$("#pzdiv").height(600*curJson.playerAspect);					// Set height
+				var z=1/zoom[2+off];											// Zoom
+				var dx=$("#alertBoxDiv").offset().left-$("#pzdiv").offset().left-0;	// Offset x
+				var dy=$("#alertBoxDiv").offset().top-$("#pzdiv").offset().top-0;	// And y
+
+				$("#imgins").draggable( { containmet:[0,0,600,387]});						// No dragging
+				$("#imgins").css({border:"none",top:"-3px",left:"0px",width:"600px",height:imgHgt});	// No border, full size
+				$("#pzdiv").height(imgHgt);										// Set height of container
+
+				$("#imgzbx").css("left",(600*zoom[0+off])-(z*300)-dx+"px");		// left
+				$("#imgzbx").css("top",(imgHgt*zoom[1+off])-(z*300*curJson.playerAspect)-dy+"px");		// Top
+				$("#imgzbx").width(z*600);										// Set width
+				$("#imgzbx").height(z*600*curJson.playerAspect);				// Height
+				$("#imgzbx").show();											// Show
 				
-				$("#imgpz").resizable({ aspectRatio:true, maxWidth:600, 
+				$("#imgzbx").resizable({ aspectRatio:true, maxWidth:600, 		// HANDLE RESIZE
+					stop:function() {											// When stopped
+						zoom[2+off]=600/$("#imgzbx").width();					// Set zoom
+						}	
+					});
+		
+				$("#imgzbx").draggable({ 										// HANDLE DRAG
+					stop:function(e, ui) {
+						var z=1/zoom[2+off];									// Zoom
+						var dx=$("#imgzbx").offset().left-$("#pzdiv").offset().left;
+						var dy=$("#imgzbx").offset().top-$("#pzdiv").offset().top;
+						var w=300*z;
+						var h=w*curJson.playerAspect;
+						zoom[0+off]=(dx+w)/600;
+						zoom[1+off]=(dy+h)/imgHgt;
+						}	
+					});
+	
+				}
+			else if (t == "Inset"){
+				$("#pzdiv").height(600*curJson.playerAspect);					// Set height of container
+				$("#imgzbx").hide();											// Hide zoom box
+				$("#imgins").resizable({ aspectRatio:true, maxWidth:600, 
 					stop:function() {
-						zoom[2+off]=$("#imgpz").width()/600;
+						zoom[2+off]=$("#imgins").width()/600;
 						}	
 					});
 				
-				$("#imgpz").draggable({ 
+				$("#imgins").draggable({ 
 					stop:function(e, ui) {
-						var dx=$("#imgpz").offset().left-$("#pzdiv").offset().left;
-						var dy=$("#imgpz").offset().top-$("#pzdiv").offset().top;
+						var dx=$("#imgins").offset().left-$("#pzdiv").offset().left;
+						var dy=$("#imgins").offset().top-$("#pzdiv").offset().top;
 						zoom[0+off]=(dx/600)+(zoom[2+off]/2);
 						zoom[1+off]=(dy/(curJson.playerAspect*600))+(zoom[2+off]/2);
 						}	
 					});
 				
-				$("#imgpz").css("left",600*(zoom[0+off]-zoom[2+off]/2)+"px");		// Left
-				$("#imgpz").css("top",(600*curJson.playerAspect)*(zoom[1+off]-zoom[2+off]/2)-3+"px");	// Top
-				$("#imgpz").width(zoom[2+off]*600);									// Zoom
-				$("#imgpz").height(zoom[2+off]*600*curJson.playerAspect);			// Zoom
-				$("#imgpz").css({ border:"2px solid yellow"});
+				$("#imgins").css("left",600*(zoom[0+off]-zoom[2+off]/2)+"px");	// Left
+				$("#imgins").css("top",(600*curJson.playerAspect)*(zoom[1+off]-zoom[2+off]/2)-3+"px");	// Top
+				$("#imgins").width(zoom[2+off]*600);							// Set width
+				$("#imgins").height(zoom[2+off]*600*imgAsp);					// Height
+				if (t == "Inset") 												// If inset
+					$("#imgins").css({ border:"2px solid yellow"});				// Add border
+				$("#imgins").draggable({ disabled:false });						// Allow dragging
 				}
+	
 			}
 				
 		$("#alertBoxDiv").dialog({ width:622, buttons: {
 	    	"OK": 		function() {
 	    		 			var z=zoom[0]+"|"+zoom[1]+"|"+zoom[2]+"|"+$("#pzdur").val();
-	    		 			for (var i=4;i<zoom.length;++i)	z+="|"+zoom[i]
+	    		 			for (var i=4;i<zoom.length;++i)						// For each start, if any
+	    		 				z+="|"+zoom[i];									// Add val
+							if ($("#zoomType").val() == "No zoom")				// If no zoom
+								z="";											// Clear
 	    		 			callback(z);
 	    		 			$(this).remove();
 	    		 			},
@@ -1000,6 +1038,7 @@
 		$("#zoomType").on("change",function() {									// ON CHANGE TYPE
 			var t=$("#zoomType").val();											// Get type
 			if (t == "Inset") 		zoom=[.5,.5,.5,1];							// Inset start
+			else if (t == "Zoom") 	zoom=[.5,.5,2,1];							// Zoom start
 			else 					zoom=[.5,.5,1,1];							// Zoom/none start
 			showZoom();															// Redraw
 			});
