@@ -211,18 +211,10 @@
 	function Preview(time)													// PREVIEW SHOW
 	{
 		Do();																	// Save for undo
-		if (time) {																// If a rolling preview
-			var ta=curJson.playerAuto;											// Save old setting
-			var ts=curJson.playerStart;											// Save old setting
-			curJson.playerAuto="true";											// Set autoplay
-			curJson.playerStart=Math.max(curTime-0+time,0);						// Set start
-			}
 		Sound("click");															// Click
 		SendShivaMessage("Qmedia=data",JSON.stringify(curJson));				// Send to show player	   		
-   		if (time) {																// If a rolling preview
-			curJson.playerAuto=ta;												// Restore old setting
-			curJson.playerStart=ts;												// Restore old setting
-			}
+  		if (time) 																// If a rolling preview
+			SendShivaMessage("Qmedia=play",Math.max(curTime-0+time,0));			// Roll player	   		
    	}
    	
    	
