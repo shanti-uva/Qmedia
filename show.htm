@@ -150,7 +150,7 @@
 	var shivaLib=null;															// Holds shiva
 	var searchMode=false;														// Don't trigger anything
 	var keyFlag="";																// Holds key flags												
-	var userName="",password="";												// Login info
+	var userName="",password="",curShow=0;										// Login info
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INIT
@@ -166,8 +166,10 @@
 		
 		isMobile=navigator.userAgent.match(/(ipad|iphone|ipod|android)/i) ? true : false; // Set mobile flag
 		var url=window.location.search.substring(1);							// Get query string
-		if (url && !isNaN(url)) 												// If a number,
+		if (url && !isNaN(url)) {												// If a number
+			curShow=url;														// Save show number											
 			url="//qmediaplayer.com/loadshow.php?id="+url;						// Get from db
+			}	
 		else if ((url) && (!url.match(/\./)))									// No file extension
 			url+=".json";														// Add txt
 		if (!url)																// Nothing on command line
@@ -1411,12 +1413,30 @@
 		str+="<div style='font-size:14px;margin:14px'>Please type your username or email, and password:<br></div>";
 		str+="<table style='font-size:14px;margin:14px'>";
 		str+="<tr><td>User name </td><td><input class='is' type='text' id='gtBoxUn'></td></tr>";
-		str+="<tr><td>Password</td><td><input class='is' type='text' id='gtBoxPw'></td></tr></table>";
+		str+="<tr><td>Password</td><td><input class='is' type='password' id='gtBoxPw'></td></tr></table>";
 		$("#alertBoxDiv").append(str);	
 		$("#alertBoxDiv").dialog({ width:400, modal:true, buttons: {
 		            	"OK": function() { 
-		            			userName=$("#gtBoxUn").val(); 
-		            			password=$("#gtBoxPw").val(); 
+								var dat={};
+		            			userName=$("#gtBoxUn").val(); 					// Get username
+		            			password=$("#gtBoxPw").val(); 					// Get password
+								var host="//qmediaplayer.com/";					// Get host
+								var url=host+"saveuserdata.php";				// Base file
+								dat["show"]=curShow;							// Add shownum
+								dat["email"]=userName;							// Add email
+								dat["password"]=password;						// Add password
+								dat["event"]="Logged in";						// Add event
+								$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat,  // Post data
+									success:function(d) { 						// On success		
+									 	if (d.match(/new/i))					// A new user
+											AlertBox("Welcome to Qmedia!","We've made a new Qmedia account for you");
+									 	else if (d.match(/pass/i))				// Passwords dont match
+											AlertBox("Password","Sorry, that\'s not the password we have for you");
+										else									// Existing user
+											AlertBox("Welcome back!","You are logged in as "+userName);
+										},
+									error:function(xhr,status,error) {	AlertBox("Login error!",error); },	// Show error
+									});		
 		            			$(this).remove(); }
 						}});	
 		$(".ui-dialog-titlebar").hide();
@@ -1424,7 +1444,23 @@
 		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
  		$(".ui-button").css({"border-radius":"30px","outline":"none"});
  	}
+	
+	function AlertBox(title, content)										// ALERT BOX
+	{
+		$("#alertBoxDiv").remove();												// Remove any old ones
+		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
+		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
+		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>"+title+"</b></span></p>";
+		str+="<div style='font-size:14px;margin:16px'>"+content+"</div>";
+		$("#alertBoxDiv").append(str);	
+		$("#alertBoxDiv").dialog({ width:400, buttons:{"OK": function() { $(this).remove(); }}});	
+		$(".ui-dialog-titlebar").hide();
+		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
+		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
+  		$(".ui-button").css({"border-radius":"30px","outline":"none"});
+	}
 
+	
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{
 		if (p4 != undefined)
