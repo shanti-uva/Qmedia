@@ -324,8 +324,23 @@
 			RunPlayer("ready");													// Init show
 			}
 		else if (show.playerSource.match(/\/\//i)) {							// If HTML5
-			playerType="html5";													// Set type
-			RunPlayer("init");													// Init player
+			if (player && (playerType == "html5")) {							// Player not active loaded
+				if (player.currentSrc.indexOf(sd.playerSource) == -1)	{		// Different clip
+					var base=sd.playerSource.match(/(.*)\.[^.]+$/i)[1];			// Extract base
+					if (sd.playerSource.match(/\.mp3/i)) 						// If audio
+						player.src=base+".mp3";									// MP3 Source
+					else{														// VIDEO
+						player.src=base+".mp4";									// MP4 Source
+						player.src=base+".ogg";									// OGG Source
+						player.src=base+".webm";								// WEBM Source
+						}
+					player.load();												// Load it
+					}
+				}
+			else{
+				playerType="html5";												// Set type
+				RunPlayer("init");												// Init player
+				}
 			}
 		else if (!isNaN(show.playerSource)) {									// If Vimeo
 			playerType="vimeo";													// Set type
@@ -333,7 +348,7 @@
 			}
 		else{																	// If YouTube
 			playerType="youtube";												// Set type
-			if (player) {														// Player not active loaded
+			if (player) {														// Player active 
 				if (!player.pauseVideo)	{										// If not YT player set
 					if (YT.Player)												// If library is loaded
 						RunPlayer("init");										// Re-init
