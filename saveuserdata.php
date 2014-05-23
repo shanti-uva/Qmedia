@@ -9,13 +9,10 @@ require_once('config.php');
 			
 	$password="";												
 	$email="";												
-	$show=1;
 	$event="";												
 	
 	$email=$_REQUEST['email'];									// Get email
 	$password=$_REQUEST['password'];							// Get password
-	if (isSet($_REQUEST['show'])) 								// If set
-		$show=$_REQUEST['show'];								// Get it
 	if (isSet($_REQUEST['event'])) 								// If set
 		$event=$_REQUEST['event'];								// Get it
 										
@@ -27,11 +24,10 @@ require_once('config.php');
 		exit();													// Quit
 		}
 	if (!mysql_numrows($result)) {								// If not found, add it
-		$query="INSERT INTO qusers (email, password, show, events ) VALUES ('";
+		$query="INSERT INTO qusers (email, password, events ) VALUES ('";
 		$query.=addEscapes($email)."','";						// Email
 		$query.=addEscapes($password)."','";					// Password
-		$query.=addEscapes($show)."','";						// Show num
-		$query.=addEscapes("Created new user account")."'";		// Event
+		$query.=addEscapes("Created new user account\n")."'";	// Event
 		$result=mysql_query($query);							// Add row
 		if ($result == false)									// Bad save
 			print("-2");										// Show error 

@@ -150,6 +150,7 @@
 	var shivaLib=null;															// Holds shiva
 	var searchMode=false;														// Don't trigger anything
 	var keyFlag="";																// Holds key flags												
+	var host="//qmediaplayer.com/";												// Set host
 	var userName="",password="",curShow=0;										// Login info
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -961,41 +962,49 @@
 					searchMode=true;											// Inhibit other events
 					}
 				}
-			else if (v[0] == "QmediaAssess=draw") { 							// Draw assessment
-				if (v[2] == "start") {											// Start
-					var l=18,t=90;
-					if (v[3] == "bottom") {										// If in infodiv
-						l=$("#playerDiv").width()/2-90;							// Center 
-						sd.transInfoRatio=0;									// Full size
-						ResizePanes();											// Resize
-						sd.transInfoRatio=.5;									// Original size
-						shivaLib=new SHIVA_Show("infoDiv");						// Alloc SHIVA_Show in infodiv
-						$("#informationText").html("");							// Clear div
-						$("#infoLab").html("Draw here:");						// Set label
-						if (v[4] != undefined) 									// If a param
-							if (v[4].match(/\/\//))								// If an image defined 
-								$("#informationText").html("<img width='100%' src='"+v[4]+"'>"); // Load image
-							else												// Must be css
-								$("#informationText").css({"background-color":v[4],border:"1px solid #999"});	// Set style
-						}				
-					else{														// On top of player
-						t=$("#contentDiv").css("top").replace(/px/,"")-0+40		// In content area
-						shivaLib=new SHIVA_Show("overlayDiv");					// Alloc SHIVA_Show in player
-						}
-					shivaLib.DrawOverlay();										// Make sure contexts are set up
-					shivaLib.Annotate(l,t);										// Show it
-					}			
-				else if (v[2] == "done") {										// Done
-					shivaLib.dr.SetTool(-1);									// Close palette
-					$("#shivaDrawDiv").html("");								// Clear drawings
-					$("#informationText").html("");								// Clear div
-					$("#informationText").css({"background-color":"#fff",border:"none"});	// Clear style
-					$("#infoLab").html(sd.infoLab);								// Set label
+		else if ((v[0] == "QmediaAssess=answer") && (sd.logIn == "true")) {		// If saving answers
+			var dat={};
+			var url=host+"saveuserdata.php";									// Base file
+			dat["email"]=userName;												// Add email
+			dat["password"]=password;											// Add password
+			dat["event"]=new Date().toUTCString()+"\t"+curShow+"\tAssessment\t"+v[2]+"\t"+v[3]+"\n";	// Add event
+			$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat});  	// Post data
+			}
+		else if (v[0] == "QmediaAssess=draw") { 								// Draw assessment
+			if (v[2] == "start") {												// Start
+				var l=18,t=90;
+				if (v[3] == "bottom") {											// If in infodiv
+					l=$("#playerDiv").width()/2-90;								// Center 
+					sd.transInfoRatio=0;										// Full size
 					ResizePanes();												// Resize
-					showCurSource[infoPane]="";									// Force redraw
-					ShowContent(infoPane,"informationText");					// Show content
-					}			
-				}
+					sd.transInfoRatio=.5;										// Original size
+					shivaLib=new SHIVA_Show("infoDiv");							// Alloc SHIVA_Show in infodiv
+					$("#informationText").html("");								// Clear div
+					$("#infoLab").html("Draw here:");							// Set label
+					if (v[4] != undefined) 										// If a param
+						if (v[4].match(/\/\//))									// If an image defined 
+							$("#informationText").html("<img width='100%' src='"+v[4]+"'>"); // Load image
+						else													// Must be css
+							$("#informationText").css({"background-color":v[4],border:"1px solid #999"});	// Set style
+					}				
+				else{															// On top of player
+					t=$("#contentDiv").css("top").replace(/px/,"")-0+40			// In content area
+					shivaLib=new SHIVA_Show("overlayDiv");						// Alloc SHIVA_Show in player
+					}
+				shivaLib.DrawOverlay();											// Make sure contexts are set up
+				shivaLib.Annotate(l,t);											// Show it
+				}			
+			else if (v[2] == "done") {											// Done
+				shivaLib.dr.SetTool(-1);										// Close palette
+				$("#shivaDrawDiv").html("");									// Clear drawings
+				$("#informationText").html("");									// Clear div
+				$("#informationText").css({"background-color":"#fff",border:"none"});	// Clear style
+				$("#infoLab").html(sd.infoLab);									// Set label
+				ResizePanes();													// Resize
+				showCurSource[infoPane]="";										// Force redraw
+				ShowContent(infoPane,"informationText");						// Show content
+				}			
+			}
 		else if (v[0] == "QmediaAssess=time") 									// Get time
 			e.source.postMessage("ShivaAct=time|"+playerNow+"|"+keyFlag,"*");	// Send data to assessment iframe
 		}
@@ -1420,13 +1429,11 @@
 								var dat={};
 		            			userName=$("#gtBoxUn").val(); 					// Get username
 		            			password=$("#gtBoxPw").val(); 					// Get password
-								var host="//qmediaplayer.com/";					// Get host
 								var url=host+"saveuserdata.php";				// Base file
-								dat["show"]=curShow;							// Add shownum
 								dat["email"]=userName;							// Add email
 								dat["password"]=password;						// Add password
-								dat["event"]="Logged in";						// Add event
-								$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat,  // Post data
+								dat["event"]=new Date().toUTCString()+"\t"+curShow+"\tLogged in\n";			// Add event
+								$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat,  	// Post data
 									success:function(d) { 						// On success		
 									 	if (d.match(/new/i))					// A new user
 											AlertBox("Welcome to Qmedia!","We've made a new Qmedia account for you");
