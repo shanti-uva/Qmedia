@@ -820,16 +820,16 @@
 			str+="<br><div style='height:18px;display:inline-block;width:65px;color:#777'><b>Prompt:</b></div><input style='border:none;background-color:transparent;width:300px' type='text' id='idm"+i+"' value='"+(o.m ? o.m : '')+"'><br>";
 			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Settings:</b></div>";
 			if (conPtr != curJson.playerVectors) { 								// Not in player
-				str+="<input id='idr"+i+"' type='text' style='text-align:center;width:70px;height:15px' class='is' value='";
-				str+=(o.r) ? Math.round(o.r*100)+"% split'> ": "No split'> &nbsp;&nbsp;";			
+				str+="<input id='idr"+i+"' type='text' style='text-align:center;width:50px;height:15px' class='is' value='";
+				str+=(o.r) ? Math.round(o.r*100)+"% split'> " : "No split'> ";			
 				}
 			if (!o.z)							pic="No zoom";
 			else if (o.z.split("|")[2] < 1)		pic="Inset";
 			else								pic="Zoom";							
-				str+="<input id='idz"+i+"' type='text' style='text-align:center;width:70px;height:15px' class='is' value='"+pic+"'>&nbsp;";
-			
+			str+="<input id='idz"+i+"' type='text' style='text-align:center;width:50px;height:15px' class='is' value='"+pic+"'> ";
 			if (conPtr != curJson.playerVectors) 								// Not in player
-				str+=MakeSelect("ida"+i,false,["No action","play","pause","seek", "jump","send"],(""+o.p).split(":")[0]);	
+				str+=MakeSelect("ida"+i,false,["No action","play","pause","seek", "jump"],(""+o.p).split(":")[0]);	
+			str+=" <input id='idh"+i+"' type='text' style='text-align:center;width:30px;height:15px' class='is' value='Send'>";
 			str+="</td><td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteContent(this.id)'></td></tr><tr><td colspan='3'><hr></td></tr>";	// Add trashcan
 			$("#contentTable").append(str);										// Add row
 			
@@ -903,18 +903,25 @@
 					var id=this.id.substr(3);									// Get id
 					var str=$("#ida"+id).val();									// Get val
 					conPtr[id].p=str;											// Set val
-					trace(str)
 					if (str.match(/action/))	conPtr[id].p="";				// Null it out
 					else if ((str == "seek") || (str == "jump")) {				// Need a time
 						var t="";												// No time
 						if (conPtr[id].p.split(":")[1] != undefined)			// If a time set	
 							t=conPtr[id].p.split(":")[1];						// Get time
-						GetTextBox("To when", "Type in where in the media clip you want to go, in seconds:",t,
+						GetTextBox("To when", "Type where in the media clip you want to go (in seconds).",t,
 	 						function(t) {										// On entry
 	 							if (t && !isNaN(t)) 							// If a number
 								conPtr[id].p=str+":"+t;							// Add to command	  							
 								});
 						}
+					});				
+	
+			$("#idh"+i).on("click", function() {								// ON SEND
+					var id=this.id.substr(3);									// Get id
+					var h=conPtr[id].h;											// Get command
+					if (!h) h="";												// Null it
+					GetTextBox("Send", "Type in command to send to pane.",h,	// Get text
+	 						function(h) { conPtr[id].h=h; } );					// Set 							
 					});				
 			}
 	}	
