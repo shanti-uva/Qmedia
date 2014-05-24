@@ -32,7 +32,7 @@ require_once('config.php');
 		if ($result == false)									// Bad save
 			print("-2");										// Show error 
 		else
-			print("new".mysql_insert_id()."\n");				// Return ID of new user
+			print("new:".mysql_insert_id()."\n");				// Return ID of new user
 		}
 	else{														// We have one already
 		$oldpass=mysql_result($result,0,"password");			// Get old password		
@@ -47,7 +47,7 @@ require_once('config.php');
 		if ($result == false)									// Bad update
 			print("-4");										// Show error 
 		else
-			print("exist".$id);									// Show id 
+			print("exist:".$id);								// Show id 
 			}													// End if valid
 		mysql_close();											// Close session
 

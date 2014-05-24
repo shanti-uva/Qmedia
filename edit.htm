@@ -131,7 +131,13 @@
 
 		qmf=new QmediaFile();													// Alloc file system
 		NewShow();																// Init show
-
+		
+		var url=window.location.search.substring(1);							// Get query string
+		if (url && !isNaN(url)) 												// If a number
+			curShow=url;														// Save show number											
+//		else																	// No query
+			curShow=1;															// Load default show
+		
 		$("#menu" ).menu({ position:{my:"left top", at: "left top+40" }});		// Set menu
 		$("#menu").on("menuselect", function(event,ui) { 						// On menu select
 				var id=ui.item[0].id.substr(1);									// Get id
@@ -157,8 +163,7 @@
 		Draw();
 		$(window).resize(Draw); 		
 		setInterval(function() { SendShivaMessage("Qmedia=time") },500); 		// Set timer 1-fps
-		qmf.LoadFile("qmf1");													// Load project
-
+		qmf.LoadFile("qmf"+curShow);											// Load project
 		$("#playerSiz").draggable({												// DRAG PLAYER WIDTH HANDLER
 			cursorAt:{left:-8},iframeFix:true,									// Cursor offset
 			cursor: "col-resize", axis:"x",										// X-only
@@ -822,8 +827,9 @@
 			else if (o.z.split("|")[2] < 1)		pic="Inset";
 			else								pic="Zoom";							
 				str+="<input id='idz"+i+"' type='text' style='text-align:center;width:70px;height:15px' class='is' value='"+pic+"'>&nbsp;";
+			
 			if (conPtr != curJson.playerVectors) 								// Not in player
-				str+=MakeSelect("ida"+i,false,["No action","play","pause","seek", "jump","send"],o.p);	
+				str+=MakeSelect("ida"+i,false,["No action","play","pause","seek", "jump","send"],(""+o.p).split(":")[0]);	
 			str+="</td><td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteContent(this.id)'></td></tr><tr><td colspan='3'><hr></td></tr>";	// Add trashcan
 			$("#contentTable").append(str);										// Add row
 			
@@ -896,10 +902,20 @@
 			$("#ida"+i).on("change", function() {								// ON CHANGE ACTION
 					var id=this.id.substr(3);									// Get id
 					var str=$("#ida"+id).val();									// Get val
-					if (str.match(/action/))	str="";							// Null
 					conPtr[id].p=str;											// Set val
+					trace(str)
+					if (str.match(/action/))	conPtr[id].p="";				// Null it out
+					else if ((str == "seek") || (str == "jump")) {				// Need a time
+						var t="";												// No time
+						if (conPtr[id].p.split(":")[1] != undefined)			// If a time set	
+							t=conPtr[id].p.split(":")[1];						// Get time
+						GetTextBox("To when", "Type in where in the media clip you want to go, in seconds:",t,
+	 						function(t) {										// On entry
+	 							if (t && !isNaN(t)) 							// If a number
+								conPtr[id].p=str+":"+t;							// Add to command	  							
+								});
+						}
 					});				
-
 			}
 	}	
 
