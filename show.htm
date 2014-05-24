@@ -571,8 +571,13 @@
 						}
 					if ((o.r != undefined) && (!dontResize))					// If changing ratios (not in a manual scrub)
 						AnimatePanes(o.r,o.d,pane);								// Animate transition
-					if (o.p)													// If a player command
-						RunPlayer(o.p.split(":")[0],o.p.split(":")[1]);  		// Send command to player
+					if (o.p) {													// If a player command
+						var v=o.p.split(":");									// Split
+						v[0]=v[0].replace(/seek/i,"scrub");						// Sedn proper command									
+						v[0]=v[0].replace(/jump/i,"play");						// Sedn proper command									
+						RunPlayer(v[0],v[1]);  									// Send command to player
+						}
+					
 					showCurSource[pane]=o.cs;									// Then is now
 					if (o.m != undefined)										// If a prompt
 						Prompt(o.m);											// Show it
