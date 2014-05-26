@@ -80,11 +80,9 @@
 		   	</ul></li>
 		    <li id=""><a href="#">Edit</a><ul>
 				<li id="m21"><a href="#">Undo</a></li>
-				<li id="m22"><a href="#">Redo</a></li>
-	            <li id="m23"><a href="#">Bookmark&nbsp;an&nbsp;undo</a></li>
-	            <li id="m24"><a href="#">Load&nbsp;bookmarked&nbsp;undo</a></li>
-		 		<li id="m25"><a href="#">Settings</a></il>
-		 		<li id="m26"><a href="#">JSON</a></il>
+	            <li id="m22"><a href="#">Bookmark&nbsp;an&nbsp;undo</a></li>
+		 		<li id="m23"><a href="#">Settings</a></il>
+		 		<li id="m24"><a href="#">JSON</a></il>
 			</ul></li>
 	 			<li id=""><a href="#">Content</a><ul>
 	                <li id="m31"><a href="#">Edit graphic content</a></li>
@@ -138,6 +136,7 @@
 //		else																	// No query
 			curShow=1;															// Load default show
 		
+		sessionStorage.clear();													// Reset undos
 		$("#menu" ).menu({ position:{my:"left top", at: "left top+40" }});		// Set menu
 		$("#menu").on("menuselect", function(event,ui) { 						// On menu select
 				var id=ui.item[0].id.substr(1);									// Get id
@@ -150,8 +149,10 @@
 					case "14":	ChangePane("intro");	qmf.Save(1); 	break;	// Save as... 
 					case "15":	ChangePane("intro");	qmf.Delete(); 	break;	// Delete
 					case "16":	ChangePane("intro");	qmf.Delete(1); 	break;	// Undelete
-					case "25":	ChangePane("settings");					break;	// Edit settings
-					case "26":	ChangePane("json");						break;	// Edit JSON
+					case "21":	Undo();									break;	// Undo
+					case "22":	Do("bookmark");							break;	// Save bookmark
+					case "23":	ChangePane("settings");					break;	// Edit settings
+					case "24":	ChangePane("json");						break;	// Edit JSON
 					case "31":	ChangePane("content");					break;	// Manage content
 					case "32": 	ChangePane("transcript");  				break;	// Transcript
 					case "33": 	ChangePane("index");  					break;	// Index 
@@ -1209,45 +1210,6 @@
 		var win=document.getElementById("playerIF").contentWindow;				// Point at iframe	
 		win.postMessage(str,"*");												// Send message to show
 	}
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// UNDO / REDO
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	var curUndo=0;
-	var curRedo=0;
-	
-	function Do(name)														// SAVE SHOW IN SESSION STORAGE
-	{
-		return;
-		var str=JSON.stringify(curJson);										// Stringify
-		if (name)																// If a bookmarked show
-			sessionStorage["do"+name]=str;										// Save show
-		else{																	// A numbered show
-			sessionStorage["do"+curUndo++]=str;									// Save show and inc count
-			}
-	}
-	
-	function Undo(name)
-	{
-		if (name)																// If a bookmarked show
-			var str=sessionStorage["do"+name];									// Load show
-		else{																	// A numbered show
-			var str=sessionStorage["do"+Math,max(curUndo--,0)]=str;				// Load show and dec count
-			sessionStorage["do"+curUndo]=JSON.stringify(curJson);				// Save show in last slot
-			}
-		curJson=$.parseJSON(str);												// Objectify
-		Draw(curPane);															// Show page
-	}
-
-	function Redo()
-	{
-		var str=sessionStorage["do"+Math,max(currentRedo++,0)]=str;				// Load show and dec count
-		curJson=$.parseJSON(str);												// Objectify
-		Draw(curPane);															// Show page
-	}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // HELPERS
