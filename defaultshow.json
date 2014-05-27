@@ -74,7 +74,7 @@ LoadShow({
             { "t":126, "c":"//i.dailymail.co.uk/i/pix/2010/07/05/article-0-004D820800000258-318_468x308.jpg" }, 
  			{ "t":135, "c":"//www.viseyes.org/shiva/qmedia/clinton06.jpg" },	
 			{ "t":158, "c":"//www.viseyes.org/shiva/qmedia/clinton07.jpg" },	
-            { "t":177, "c":"//www.viseyes.org/shiva/go.htm?e=1103", "m":"This is a live map" }, 
+            { "t":177, "c":"//www.viseyes.org/shiva/go.htm?e=1103", "m":"This is a live map", "r":0.5 }, 
             { "t":184, "c":"//www.viseyes.org/shiva/go.htm?e=1103", "m":"We zoomed in", "h":"goto|51.513149|-0.077955|16" }, 
             { "t":196, "c":"//www.viseyes.org/shiva/go.htm?e=1103", "h":"goto|51.5131494459|-0.077955722808|18" }, 
             { "t":208, "c":"//freelancefolder.com/wp-content/uploads/different.jpg" }, 

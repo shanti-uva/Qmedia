@@ -972,7 +972,8 @@
 			var url=host+"saveuserdata.php";									// Base file
 			dat["email"]=userName;												// Add email
 			dat["password"]=password;											// Add password
-			dat["event"]=new Date().toUTCString()+"\t"+curShow+"\tAssessment\t"+v[2]+"\t"+v[3]+"\n";	// Add event
+			dat["show"]=curShow;												// Add shownum
+			dat["event"]=new Date().toUTCString()+"\tAssessment\t"+v[2]+"\t"+v[3]+"\n";	// Add event
 			$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat});  	// Post data
 			}
 		else if (v[0] == "QmediaAssess=draw") { 								// Draw assessment
@@ -1441,11 +1442,12 @@
 								var url=host+"saveuserdata.php";				// Base file
 								dat["email"]=userName;							// Add email
 								dat["password"]=password;						// Add password
-								dat["event"]=new Date().toUTCString()+"\t"+curShow+"\tLogged in\n";			// Add event
+								dat["show"]=curShow;							// Add shownum
+								dat["event"]=new Date().toUTCString()+"\tLogged in\n";	// Add event
 								$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat,  	// Post data
 									success:function(d) { 						// On success		
 									 	if (d.match(/new/i))					// A new user
-											AlertBox("Welcome to Qmedia!","We've made a new Qmedia account for you");
+											AlertBox("Welcome to Qmedia!","We've made a new Qmedia account for you for this show.");
 									 	else if (d.match(/pass/i))				// Passwords dont match
 											AlertBox("Password","Sorry, that\'s not the password we have for you");
 										else									// Existing user
