@@ -1337,7 +1337,7 @@
 
 	function MakeVectors(pane, rlc)											// CREATE TIMIMG VECTOR ARRAY
 	{
-		var i,o,d="";
+		var i,o,d="",last="xxx";
 		if (!rlc)																// No run length data
 			return;																// Quit		
 		showVectors[pane]=[];													// Alloc new array														
@@ -1346,6 +1346,8 @@
 			o={};																// New obj
 			o.ps=rlc[i].t;														// Time start
 			o.cs=rlc[i].c;														// Content start
+			if (o.cs && (o.cs == last) && isNaN(o.cs))							// If same as last one
+				o.cs+="#"+i;													// Make it unique
 			if (rlc[i].d)														// If a width set
 				d=rlc[i].d;														// Use it
 			if (d)																// If something there							
@@ -1361,6 +1363,8 @@
 			if (rlc[i].z != undefined)			o.z=rlc[i].z;					// Add pan/zoom if set
 			if (rlc[i].n != undefined)			o.n=rlc[i].n;					// Add times if set
 			showVectors[pane].push(o);											// Add to vector list
+			last=o.cs;															// Remember last
+
 			}
 	}
 
