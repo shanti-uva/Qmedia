@@ -288,6 +288,9 @@
 
 	function LoadShow(show)													// LOAD SHOW CONTENT
 	{
+		if ((show.curShow != undefined) && (!curShow))							// If a show spec'd
+			curShow=show.curShow;												// Make this current show
+		trace(curShow)
 		if (show.logIn == "true") 												// If requiring a log in
 			Login();															// Get un/pw
 		if (show.playerAspect == undefined) 									// No aspect spec'd
@@ -474,9 +477,6 @@
 
 	function AnimatePanes(end, dur, which)									// ANIMATE CHANGE OF PANE RATIO
 	{
-
-
-
 		var start;
 		if (isMobile && (playerMode == "play") && (playerType == "youtube"))	// Playing on ipad 
 			return;																// Don't resize
@@ -973,7 +973,7 @@
 			dat["email"]=userName;												// Add email
 			dat["password"]=password;											// Add password
 			dat["show"]=curShow;												// Add shownum
-			dat["event"]=new Date().toUTCString()+"\tAssessment\t"+v[2]+"\t"+v[3]+"\n";	// Add event
+			dat["event"]=new Date().toLocaleString()+"\tStep\t"+v[2]+"\t"+v[3]+"\n";	// Add event
 			$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat});  	// Post data
 			}
 		else if (v[0] == "QmediaAssess=draw") { 								// Draw assessment
@@ -1435,6 +1435,7 @@
 		str+="<tr><td>Password</td><td><input class='is' type='password' id='gtBoxPw'></td></tr></table>";
 		$("#alertBoxDiv").append(str);	
 		$("#alertBoxDiv").dialog({ width:400, modal:true, buttons: {
+		            	"Cancel": function() { 	$(this).remove(); sd.logIn == "false"},
 		            	"OK": function() { 
 								var dat={};
 		            			userName=$("#gtBoxUn").val(); 					// Get username
@@ -1443,15 +1444,15 @@
 								dat["email"]=userName;							// Add email
 								dat["password"]=password;						// Add password
 								dat["show"]=curShow;							// Add shownum
-								dat["event"]=new Date().toUTCString()+"\tLogged in\n";	// Add event
+								dat["event"]=new Date().toLocaleString()+"\tLogged in\n";	// Add event
 								$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat,  	// Post data
 									success:function(d) { 						// On success		
-									 	if (d.match(/new/i))					// A new user
-											AlertBox("Welcome to Qmedia!","We've made a new Qmedia account for you for this show.");
-									 	else if (d.match(/pass/i))				// Passwords dont match
-											AlertBox("Password","Sorry, that\'s not the password we have for you");
+									 	if (d.match(/pass/i)) 					// Passwords dont match
+											AlertBox("Password","Sorry, that\'s not the password we have for you",Login);
+									 	else if (d.match(/data/i)) 					// Passwords don't match
+											AlertBox("Need username","We need your username or email",Login);
 										else									// Existing user
-											AlertBox("Welcome back!","You are logged in as "+userName);
+											AlertBox("Welcome to Qmedia!","You are logged in as <b><i>"+userName+"</b></i>");
 										},
 									error:function(xhr,status,error) {	AlertBox("Login error!",error); },	// Show error
 									});		
@@ -1463,7 +1464,7 @@
  		$(".ui-button").css({"border-radius":"30px","outline":"none"});
  	}
 	
-	function AlertBox(title, content)										// ALERT BOX
+	function AlertBox(title, content, callback)								// ALERT BOX
 	{
 		$("#alertBoxDiv").remove();												// Remove any old ones
 		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
@@ -1471,7 +1472,7 @@
 		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>"+title+"</b></span></p>";
 		str+="<div style='font-size:14px;margin:16px'>"+content+"</div>";
 		$("#alertBoxDiv").append(str);	
-		$("#alertBoxDiv").dialog({ width:400, buttons:{"OK": function() { $(this).remove(); }}});	
+		$("#alertBoxDiv").dialog({ width:400, buttons:{"OK": function() { $(this).remove(); if (callback) callback(); }}});	
 		$(".ui-dialog-titlebar").hide();
 		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
 		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});

@@ -216,6 +216,7 @@
 	{
 		Do();																	// Save for undo
 		Sound("click");															// Click
+		curJson.curShow=curShow;												// Set current show
 		SendShivaMessage("Qmedia=data",JSON.stringify(curJson));				// Send to show player	   		
   		if (time) 																// If a rolling preview
 			SendShivaMessage("Qmedia=play",Math.max(curTime-0+time,0));			// Roll player	   		

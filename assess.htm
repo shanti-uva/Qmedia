@@ -294,7 +294,7 @@
 		$("#skipBut").on("click",function() {									// SKIP BUTTON HANDLER
 			if (d.optionType == "draw") 										// Draw style
 				SendShivaMessage("QmediaAssess=draw","done");					// Send done message
-			SendShivaMessage("QmediaAssess=skip",curPage);						// Send skip message
+			SendShivaMessage("QmediaAssess=answer",curPage+"|skip");			// Send answer message
 			Draw(curPage+1);													// Move on
 			});
 		

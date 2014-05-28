@@ -7,42 +7,42 @@ header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Max-Age: 1000');
 require_once('config.php');
 			
-	$password="";												
-	$show="";											
-	$email="";												
-	$event="";	
-	
 	$email=$_REQUEST['email'];									// Get email
 	$password=$_REQUEST['password'];							// Get password
-	$show=$_REQUEST['show'];									// Get shownum
+	$event=$_REQUEST['event'];									// Get event
+	$show=$_REQUEST['show'];									// Get show
 	
-	if (isSet($_REQUEST['event'])) 								// If set
-		$event=$_REQUEST['event'];								// Get it
-										
-	$query="SELECT * FROM qusers WHERE email = '".$email."' AND showNum = '".$show."'";	// Look for existing one
-	
-	$result=mysql_query($query);								// Query
-	if ($result == false) {										// Bad query
-		print(-1);												// Show error 
+	if (!$email || !$show || !$event) {							// Not enough data
+		if (!$email)											// If no email
+			print("data");										// Show error 
 		mysql_close();											// Close session
 		exit();													// Quit
 		}
+										
+	$query="SELECT * FROM qusers WHERE email = '".$email."' AND showNum = '".$show."'";	// Look for existing one
+	$result=mysql_query($query);								// Query
+	if ($result == false) {										// Bad query
+		print(-2);												// Show error 
+		mysql_close();											// Close session
+		exit();													// Quit
+		}
+	
 	if (!mysql_numrows($result)) {								// If not found, add it
 		$query="INSERT INTO qusers (email, password, showNum, events ) VALUES ('";
 		$query.=addEscapes($email)."','";						// Email
 		$query.=addEscapes($password)."','";					// Password
-		$query.=addEscapes($show)."','";						// Password
-		$query.=addEscapes("Created new user account\n")."')";	// Event
+		$query.=addEscapes($show)."','";						// Show num
+		$query.=addEscapes($event)."')";						// Event
 		$result=mysql_query($query);							// Add row
 		if ($result == false)									// Bad save
-			print("-2");										// Show error 
+			print("-3");										// Show error 
 		else
 			print("new:".mysql_insert_id()."\n");				// Return ID of new user
 		}
 	else{														// We have one already
 		$oldpass=mysql_result($result,0,"password");			// Get old password		
 		if ($oldpass && ($password != $oldpass)) {				// Passwords don't match
-			print($show."----".mysql_result($result,0,"show"));										// Show error 
+			print("pass");										// Show error 
 			mysql_close();										// Close session
 			exit();												// Quit
 			}

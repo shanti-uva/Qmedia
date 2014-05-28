@@ -26,10 +26,10 @@ require_once('config.php');
 	$num=mysql_numrows($result);								// Get num rows
 	print("<font face='sans-serif'>");							// Font
 	for ($i=0;$i<$num;++$i) {									// For each record
-		print("The assessment results for <b>".mysql_result($result,$i,"email")."</b> in show <b>".mysql_result($result,$i,"showNum")."</b> is:<br>");	// Header
-		print("<blockquote>");
+		print("The assessment result for <b>".mysql_result($result,$i,"email")."</b> in show <b>".mysql_result($result,$i,"showNum")."</b> is:<br>");	// Header
+		print("<blockquote>");									// Indent
 		$s=mysql_result($result,$i,"events");					// Get events
-		$s=str_replace("\t","    ",$s);							// Tabs to spaces	
+		$s=str_replace("\t","&nbsp;&nbsp;",$s);					// Tabs to spaces	
 		$s=str_replace("\n","<br>",$s);							// CRs to BRs		
 		print($s);												// Show events
 		print("<br></blockquote>");								// BR
