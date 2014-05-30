@@ -290,7 +290,6 @@
 	{
 		if ((show.curShow != undefined) && (!curShow))							// If a show spec'd
 			curShow=show.curShow;												// Make this current show
-		trace(curShow)
 		if (show.logIn == "true") 												// If requiring a log in
 			Login();															// Get un/pw
 		if (show.playerAspect == undefined) 									// No aspect spec'd
@@ -433,8 +432,8 @@
 			$("#titleDiv").css("display","none")								// Hide bar
 		$("#playerDiv").css({ width:w+"px",top:pt+"px"});						// Set player pos
 		$("#overlayDiv").css({ width:w+"px",top:pt+"px",height:$("#playerDiv").height()+"px",left:"8px"});	// Set overlay
-		$("#slideDiv").css({ left:(wid-w2+8)+"px",width:(w2)+"px",top:pt+"px"}); // Set slider pos/size
 		var h=Math.max(((wid-4)*sd.playerAspect)-(w*sd.playerAspect),w*sd.playerAspect);	// Player height
+		$("#slideDiv").css({ left:(wid-w2+8)+"px",width:(w2)+"px",top:pt+"px",height:h+"px"}); // Set slider pos/size
 		$("#playerSiz").css({ left:(w+8)+"px",height:h+"px",top:pt+"px"});		// Set sizer pos
 		h+=pt;																	// Point at top of control bar
 		var ct=h+$("#controlDiv").height()+14;									// Contents top
@@ -1016,8 +1015,10 @@
 		}
 	else if (e.data && e.data.match(/Qmedia/)) {								// An assessment message
 		var v=e.data.split("|");												// Get data
-		if (v[0] == "Qmedia=time") 												// Get time
-			e.source.postMessage("ShivaAct=time|"+playerNow+"|"+keyFlag,"*");	// Send time
+		if (v[0] == "Qmedia=time") {											// Get time
+			if (v[2] != playerNow)												// If not there already
+				e.source.postMessage("ShivaAct=time|"+playerNow+"|"+keyFlag,"*"); // Send time
+			}
 		else if (v[0] == "Qmedia=seek") 										// Seek
 			RunPlayer("scrub",v[2]);											// Cue player to time
 		else if (v[0] == "Qmedia=play") 										// Seek

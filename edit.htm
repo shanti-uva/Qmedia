@@ -161,7 +161,7 @@
 		
 		Draw();
 		$(window).resize(Draw); 		
-		setInterval(function() { SendShivaMessage("Qmedia=time") },500); 		// Set timer 1-fps
+		setInterval(function() { SendShivaMessage("Qmedia=time",curTime) },500); // Set timer 1-fps
 		qmf.LoadFile("qmf"+curShow);											// Load project
 		$("#playerSiz").draggable({												// DRAG PLAYER WIDTH HANDLER
 			cursorAt:{left:-8},iframeFix:true,									// Cursor offset
