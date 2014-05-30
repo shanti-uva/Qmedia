@@ -322,7 +322,7 @@
 			if (curJson.indexVectors[i].l-0)	l=curJson.indexVectors[i].l;				// If an indent set
 			if (curJson.indexVectors[i].s)		s=curJson.indexVectors[i].s.toUpperCase();	// If style set
 			str="<tr id='idx"+i+"' "+trsty+">";													// Row
-			str+="<td> <input style='color:#009900;width:50px;font-family:monospace;border:none;background-color:transparent;font-weight:bold' type='text' id='idt"+i+"' value='"+SecondsToTimecode(curJson.indexVectors[i].t)+"'></td>"; 	// Add index
+			str+="<td> <input style='color:#009900;width:60px;font-family:monospace;border:none;background-color:transparent;font-weight:bold' type='text' id='idt"+i+"' value='"+SecondsToTimecode(curJson.indexVectors[i].t)+"'></td>"; 	// Add index
 			str+="<td> <input style='width:95%;border:none;background-color:transparent' type='text' id='idc"+i+"' value='"+curJson.indexVectors[i].c+"'></td>"; 	// Add index
 			str+="<td id='ids"+i+"' onclick='onClickIndexStyle(this.id)'>"+s+"</td>";			// Add style
 			str+="<td id='idi"+i+"' onclick='onClickIndexIndent(this.id)'>"+l+"</td>"			// Add indent
@@ -457,7 +457,7 @@
 		for (i=0;i<n;++i) {														// For each index
 			str="<tr id='idx"+i+"' "+trsty+">";									// Row
 			s=curJson.transVectors[i].c;										// Start of line								
-			str+="<td> <input style='color:#009900;width:50px;font-family:monospace;border:none;background-color:transparent;font-weight:bold' type='text' id='idt"+i+"' value='"+SecondsToTimecode(curJson.transVectors[i].t)+"'></td>"; 	// Add index
+			str+="<td> <input style='color:#009900;width:60px;font-family:monospace;border:none;background-color:transparent;font-weight:bold' type='text' id='idt"+i+"' value='"+SecondsToTimecode(curJson.transVectors[i].t)+"'></td>"; 	// Add index
 			str+="<td id='idl"+i+"' style='color:#999;overflow:hidden;white-space:nowrap;text-align:right'>"+curJson.transText.substring(s,s-nc)+"&nbsp;</td>"; 		// Add line
 			str+="<td id='idr"+i+"' style='color:#000;overflow:hidden;white-space:nowrap'>"+curJson.transText.substring(s,s-0+80)+"</td>"; 	// Add line
 			str+="<td  align='right'><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteTrans(this.id)'></td></tr>";	// Add trashcan
@@ -804,7 +804,7 @@
 		for (i=0;i<n;++i) {														// For each index
 			o=conPtr[i];														// Point at row
 			str="<tr id='idx"+i+"' "+trsty+">";									// Row
-			str+="<td width='40'> <input style='color:#009900;width:50px;font-family:monospace;border:none;background-color:transparent;font-weight:bold' type='text' id='idt"+i+"' value='"+SecondsToTimecode(o.t)+"'></td>"; 	// Add index
+			str+="<td width='40'> <input style='color:#009900;width:60px;font-family:monospace;border:none;background-color:transparent;font-weight:bold' type='text' id='idt"+i+"' value='"+SecondsToTimecode(o.t)+"'></td>"; 	// Add index
 			pic="images/webthumb.jpg";											// Assume web content
 			if (o.c && o.c.match(/\.png|.gif|\.jpg|\.jpeg/i)) 					// An image
 				pic=o.c;														// Point at image
@@ -1225,6 +1225,9 @@
 		n=Math.floor(secs%60);													// Get secs
 		if (n < 10) str+="0";													// Add leading 0
 		str+=n;																	// Add to tc
+		var f=secs-Math.floor(secs);											// Get fractional part
+		if (f) 																	// If a fraction	
+			str+="."+Math.round(f*10);											// Single digit
 		return str;																// Return timecode			
 	}
 		
