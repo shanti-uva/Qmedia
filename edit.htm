@@ -68,7 +68,7 @@
 	<div id='playerDiv' class='unselectable' >
 		<iframe class="player" id="playerIF" src="show.htm" height="100%" scrolling="no"></iframe>
 	</div>
-	<div id="editDiv" class="editor unselectable" style="position:absolute;top:16px;z-index:4"> 
+	<div id="editDiv" class="editor unselectable" style="position:absolute;top:16px;z-index:4;display:hidden"> 
 		 <ul id="menu" style="margin:1px">
 		    <li id=""><a href="#">File</a><ul>
 				<li id="m11"><a  href="#">New</a></li>
@@ -160,9 +160,10 @@
 			 	});
 		
 		Draw();
-		$(window).resize(Draw); 		
+		$(window).resize(Draw); 												// Redraw on resize		
 		setInterval(function() { SendShivaMessage("Qmedia=time",curTime) },500); // Set timer 1-fps
 		qmf.LoadFile("qmf"+curShow);											// Load project
+		$("#editDiv").show();													// Show editor
 		$("#playerSiz").draggable({												// DRAG PLAYER WIDTH HANDLER
 			cursorAt:{left:-8},iframeFix:true,									// Cursor offset
 			cursor: "col-resize", axis:"x",										// X-only
