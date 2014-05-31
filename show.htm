@@ -288,6 +288,7 @@
 
 	function LoadShow(show)													// LOAD SHOW CONTENT
 	{
+		searchMode=false;														// Allow other events
 		if ((show.curShow != undefined) && (!curShow))							// If a show spec'd
 			curShow=show.curShow;												// Make this current show
 		if (show.logIn == "true") 												// If requiring a log in

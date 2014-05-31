@@ -772,7 +772,8 @@
 		str+="<table id='contentTable' style='font-size:12px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
 		str+="</table></div><div style='font-size:12px'<br><br>";				// End table
 		str+="<button"+butsty+"id='addConBut'>Add a new content</button>";		// Add button
-		str+="&nbsp;&nbsp;<button"+butsty+"onclick='onPreviewContent()'>Preview</button>";	// Preview button
+		str+="&nbsp;&nbsp;<button"+butsty+"id='preBut3'>Preview</button>";		// Preview button
+		str+="&nbsp;&nbsp;<button"+butsty+"id='pauseBut'>Pause</button>";		// Pause button
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 		MakeContentTable();														// Make table
 	
@@ -790,6 +791,16 @@
 			MakeContentTable();													// Remake table
 			Sound("click");														// Click
 			});
+
+		$("#pauseBut").on("click",function() {									// ON PAUSE
+			SendShivaMessage("Qmedia=pause");									// Pause
+			});
+
+		$("#preBut3").on("click",function() {									// ON PREVIEW
+			curEdit=-1;															// Not editing anymore
+			Preview(-1);														// Run preview
+			});
+
 	}
 	
 	function MakeContentTable() 											// MAKE TABLE AND SORT BY TIME
