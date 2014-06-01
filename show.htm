@@ -973,6 +973,12 @@
 			dat["email"]=userName;												// Add email
 			dat["password"]=password;											// Add password
 			dat["show"]=curShow;												// Add shownum
+			if (v[3] == "personalNotes") {										// If notes
+				playerNotes=false;												// Set flag
+				VideoNotes();													// Save notes and kill dialog
+				v[3]=notesText;													// Save notes to server
+				}
+			trace(dat)
 			dat["event"]=new Date().toLocaleString()+"\tStep\t"+v[2]+"\t"+v[3]+"\n";	// Add event
 			$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat});  	// Post data
 			}
@@ -1010,6 +1016,13 @@
 				showCurSource[infoPane]="";										// Force redraw
 				ShowContent(infoPane,"informationText");						// Show content
 				}			
+			}
+		else if (v[0] == "QmediaAssess=notes") { 								// Notes assessment
+			if (v[2] == "start") {												// Start
+				notesText="";													// Clear previous notes
+				playerNotes=true;												// Set flag
+				VideoNotes();													// Open notes dialog
+				}
 			}
 		else if (v[0] == "QmediaAssess=time") 									// Get time
 			e.source.postMessage("ShivaAct=time|"+playerNow+"|"+keyFlag,"*");	// Send data to assessment iframe

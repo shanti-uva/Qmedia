@@ -164,7 +164,9 @@
 			str+="style='width:"+$("#optionsLDiv").parent().width()*.8+"px'></textarea><br></span>";	// area
 			}	
 
-		else if (d.optionType == "draw")	{											// Draw option
+		else if (d.optionType == "notes")										// Notes option
+			SendShivaMessage("QmediaAssess=notes","start");						// Send start message
+		else if (d.optionType == "draw")	{									// Drae option
 			SendShivaMessage("QmediaAssess=draw","start|bottom|"+d.background);	// Send start message
 			if (d.pic) str+="<img src='"+d.pic+"' height=75><br>";				// Add pic
 			}	
@@ -195,7 +197,12 @@
 					Draw(curPage+1);											// Move on
 				return;															// Quit
 				}	
-			else if (d.optionType == "draw") {									// Write style
+			else if (d.optionType == "notes") {									// Notes style
+				SendShivaMessage("QmediaAssess=answer",curPage+"|personalNotes");	// Send answer message
+				Draw(curPage+1);												// Move on
+				return;															// Quit
+				}
+			else if (d.optionType == "draw") {									// Draw style
 				SendShivaMessage("QmediaAssess=answer",curPage);				// Send answer message
 				SendShivaMessage("QmediaAssess=draw","done");					// Send done message
 				Draw(curPage+1);												// Move on
@@ -294,6 +301,8 @@
 		$("#skipBut").on("click",function() {									// SKIP BUTTON HANDLER
 			if (d.optionType == "draw") 										// Draw style
 				SendShivaMessage("QmediaAssess=draw","done");					// Send done message
+			else if (d.optionType == "notes") 									// Notes style
+				SendShivaMessage("QmediaAssess=notes","done");					// Send done message
 			SendShivaMessage("QmediaAssess=answer",curPage+"|skip");			// Send answer message
 			Draw(curPage+1);													// Move on
 			});

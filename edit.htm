@@ -660,6 +660,7 @@
 		if (id == undefined)													// If deselecting
 			return;																// Quit
 		curPage=id.substr(3);													// Strip off prefix
+		$("#idy"+curPage).html(curJson.assessments[curEdit].pages[curPage].title); // Reshow title, in case it was changed
 		$("#idy"+curPage).css({"color":"#990000","font-weight":"bold"});		// Highlight
 		$("#idx"+curPage).css({"visibility":"visible"});						// Show trashcan
 		EditPage();																// Edit page
@@ -674,7 +675,7 @@
 		var h=$("#paneDiv").height()-$("#addAssessBut").offset().top-50;		// Room for the page editor
 		$("#pageDiv").css({height:h+"px",width:"auto"});						// Size appropriately
 		str="<table style='font-size:11px;padding:0px;border-collapse:collapse;'>";	// Add table
-		str+="<tr><td><b>Step type</b></td><td>"+MakeSelect("optionType",false,["radio","checkbox","cloze","draw","findtime","write"],o.optionType)+"</td></tr>";	// Get setting
+		str+="<tr><td><b>Step type</b></td><td>"+MakeSelect("optionType",false,["radio","checkbox","cloze","draw","findtime","write","notes"],o.optionType)+"</td></tr>";	// Get setting
 		str+="<tr><td><b>Title</b></td><td><input class='is' type='text' id='title' value='"+(o.title ? o.title :'')+"'></td></tr>";	// Get setting
 		str+="<tr><td><b>Text</b></td><td><textarea class='is' id='text'>"+(o.text ? o.text :'')+"</textarea></td></tr>";	// Get setting
 		str+="<tr><td><b>Prompt</b></td><td><textarea class='is' id='prompt'>"+(o.prompt ? o.prompt :'')+"</textarea></td></tr>";	// Get setting
