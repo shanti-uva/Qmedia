@@ -573,11 +573,8 @@
 						AnimatePanes(o.r,o.d,pane);								// Animate transition
 					if (o.p) {													// If a player command
 						var v=o.p.split(":");									// Split
-						v[0]=v[0].replace(/seek/i,"scrub");						// Sedn proper command									
-						v[0]=v[0].replace(/jump/i,"play");						// Sedn proper command									
 						RunPlayer(v[0],v[1]);  									// Send command to player
 						}
-					
 					showCurSource[pane]=o.cs;									// Then is now
 					if (o.m != undefined)										// If a prompt
 						Prompt(o.m);											// Show it
@@ -1061,7 +1058,7 @@
 	function RunPlayer(what, param, param2)									// PLAYER ACTIONS
 	{
 		var i,str;
-		if (what == "play") {													// Play
+		if ((what == "play") || (what == "jump")) {								// Play
 			if ((playerMode == "empty") && isMobile)							// Mobiles need user to initiate touch before controlled play
 				return;															// Quit
 			if ($("#playBut").attr("src") == "images/playbut.gif")	{			// If in pause
@@ -1101,9 +1098,10 @@
 				}
 			else if (playerType == "noplayer")									// If noplayer
 				player=new Date().getTime()-(playerNow*1000);					// Get current time			
-			RunPlayer("show");													// Show where we're at
+			if (what == "play")													// Only in play
+				RunPlayer("show");												// Show where we're at
 			}
-		else if (what == "scrub") {												// Scrub
+		else if ((what == "scrub") || (what == "seek"))  {						// Scrub
 			clearInterval(paneAnimationTimer);									// Kill pane timer
 			clearInterval(imageAnimationTimer);									// Kill image timer
 			if ((playerMode == "empty") && isMobile)							// Mobiles need user to initiate touch before controlled play
@@ -1122,7 +1120,8 @@
 					player.currentTime=playerNow;								// Cue
 			else if (playerType == "noplayer")									// If noplayer
 				player=new Date().getTime()-(playerNow*1000);					// Get current time			
-			RunPlayer("show",param2);											// Show where we're at
+			if (what == "scrub")												// Only in scrub
+				RunPlayer("show",param2);										// Show where we're at
 			}
 		else if (what == "pause") {												// Pause
 			$("#playBut").attr("src","images/playbut.gif");						// Show pause but
