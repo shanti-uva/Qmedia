@@ -165,7 +165,7 @@
 			}	
 		else if (d.optionType == "notes") {										// Notes option
 			SendShivaMessage("QmediaAssess=notes","start");						// Send start message
-			if (d.pic) str+="<img src='"+d.pic+"' height=75><br>",trace(d.pic);				// Add pic
+			if (d.pic) str+="<img src='"+d.pic+"' height=75><br>";				// Add pic
 			}	
 		else if (d.optionType == "draw")	{									// Drae option
 			SendShivaMessage("QmediaAssess=draw","start|bottom|"+d.background);	// Send start message
