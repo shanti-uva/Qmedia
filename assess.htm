@@ -163,9 +163,10 @@
 			str+="&nbsp;&nbsp;<textarea id='opt' rows=3 placeholder='Write your answer here...' ";		// Text 
 			str+="style='width:"+$("#optionsLDiv").parent().width()*.8+"px'></textarea><br></span>";	// area
 			}	
-
-		else if (d.optionType == "notes")										// Notes option
+		else if (d.optionType == "notes") {										// Notes option
 			SendShivaMessage("QmediaAssess=notes","start");						// Send start message
+			if (d.pic) str+="<img src='"+d.pic+"' height=75><br>",trace(d.pic);				// Add pic
+			}	
 		else if (d.optionType == "draw")	{									// Drae option
 			SendShivaMessage("QmediaAssess=draw","start|bottom|"+d.background);	// Send start message
 			if (d.pic) str+="<img src='"+d.pic+"' height=75><br>";				// Add pic
@@ -175,10 +176,10 @@
 		$("#optionsLDiv").html(str);											// Set div
  		$("#sortable" ).sortable({ axis:"y"} );									// Make sortable, if a sort
 		i=$("#optionsLDiv").height()-16;										// Height of options side
-		if (d.optionType != "draw")												// Not the draw option
+		if ((d.optionType != "draw") && (d.optionType != "notes"))	{			// Not the draw or notes options
 			if (d.pic) $("#optionsRDiv").html("<img src='"+d.pic+"' height="+i+">");// Add pic
 			else	   $("#optionsRDiv").html("");								// Erase it
-		
+			}
 		if ((d.options) && (d.optionType == "match")) {							// Match
 			str="<span style='text-align:left;font-weight:bold'>";				// Span
 			for (i=0;i<d.options.length;++i)									// For each option
