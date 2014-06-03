@@ -160,7 +160,7 @@
 			 	});
 		
 		Draw();
-		$(window).resize(Draw); 												// Redraw on resize		
+		$(window).resize(function(e) { if (!e.target.id) Draw();	 } );		// Redraw on window resize		
 		setInterval(function() { SendShivaMessage("Qmedia=time",curTime) },500); // Set timer 1-fps
 		qmf.LoadFile("qmf"+curShow);											// Load project
 		$("#editDiv").show();													// Show editor
