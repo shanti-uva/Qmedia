@@ -133,7 +133,7 @@
 	var showVectors=new Array();												// Timing vectors
 	var showCurSource=new Array();												// Current sources
 	var paneAnimationTimer=null;												// Times pane animations
-	var imageAnimationTimer=null;												// Times image animations
+	var imageAnimationTimer=[];													// Times image animations
 	var player=null;															// Holds player object
 	var playerNow=0;															// Current time in secs
 	var playerTime=null;														// Timer
@@ -531,14 +531,14 @@
 					}			
 				if (showCurSource[pane] != o.cs) {								// A new item
 					var src=o.cs;												// Point at source
-					clearInterval(imageAnimationTimer);							// Kill image timer
+					clearInterval(imageAnimationTimer[pane]);					// Kill image timer
 					if (src.match(/\.png|.gif|\.jpg|\.jpeg/i))	{				// An image
 						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0])  		// Bases are different
 							$("#"+div).html("<img id='"+div+"IM' style='opacity:0' width='100%' src='"+src+"'>"); 	// Load an image
 						else													// Same image base
-							AnimateContent(div+"IM",o);							// Animate image, if set
+							AnimateContent(div+"IM",o,pane);					// Animate image, if set
 						$("#"+div+"IM").on("load",function() {					// On image loaded
-							AnimateContent(this.id,o);							// Animate image, if set
+							AnimateContent(this.id,o,pane);						// Animate image, if set
 							})
 						}
 					else if (src.match(/</)) {									// Markup
@@ -563,10 +563,10 @@
 							$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' style='opacity:0' src='"+src+"'></iframe>");	// Load in iframe
 							}
 						else													// Same image base
-							AnimateContent(div+"IF",o);							// Animate iframe, if set
+							AnimateContent(div+"IF",o,pane);					// Animate iframe, if set
 						
 						$("#"+div+"IF").on("load",function() {					// On image loaded
-							AnimateContent(this.id,o);							// Animate image, if set
+							AnimateContent(this.id,o,pane);						// Animate image, if set
 							})
 						}
 					if ((o.r != undefined) && (!dontResize))					// If changing ratios (not in a manual scrub)
@@ -599,7 +599,7 @@
 			}
 	}
 
-	function AnimateContent(id, vec)										// ANIMATE IMAGE OR IFRAME
+	function AnimateContent(id, vec, pane)									// ANIMATE IMAGE OR IFRAME
 	{
 		var x,y,z,dur=500;
 		if (!vec.z)	{															// If not pan and zoom set
@@ -617,17 +617,17 @@
 			}
 		var pw=$("#"+id).width();												// Width of pane
 		var ph=$("#"+id).height();												// Height of pane
-		clearInterval(imageAnimationTimer);										// Kill timer
+		clearInterval(imageAnimationTimer[pane]);								// Kill timer
 		var startTime=new Date().getTime();										// Set start
 		if (playerMode != "play")												// If not playing
 			dur=1;																// Go to end quickly
 		
-		imageAnimationTimer=setInterval(function() {							// Set timer
+		imageAnimationTimer[pane]=setInterval(function() {						// Set timer
 			var tx=0,ty=0;
 			var now=(new Date().getTime()-startTime)/dur;						// Get now
 			now=1.0-((Math.cos(3.1414*Math.min(now,1))+1)/2.0);					// Full cosine curve
 			if (now > .999)	{													// If done
-				clearInterval(imageAnimationTimer);								// Kill timer
+				clearInterval(imageAnimationTimer[pane]);						// Kill timer
 				now=1;															// Force to end
 				}
 			x=(sx-0)+(ex-sx)*now;												// Get x pos
@@ -1103,7 +1103,9 @@
 			}
 		else if ((what == "scrub") || (what == "seek"))  {						// Scrub
 			clearInterval(paneAnimationTimer);									// Kill pane timer
-			clearInterval(imageAnimationTimer);									// Kill image timer
+			clearInterval(imageAnimationTimer[playerPane]);						// Kill image timer
+			clearInterval(imageAnimationTimer[slidePane]);						// Kill image timer
+			clearInterval(imageAnimationTimer[infoPane]);						// Kill image timer
 			if ((playerMode == "empty") && isMobile)							// Mobiles need user to initiate touch before controlled play
 				return;															// Quit
 			playerCurTime=playerNow=Math.max(Math.min(param,sd.playerStop),0)	// Set now

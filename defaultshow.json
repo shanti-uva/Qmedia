@@ -40,7 +40,7 @@ LoadShow({
      		],
 		"playerVectors": [
 			{ "t":0,   "c":"" },
-            { "t":34,  "c":"//icons.iconarchive.com/icons/gakuseisean/radium/256/Globe-Connected-icon.png", "z":".17|.17|.3|2|.15|.15|.001","m":"Notice Picture-in-picture of globe"},   
+            { "t":34,  "c":"//icons.iconarchive.com/icons/gakuseisean/radium/256/Globe-Connected-icon.png", "z":".17|.17|.3|8|.15|.15|.001","m":"Notice Picture-in-picture of globe"},   
             { "t":42,  "c":"", "m":"" },
   			{ "t":50,  "c":"<svg width='100%' height='100%'><text x='53%' y='95%' fill='yellow' font-size='18px' opacity='.8' font-family='sans-serif' text-anchor='middle'>A highlight on top of video</text><circle cx='53%' cy='46%' r='30%' fill='white' opacity='.2'></svg>", "m":"Note the highlight"},
 			{ "t":60,  "c":"", "m":"" },
@@ -64,7 +64,7 @@ LoadShow({
 		"slideVectors": [ 
             { "t":0,   "c":"//www.viseyes.org/shiva/qmedia/clinton01.jpg", "r":0.5 },
             { "t":1,   "c":"//www.viseyes.org/shiva/qmedia/clinton01.jpg", "r":0.5, "z":".75|.65|5|6"  },
-  			{ "t":16,  "c":"//www.viseyes.org/shiva/qmedia/clinton02.jpg", "r":0.8 },	
+  			{ "t":16,  "c":"//www.viseyes.org/shiva/qmedia/clinton02.jpg", "r":1 },	
 			{ "t":44,  "c":"//www.viseyes.org/shiva/qmedia/clinton03.jpg", "r":0.5 },	
             { "t":59,  "c":"//c.tadst.com/gfx/600x400/un-world-health-day.jpg?1" },    
             { "t":68.5, "c":"assess=unequal", "r":0.5 },    

@@ -303,7 +303,7 @@
 			if (d.optionType == "draw") 										// Draw style
 				SendShivaMessage("QmediaAssess=draw","done");					// Send done message
 			else if (d.optionType == "notes") 									// Notes style
-				SendShivaMessage("QmediaAssess=notes","done");					// Send done message
+				SendShivaMessage("QmediaAssess=answer",curPage+"|personalNotes");	// Send answer message
 			SendShivaMessage("QmediaAssess=answer",curPage+"|skip");			// Send answer message
 			Draw(curPage+1);													// Move on
 			});
