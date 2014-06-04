@@ -1,5 +1,5 @@
 LoadShow({
-		"title":"Bill Clinton speaks at TED Conference",
+		"title":"Bill Clinton speaks at 2007 TED Conference",
         "contentsLab":"Contents",
         "contentsPlayOnClick":"false",
 		"infoLab":"More information",
@@ -38,14 +38,38 @@ LoadShow({
             {   "t": 304, "c": "Clinton foundation",   "l": "1"      },
             {   "t": 361, "c": "Closing remarks",      "s": "B"      }
      		],
-		"playerVectors": [
-			{ "t":0,   "c":"" },
-            { "t":34,  "c":"//icons.iconarchive.com/icons/gakuseisean/radium/256/Globe-Connected-icon.png", "z":".17|.17|.3|8|.15|.15|.001","m":"Notice Picture-in-picture of globe"},   
-            { "t":42,  "c":"", "m":"" },
-  			{ "t":50,  "c":"<svg width='100%' height='100%'><text x='53%' y='95%' fill='yellow' font-size='18px' opacity='.8' font-family='sans-serif' text-anchor='middle'>A highlight on top of video</text><circle cx='53%' cy='46%' r='30%' fill='white' opacity='.2'></svg>", "m":"Note the highlight"},
-			{ "t":60,  "c":"", "m":"" },
-  	        { "t":70,  "c":"", "m":"" },
-			],	
+    "playerVectors": [
+        {
+            "t": 0,
+            "c": ""
+        },
+        {
+            "t": 34,
+            "c": "//icons.iconarchive.com/icons/gakuseisean/radium/256/Globe-Connected-icon.png",
+            "z": ".17|.17|.3|8|.15|.15|.001",
+            "m": "Notice Picture-in-picture of globe"
+        },
+        {
+            "t": 44,
+            "c": "",
+            "m": ""
+        },
+        {
+            "t": 46,
+            "c": "<svg width='100%' height='100%'><text x='53%' y='95%' fill='yellow' font-size='18px' opacity='.8' font-family='sans-serif' text-anchor='middle'>A highlight on top of video</text><circle cx='53%' cy='46%' r='30%' fill='white' opacity='.2'></svg>",
+            "m": "Note the highlight"
+        },
+        {
+            "t": 59,
+            "c": "",
+            "m": ""
+        },
+        {
+            "t": 698,
+            "c": "",
+            "m": ""
+        }
+    ],
 		"transVectors": [
 			{ "t":0,   "c":0, "d":0 },
 			{ "t":16,  "c":0, "d":60 },	
@@ -61,41 +85,166 @@ LoadShow({
 			{ "t":305, "c":3926 },	
 			{ "t":367, "c":4554 } 
 			],	
-		"slideVectors": [ 
-            { "t":0,   "c":"//www.viseyes.org/shiva/qmedia/clinton01.jpg", "r":0.5 },
-            { "t":1,   "c":"//www.viseyes.org/shiva/qmedia/clinton01.jpg", "r":0.5, "z":".75|.65|5|6"  },
-  			{ "t":16,  "c":"//www.viseyes.org/shiva/qmedia/clinton02.jpg", "r":1 },	
-			{ "t":44,  "c":"//www.viseyes.org/shiva/qmedia/clinton03.jpg", "r":0.5 },	
-            { "t":59,  "c":"//c.tadst.com/gfx/600x400/un-world-health-day.jpg?1" },    
-            { "t":68.5, "c":"assess=unequal", "r":0.5 },    
-            { "t":69,  "c":"//www.viseyes.org/shiva/qmedia/clinton04.jpg" },    
-            { "t":77,  "c":"//www.rajaha.com/wp-content/uploads/2012/05/Plant-growth-hormones.jpg" },    
- 	        { "t":109, "c":"//www.viseyes.org/shiva/qmedia/clinton05.jpg", "z":".492|.492|3|13" }, 
-            { "t":126, "c":"//i.dailymail.co.uk/i/pix/2010/07/05/article-0-004D820800000258-318_468x308.jpg" }, 
- 			{ "t":135, "c":"//www.viseyes.org/shiva/qmedia/clinton06.jpg" },	
-			{ "t":158, "c":"//www.viseyes.org/shiva/qmedia/clinton07.jpg" },	
-            { "t":177, "c":"//www.viseyes.org/shiva/go.htm?e=1103", "m":"This is a live map", "r":0.5 }, 
-            { "t":184, "c":"//www.viseyes.org/shiva/go.htm?e=1103", "m":"We zoomed in", "h":"goto|51.513149|-0.077955|16" }, 
-            { "t":196, "c":"//www.viseyes.org/shiva/go.htm?e=1103", "h":"goto|51.5131494459|-0.077955722808|18" }, 
-            { "t":208, "c":"//freelancefolder.com/wp-content/uploads/different.jpg" }, 
- 			{ "t":220, "c":"//www.viseyes.org/shiva/qmedia/clinton09.jpg"},	
-			{ "t":304, "c":"//www.viseyes.org/shiva/qmedia/clinton10.jpg" },	
-			],	
-		"infoVectors": [ 
-			{ "t":0,   "c":"info.jpg" },
-    	    { "t":20,  "c":"disqus.htm?qmediaplayer|1" },
-            { "t":44,  "c":"info.jpg", "r":0.5 },   
-			{ "t":83,  "c":"//www.viseyes.org/shiva/graphr/?x^3/20", "r":0.4 },	
-			{ "t":98,  "c":"info.jpg", "r":0.5 },	
-			{ "t":140, "c":"//www.viseyes.org/shiva/go.htm?e=1121", "m":"This is a live visualization" },	
-			{ "t":150, "c":"info.jpg", "m":"" },	
-            { "t":177, "c":"//truthandshadows.files.wordpress.com/2011/01/london-bombing-sign.jpg" },    
-            { "t":182, "c":"//static.guim.co.uk/sys-images/Education/Pix/pictures/2008/12/01/kx4.jpg" },    
-            { "t":188, "c":"//www.viseyes.org/shiva/qmedia/clinton08.jpg" },    
-            { "t":191, "c":"//upload.wikimedia.org/wikipedia/en/f/f9/July_7,_2005_London_bombings_CCTV.JPG" },    
-            { "t":220, "c":"info.jpg", "m":"" },    
- 			{ "t":304, "c":"//www.clintonfoundation.org", "e":"scroll" },	
-			],	
+    "slideVectors": [
+        {
+            "t": 0,
+            "c": "//www.viseyes.org/shiva/qmedia/clinton01.jpg",
+            "r": 0.5
+        },
+        {
+            "t": 12,
+            "c": "//www.viseyes.org/shiva/qmedia/clinton01.jpg#1",
+            "r": 0.5,
+            "z": ".75|.65|5|4"
+        },
+        {
+            "t": 17,
+            "c": "//www.viseyes.org/shiva/qmedia/clinton02.jpg",
+            "r": 1
+        },
+        {
+            "t": 44,
+            "c": "//www.viseyes.org/shiva/qmedia/clinton03.jpg",
+            "r": 0.5
+        },
+        {
+            "t": 59,
+            "c": "//c.tadst.com/gfx/600x400/un-world-health-day.jpg?1"
+        },
+        {
+            "t": 68.5,
+            "c": "assess=unequal",
+            "r": 0.5,
+            "e": "play"
+        },
+        {
+            "t": 69,
+            "c": "//www.viseyes.org/shiva/qmedia/clinton04.jpg"
+        },
+        {
+            "t": 77,
+            "c": "//www.rajaha.com/wp-content/uploads/2012/05/Plant-growth-hormones.jpg"
+        },
+        {
+            "t": 109,
+            "c": "//www.viseyes.org/shiva/qmedia/clinton05.jpg",
+            "z": ".492|.492|3|13"
+        },
+        {
+            "t": 126,
+            "c": "//i.dailymail.co.uk/i/pix/2010/07/05/article-0-004D820800000258-318_468x308.jpg",
+            "z": "0.6016666666666667|0.40545685279187826|1.271186440677966|7"
+        },
+        {
+            "t": 135,
+            "c": "//www.viseyes.org/shiva/qmedia/clinton06.jpg",
+            "m": "",
+            "z": "0.52|0.48089762611275966|1.0676156583629892|10|0.5116666666666667|0.4198813056379822|1.3888888888888888"
+        },
+        {
+            "t": 158,
+            "c": "//www.viseyes.org/shiva/qmedia/clinton07.jpg"
+        },
+        {
+            "t": 177,
+            "c": "//www.viseyes.org/shiva/go.htm?e=1103",
+            "m": "This is a live map",
+            "r": 0.5
+        },
+        {
+            "t": 184,
+            "c": "//www.viseyes.org/shiva/go.htm?e=1103#1",
+            "m": "We zoomed in",
+            "h": "goto|51.513149|-0.077955|16"
+        },
+        {
+            "t": 196,
+            "c": "//www.viseyes.org/shiva/go.htm?e=1103#2",
+            "h": "goto|51.5131494459|-0.077955722808|18"
+        },
+        {
+            "t": 208,
+            "c": "http://wc1.smartdraw.com/examples/content/examples/05_strategy_&_planning/venn_diagrams/4_circle_venn_diagram_l.jpg",
+            "z": "0.49333333333333335|0.5943287037037037|1|4|0.5|0.48119212962962965|2.112676056338028"
+        },
+        {
+            "t": 220,
+            "c": "//www.viseyes.org/shiva/qmedia/clinton09.jpg"
+        },
+        {
+            "t": 304,
+            "c": "//www.viseyes.org/shiva/qmedia/clinton10.jpg"
+        }
+    ],
+    "infoVectors": [
+        {
+            "t": 0,
+            "c": "info.jpg"
+        },
+        {
+            "t": 20,
+            "c": "disqus.htm?qmediaplayer|1"
+        },
+        {
+            "t": 44,
+            "c": "http://previous.presstv.ir/photo/20131013/329258_Rome.jpg",
+            "z": "0.4625|0.639630126953125|1.3921113689095128|10"
+        },
+        {
+            "t": 58,
+            "c": "http://www.clker.com/cliparts/K/p/O/1/v/6/1-in-4-hi.png"
+        },
+        {
+            "t": 79,
+            "c": "//www.viseyes.org/shiva/graphr/?x^3/20",
+            "r": 0.4
+        },
+        {
+            "t": 98,
+            "c": "http://training4cna.org/wp-content/uploads/2013/05/CNA-good-life.jpg",
+            "r": 0.5
+        },
+        {
+            "t": 106,
+            "c": "http://www.thestar.com/content/dam/thestar/news/2013/03/01/video_unequal_justice/2198171235001_videoStillImage.jpg"
+        },
+        {
+            "t": 137,
+            "c": "//www.viseyes.org/shiva/go.htm?e=1121",
+            "m": "This is a live visualization"
+        },
+        {
+            "t": 159,
+            "c": "http://careergirlnetwork.com/wp-content/uploads/2014/05/Opportunity.jpg",
+            "m": ""
+        },
+        {
+            "t": 177,
+            "c": "//truthandshadows.files.wordpress.com/2011/01/london-bombing-sign.jpg"
+        },
+        {
+            "t": 182,
+            "c": "//static.guim.co.uk/sys-images/Education/Pix/pictures/2008/12/01/kx4.jpg"
+        },
+        {
+            "t": 188,
+            "c": "//www.viseyes.org/shiva/qmedia/clinton08.jpg"
+        },
+        {
+            "t": 190,
+            "c": "//upload.wikimedia.org/wikipedia/en/f/f9/July_7,_2005_London_bombings_CCTV.JPG"
+        },
+        {
+            "t": 220,
+            "c": "info.jpg",
+            "m": ""
+        },
+        {
+            "t": 304,
+            "c": "//www.clintonfoundation.org",
+            "e": "scroll"
+        }
+    ],
        "assessments": [
             { "name": "unequal", "showFeedback":"true", "pages": [
                {"title":"The world is unequal",
