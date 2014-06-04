@@ -29,7 +29,7 @@ LoadShow({
             {   "t": 0,  "c": "Opening credits",       "s": "B"      },
             {   "t": 16, "c": "My TED wish",           "l": "1"      },
             {   "t": 20, "c": "Disqus commenting",     "l": "1"      },
-            {   "t": 44, "c": "An unequal world",      "l": "0",     },
+            {   "t": 44, "c": "An unequal world",      "l": "0"      },
             {   "t": 68.5, "c": "Assessment demo",     "l": "1"      },
             {   "t": 109, "c": "An unstable world",    "l": "1"      },
             {   "t": 137, "c": "The world I want to see",  "s": "B"  },
@@ -191,7 +191,7 @@ LoadShow({
             "z": "0.4625|0.639630126953125|1.3921113689095128|10"
         },
         {
-            "t": 58,
+            "t": 59,
             "c": "http://www.clker.com/cliparts/K/p/O/1/v/6/1-in-4-hi.png"
         },
         {
