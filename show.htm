@@ -953,7 +953,7 @@
 		var v=e.data.split("|");												// Get data
 		if (v[0] == "QmediaAssess=done") {										// Done with assessment
 			searchMode=false;													// Allow other events
-			RunPlayer("play",showVectors[slidePane][curAssess].ps+.5);			// Roll player from where we left off
+			RunPlayer("play",showVectors[slidePane][curAssess].ps+.6);			// Roll player from where we left off
 			}
 		else if (v[0] == "QmediaAssess=ready") {								// Ready
 			str=showVectors[slidePane][curAssess].cs.split("=")[1];				// Extract name of assessment to run
