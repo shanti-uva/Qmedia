@@ -576,7 +576,15 @@
 						RunPlayer(v[0],v[1]);  									// Send command to player
 						}
 					showCurSource[pane]=o.cs;									// Then is now
-					if (o.m != undefined)										// If a prompt
+					if (pane == infoPane) {										// Info pane
+						if (o.m)		$("#infoLab").html(o.m);				// Set new label
+						else					$("#infoLab").html(sd.infoLab);	// Set def label
+						}
+					else if (pane == playerPane) {								// Player pane
+						if (o.m)		$("#titleDiv").html(o.m);				// Set new label
+						else			$("#titleDiv").html(sd.title);			// Set def label
+						}
+					else if (o.m != undefined)									// If a prompt
 						Prompt(o.m);											// Show it
 					if (o.h != undefined) {										// If a shivamessage
 						var win=document.getElementById(div+"IF").contentWindow;// Point at iFrame	
@@ -945,7 +953,6 @@
 			$("#shivaDrawDiv").html("");										// Clear drawings
 	 	else if ($("#infoMapIF").length && e.data.match(/click/)) {				// If infomap is open and clicked on
 			var t=e.data.split("|")[3];											// Get time
-			t=Math.min(t/10*sd.playerStop);										// Calc time
 			RunPlayer("scrub",t,true);											// Go there, but inhibit scale/info
 			}
 		}
