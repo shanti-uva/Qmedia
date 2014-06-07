@@ -1327,7 +1327,7 @@
 
 	function RunInfo(what, param)											// INFO ACTIONS
 	{
-		if (what == "show") 													// Show
+		if ((what == "show") && (!$("#infoMapIF").length)) 						// Show and not in infomap mode
 			ShowContent(infoPane,"informationText");							// Show content
 		else if (what == "resize") 												// Resize
 			$("#infoDivIF").height($("#informationText").height()-2);			// Set iframe height, if any
