@@ -918,7 +918,7 @@
 
 			$("#idu"+i).on("change", function() {								// ON EDIT SOURCE
 					var id=this.id.substr(3);									// Get id
-					SourceEditor(id, $(this).val(), function(s) {				// Edit source
+					TitleEditor(id, $(this).val(), conPtr[id].c, function(s) {	// Edit source
 							conPtr[id].c=s;										// Set val
 						 	MakeContentTable();									// Show
 							});
@@ -951,24 +951,38 @@
 			}
 	}	
 
-	function SourceEditor(num, type, callback) 								// CONTENT EDITOR
+	function TitleEditor(num, type, val, callback) 							// TITLE EDITOR
 	{
 		if (type != "Title")													// If not title
 			return;																// Quit
+		var titleText="";
 		var fontCol="#ff9900";
 		var frameCol="#cccccc";
+		var titlePos="Middle";
+		var titleAlign="Left";
+		var frameType="None";
+		var frameGrad="None";
+		var fontFace="Sane-Serif";
+		var fontStyle="Regular";
+		if (val.match(/qtitle/i)) {												// If an existing title
+			var v=val.split('|');												// Split into parts
+			titlePos=v[1];			titleAlign=v[2];	titleText=v[9];			// Pos
+			frameType=v[3];			frameGrad=v[4];		frameCol=v[5];			// Frame
+			fontFace=v[6];			fontStyle=v[7];		fontCol=v[8];			// Font
+			}
 		$("#alertBoxDiv").remove();												// Remove any old ones
 		$("body").append("<div style='overflow:hidden;' class='unselectable' id='alertBoxDiv'></div>");														
-		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
+		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";								
 		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#000000'><b>Set title</b></span><br><br><p><table>";
-     	str+="<tr><td>Position</td><td>"+MakeSelect("titlePos",false,["Top","Center","Lower third","Freeform"]);
-     	str+="&nbsp;&nbsp;"+MakeSelect("titleAlign",false,["Left","Center","Right"])+"</td></tr>";
-    	str+="<tr><td>Frame</td><td>"+MakeSelect("frameType",false,["None","Bar","Round bar", "Q bar"]);
-		str+="&nbsp;&nbsp;"+MakeColorDot("Color","frameCol",frameCol)+"</td></tr>";
-		str+="<tr><td>Font</td><td>"+MakeSelect("fontFace",false,["San-Serif","Serif","Fixed"]);
-	   	str+="&nbsp;&nbsp;"+MakeSelect("fontStyle",false,["Regular","Bold","Italic","Bold/Ital"]);
-		str+="&nbsp;&nbsp;"+MakeColorDot("Color","fontCol",fontCol)+"</td></tr>";
-		str+="<tr><td>Text</td><td><textarea rows='2' class='is'style='width:300px;vertical-align:bottom' id='titleText'></textarea></td></tr>";
+     	str+="<tr><td>Position</td><td>"+MakeSelect("titlePos",false,["Top third","Middle","Lower third"],titlePos);
+     	str+="</td><td>"+MakeSelect("titleAlign",false,["Left","Center","Right"],titleAlign)+"</td></tr>";
+    	str+="<tr><td>Frame</td><td>"+MakeSelect("frameType",false,["None","Bar","Round bar", "Q bar"],frameType);
+	   	str+="</td><td>"+MakeSelect("frameGrad",false,["No gradient","Left gradient","Right gradient","Center gradient","Top gradient"],frameGrad);
+		str+="</td><td>"+MakeColorDot("Color","frameCol",frameCol)+"</td></tr>";
+		str+="<tr><td>Font</td><td>"+MakeSelect("fontFace",false,["San-Serif","Serif","Fixed"],fontFace);
+	   	str+="</td><td>"+MakeSelect("fontStyle",false,["Regular","Bold","Italic","Bold/Ital"],fontStyle);
+		str+="</td><td>"+MakeColorDot("Color","fontCol",fontCol)+"</td></tr>";
+		str+="<tr><td>Text</td><td colspan=3><textarea rows='2' class='is' style='width:300px;vertical-align:bottom' id='titleText'>"+titleText+"</textarea></td></tr>";
 		str+="</table></div>";
 		
 		$("#alertBoxDiv").append(str);	
@@ -978,7 +992,7 @@
 		$("#alertBoxDiv").dialog({ width:622, buttons: {
 	    	"OK": 		function() {
 	    		 			str="qTitle|"+$("#titlePos").val()+"|"+$("#titleAlign").val();
-	    		 			str+="|"+$("#frameType").val()+"|"+$("#frameCol").data("frameCol");
+	    		 			str+="|"+$("#frameType").val()+"|"+$("#frameGrad").val()+"|"+$("#frameCol").data("frameCol");
 	    		 			str+="|"+$("#fontFace").val()+"|"+$("#fontStyle").val()+"|"+$("#fontCol").data("fontCol");
 	    		 			str+="|"+$("#titleText").val();
 	    		 			callback(str);
