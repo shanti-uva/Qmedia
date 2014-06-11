@@ -248,7 +248,7 @@
 		str+="<table style='font-size:12px;width:100%;padding:0px;border-collapse:collapse;'>";	// Table start
 		str+="<tr><td><b>Date</b></td><td><b>Name</b></tr>";					// Header
 		str+="<tr><td colspan='2'><hr></td></tr>";								// Line
-		for (i=0;i<sessionStorage.length;++i) {									// For each undo
+		for (i=sessionStorage.length-1;i>=0;--i) {								// For each undo
 			var o=$.parseJSON(sessionStorage.getItem(sessionStorage.key(i)));	// Get undo from local storage
 			str+="<tr id='und"+i+"' "+trsty+"><td>"+o.date+"</td><td>"+o.name+"</td></tr>";
 			}

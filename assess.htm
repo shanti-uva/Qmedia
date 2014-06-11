@@ -44,7 +44,10 @@
   						border:1px solid #999;
   						border-radius:10px;background-color:#ddd;cursor:pointer
   						}
- 	
+ 		.is {			border-radius:10px;padding-left:8px;padding-right:8px;padding-top:1px;
+						border:1px solid #999;font-size:12px;height;20px;width:200px;
+						]
+	
  	</style>
 	<script>
 	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -138,7 +141,10 @@
 					}
 				lab=d.options[i].replace(/^\*/,"");								// Remove "correct" dot
 				str+="<span style='color:"+col+"'>";							// Add color span
-			 	str+="&nbsp;&nbsp; <input type='"+d.optionType+"' name='opt' id='opt"+i+"' value='"+lab+"'>"+lab+"<br></span>";	// Add line
+			 	str+="&nbsp;&nbsp; <input type='"+d.optionType+"' name='opt' id='opt"+i+"' value='"+lab+"'>"+lab+"</span>";	// Add line
+				if (d.options[i].toLowerCase() == "*other")						// If an other option
+		 			str+="&nbsp <input class='is' style='width:70px;' type='text' id='otherOpt'><br></span>";	// Add line
+				else	str+="<br>";											// Add break
 				}
 			}
 		if ((d.options) && (d.optionType == "cloze")) {							// Cloze
@@ -241,7 +247,7 @@
 				if (correct == i)				ans="right";					// Correct				
 				if (correct && correct < i)		ans="partial"					// Partial
 				}
-			else if (d.optionType == "findtime") {									// Find time
+			else if (d.optionType == "findtime") {								// Find time
 				var s,e;
 				ans="wrong";													// Assume wrong
 				for (i=0;i<d.options.length;++i) {								// For each option
@@ -263,6 +269,9 @@
 				if (correct == requiredCorrect  && !wrong) 		ans="right";	// All correct
 				else if (correct < requiredCorrect && !wrong && correct) ans="partial"	// If partial
 				}
+			
+			if ($("#otherOpt").val())											// If *other written in
+				ans=$("#otherOpt").val();										// Use its value
 			if (aData.showFeedback != "false") {								// If showing feedback
 				str="<div style='margin-left:16px;margin-right:16px'><div style='font-size:18px;text-align:center;font-weight:bold;color:#";	// Title
 				if (ans == "right") {											// Right
@@ -276,7 +285,7 @@
 				 	if (numTries < d.numTries)									// If more tries ahead
 				 		str+="<div style='text-align:center'><b>Please try again</b> ("+numTries+"/"+d.numTries+")</div>";	// Show progress
 					}
-				else{															// Wrong
+				else if (ans == "wrong") { 										// Wrong
 					str+="990000'>Sorry, that's not the right answer</div><p>";	// Heading	
 					if (d.whyWrong)	str+=d.whyWrong;							// Show wrong explanation
 				 	if (numTries < d.numTries)									// If more tries ahead
