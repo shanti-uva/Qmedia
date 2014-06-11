@@ -956,7 +956,9 @@
 		if (type != "Title")													// If not title
 			return;																// Quit
 		var titleText="";
+		var fontSize=18;
 		var fontCol="#ff9900";
+		var fontShad="#333333";
 		var frameCol="#cccccc";
 		var titlePos="Middle";
 		var titleAlign="Left";
@@ -966,9 +968,10 @@
 		var fontStyle="Regular";
 		if (val.match(/qtitle/i)) {												// If an existing title
 			var v=val.split('|');												// Split into parts
-			titlePos=v[1];			titleAlign=v[2];	titleText=v[9];			// Pos
-			frameType=v[3];			frameGrad=v[4];		frameCol=v[5];			// Frame
-			fontFace=v[6];			fontStyle=v[7];		fontCol=v[8];			// Font
+			titlePos=v[1];		titleAlign=v[2];	titleText=v[11];			// Pos
+			frameType=v[3];		frameGrad=v[4];		frameCol=v[5];				// Frame
+			fontFace=v[6];		fontStyle=v[7];		fontCol=v[8];				// Font
+			fontSize=v[9];		fontShad=v[10];									// Font
 			}
 		$("#alertBoxDiv").remove();												// Remove any old ones
 		$("body").append("<div style='overflow:hidden;' class='unselectable' id='alertBoxDiv'></div>");														
@@ -981,8 +984,10 @@
 		str+="</td><td>"+MakeColorDot("Color","frameCol",frameCol)+"</td></tr>";
 		str+="<tr><td>Font</td><td>"+MakeSelect("fontFace",false,["San-Serif","Serif","Fixed"],fontFace);
 	   	str+="</td><td>"+MakeSelect("fontStyle",false,["Regular","Bold","Italic","Bold/Ital"],fontStyle);
-		str+="</td><td>"+MakeColorDot("Color","fontCol",fontCol)+"</td></tr>";
-		str+="<tr><td>Text</td><td colspan=3><textarea rows='2' class='is' style='width:300px;vertical-align:bottom' id='titleText'>"+titleText+"</textarea></td></tr>";
+	   	str+="</td><td>"+MakeSelect("fontSize",false,[10,12,14,16,18,24,36,48,72],fontSize);
+		str+="</td><td>"+MakeColorDot("Color","fontCol",fontCol);
+		str+="</td><td>"+MakeColorDot("Shadow","fontShad",fontShad)+"</td></tr>";
+		str+="<tr><td>Text</td><td colspan=4><textarea rows='2' class='is' style='width:300px;vertical-align:bottom' id='titleText'>"+titleText+"</textarea></td></tr>";
 		str+="</table></div>";
 		
 		$("#alertBoxDiv").append(str);	
@@ -993,7 +998,8 @@
 	    	"OK": 		function() {
 	    		 			str="qTitle|"+$("#titlePos").val()+"|"+$("#titleAlign").val();
 	    		 			str+="|"+$("#frameType").val()+"|"+$("#frameGrad").val()+"|"+$("#frameCol").data("frameCol");
-	    		 			str+="|"+$("#fontFace").val()+"|"+$("#fontStyle").val()+"|"+$("#fontCol").data("fontCol");
+	    		 			str+="|"+$("#fontFace").val()+"|"+$("#fontStyle").val();
+	    		 			str+="|"+$("#fontCol").data("fontCol")+"|"+$("#fontSize").val()+"|"+$("#fontShad").data("fontShad");
 	    		 			str+="|"+$("#titleText").val();
 	    		 			callback(str);
 	    		 			$(this).remove();
