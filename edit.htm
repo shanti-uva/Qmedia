@@ -833,10 +833,8 @@
 			else if (o.c && o.c.match(/qhtml/i))		pic="HTML";
 			else if (o.c && o.c.match(/qtitle/i))		pic="Title";
 			else										pic="Link";
-			var v=["Link"];														// Start choices							
-			if (conPtr == curJson.playerVectors) v.push("Title") 				// In player, add title
-			v.push("SVG");			v.push("HTML");								// Add web choices
-			str+="&nbsp; "+MakeSelect("idu"+i,false,v,pic);						// Type
+			if (conPtr == curJson.playerVectors) 								// Only in player
+				str+="&nbsp; "+MakeSelect("idu"+i,false,["Link","Title","SVG","HTML"],pic);	
 			str+="<br><div style='height:18px;display:inline-block;width:65px;color:#777'><b>Prompt:</b></div><input style='border:none;background-color:transparent;width:300px' type='text' id='idm"+i+"' value='"+(o.m ? o.m : '')+"'><br>";
 			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Settings:</b></div>";
 			if (conPtr != curJson.playerVectors) { 								// Not in player
