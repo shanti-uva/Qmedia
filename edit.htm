@@ -806,7 +806,7 @@
 	
 	function MakeContentTable() 											// MAKE TABLE AND SORT BY TIME
 	{	
-		var i,o,n=0,pic;
+		var i,o,n=0,pic;i 
 		var trsty=" style='height:20px;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
 		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"'";
 		if (conPtr)	{															// If any indices
@@ -833,7 +833,10 @@
 			else if (o.c && o.c.match(/qhtml/i))		pic="HTML";
 			else if (o.c && o.c.match(/qtitle/i))		pic="Title";
 			else										pic="Link";
-			str+="&nbsp; "+MakeSelect("idu"+i,false,["Link","Title","SVG", "HTML"],pic);	
+			var v=["Link"];														// Start choices							
+			if (conPtr == curJson.playerVectors) v.push("Title") 				// In player, add title
+			v.push("SVG");			v.push("HTML");								// Add web choices
+			str+="&nbsp; "+MakeSelect("idu"+i,false,v,pic);						// Type
 			str+="<br><div style='height:18px;display:inline-block;width:65px;color:#777'><b>Prompt:</b></div><input style='border:none;background-color:transparent;width:300px' type='text' id='idm"+i+"' value='"+(o.m ? o.m : '')+"'><br>";
 			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Settings:</b></div>";
 			if (conPtr != curJson.playerVectors) { 								// Not in player
@@ -994,18 +997,20 @@
 		$("#frameCol").data("frameCol",frameCol);
 		$("#fontCol").data("fontCol",fontCol);
 		$("#fontShad").data("fontShad",fontShad);
-
+		
+		function MakeSpec() {
+			var str="qTitle|"+$("#titlePos").val()+"|"+$("#titleAlign").val();
+			str+="|"+$("#frameType").val()+"|"+$("#frameGrad").val()+"|"+$("#frameCol").data("frameCol");
+			str+="|"+$("#fontFace").val()+"|"+$("#fontStyle").val();
+			str+="|"+$("#fontCol").data("fontCol")+"|"+$("#fontSize").val()+"|"+$("#fontShad").data("fontShad");
+			str+="|"+$("#titleText").val();
+			return str;
+			}
+			
 		$("#alertBoxDiv").dialog({ width:622, buttons: {
-	    	"OK": 		function() {
-	    		 			str="qTitle|"+$("#titlePos").val()+"|"+$("#titleAlign").val();
-	    		 			str+="|"+$("#frameType").val()+"|"+$("#frameGrad").val()+"|"+$("#frameCol").data("frameCol");
-	    		 			str+="|"+$("#fontFace").val()+"|"+$("#fontStyle").val();
-	    		 			str+="|"+$("#fontCol").data("fontCol")+"|"+$("#fontSize").val()+"|"+$("#fontShad").data("fontShad");
-	    		 			str+="|"+$("#titleText").val();
-	    		 			callback(str);
-	    		 			$(this).remove();
-	    		 			},
-	    	"Cancel":  	function() { $(this).remove(); }
+	    	"OK": 		function() { callback(MakeSpec());		$(this).remove();	},
+	    	"Preview": 	function() { callback(MakeSpec());	   	Preview(); 		 	},
+	    	"Cancel":  	function() { $(this).remove(); 								}
 			}});	
 	}
 
