@@ -691,7 +691,7 @@
 			for (i=0;i<o.options.length;++i) {
 				str+="<dt id='ido"+i+"'><input class='bs' type='text' id='idr"+i+"' value='"+(o.options[i] ? o.options[i] :'')+"'>"; 	// Add index
 				str+="&nbsp;&nbsp;<span style='color:#666;cursor:ns-resize;background-color:#ddd;border-radius:4px;font-size:10px;padding-bottom:2px;vertical-align:1px;border:1px solid #999'>&nbsp;&uarr;&darr;&nbsp;</span>";
-				str+="&nbsp;&nbsp;<img id='idd"+i+"' style='vertical-align:middle;cursor:pointer' src='images/trashdot.gif' onclick='onDeleteOption(this.id)'</dt>"
+				str+="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img id='idd"+i+"' style='vertical-align:middle;cursor:pointer' src='images/trashdot.gif' onclick='onDeleteOption(this.id)'</dt>"
 				}
 			}		
 		str+="<dt><button"+butsty+"onclick='onAddOption()';>Add new option</button></td><td><dt>";	// Add button
