@@ -960,7 +960,7 @@
 		var fontCol="#ff9900";
 		var fontShad="#333333";
 		var frameCol="#cccccc";
-		var titlePos="Middle";
+		var titlePos="Lower third";
 		var titleAlign="Left";
 		var frameType="None";
 		var frameGrad="None";
@@ -982,17 +982,18 @@
     	str+="<tr><td>Frame</td><td>"+MakeSelect("frameType",false,["None","Bar","Round bar", "Q bar"],frameType);
 	   	str+="</td><td>"+MakeSelect("frameGrad",false,["No gradient","Left gradient","Right gradient","Center gradient","Top gradient"],frameGrad);
 		str+="</td><td>"+MakeColorDot("Color","frameCol",frameCol)+"</td></tr>";
-		str+="<tr><td>Font</td><td>"+MakeSelect("fontFace",false,["San-Serif","Serif","Fixed"],fontFace);
+		str+="<tr><td>Font</td><td>"+MakeSelect("fontFace",false,["Sans-Serif","Serif","Monospace"],fontFace);
 	   	str+="</td><td>"+MakeSelect("fontStyle",false,["Regular","Bold","Italic","Bold/Ital"],fontStyle);
 	   	str+="</td><td>"+MakeSelect("fontSize",false,[10,12,14,16,18,24,36,48,72],fontSize);
 		str+="</td><td>"+MakeColorDot("Color","fontCol",fontCol);
 		str+="</td><td>"+MakeColorDot("Shadow","fontShad",fontShad)+"</td></tr>";
 		str+="<tr><td>Text</td><td colspan=4><textarea rows='2' class='is' style='width:300px;vertical-align:bottom' id='titleText'>"+titleText+"</textarea></td></tr>";
-		str+="</table></div>";
-		
+		str+="</table></div>";		
 		$("#alertBoxDiv").append(str);	
+
 		$("#frameCol").data("frameCol",frameCol);
 		$("#fontCol").data("fontCol",fontCol);
+		$("#fontShad").data("fontShad",fontShad);
 
 		$("#alertBoxDiv").dialog({ width:622, buttons: {
 	    	"OK": 		function() {

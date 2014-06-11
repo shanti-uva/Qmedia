@@ -541,8 +541,10 @@
 							AnimateContent(this.id,o,pane);						// Animate image, if set
 							})
 						}
-					else if (src.match(/</)) {									// Markup
+					else if (src.match(/</) || src.match(/qtitle/i)) {			// Markup or title
 						ResizePanes();											// Force to proper size
+						if (src.match(/qtitle/i))								// If a title
+							src=RenderTitle(src);								// Render it in SVG
 						$("#overlayDiv").html(src);								// Populate overlay
 						}
 					else{														// An iframe
@@ -658,6 +660,32 @@
 			},24);																// Set timer ~40ps
 	}
 	
+	function RenderTitle(spec)												// RENDER TITLE TO SCREEN
+	{
+		var alpha=100;
+		var x="5%",y="15%",e="start";
+		var v=spec.split('|');													// Split into parts
+		var titlePos=v[1];		var titleAlign=v[2];	var titleText=v[11];	// Pos
+		var frameType=v[3];		var frameGrad=v[4];		var frameCol=v[5];		// Frame
+		var fontFace=v[6];		var fontStyle=v[7];		var fontCol=v[8];		// Font
+		var fontSize=v[9];		var fontShad=v[10];								// Font
+		var str="<svg width='100%' height='100%'>\n";							// Header
+		if (titleAlign == "Right")				x="95%",e="end";				// Right
+		else if (titleAlign == "Center")		x="50%",e="middle";				// Center
+		if (titlePos == "Middle")				y="55%";						// Middle
+		else if (titlePos == "Lower third")	y="85%";							// Lower
+		str+="<text x='"+x+"' y='"+y+"' ";										// Text pos
+		str+="style='opacity:"+(alpha/100);										// Alpha
+		str+=";text-anchor:"+e+";fill:"+fontCol;								// Anchor / color
+		str+=";font-family:"+fontFace.toLowerCase()+";font-size:"+fontSize;		// Style							
+		var x=Math.floor(fontSize/10);											// Shadow size
+		if (fontShad)															// If a shadow
+			str+=";text-shadow:"+x+"px "+x+"px "+Math.round(x*1.5)+"px "+fontShad;		// Add it
+		str+="'>"+titleText;													// String
+		str+="</text>\n";														// End text
+		trace(str)
+		return str+"</svg>";													// Return completed SVG
+	}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TRANSCRIPT
