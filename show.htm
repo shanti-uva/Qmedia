@@ -673,17 +673,27 @@
 		if (titleAlign == "Right")				x="95%",e="end";				// Right
 		else if (titleAlign == "Center")		x="50%",e="middle";				// Center
 		if (titlePos == "Middle")				y="55%";						// Middle
-		else if (titlePos == "Lower third")	y="85%";							// Lower
-		str+="<text x='"+x+"' y='"+y+"' ";										// Text pos
+		else if (titlePos == "Lower third")		y="85%";						// Lower
+		if (frameType == "Noone") {	
+			str+="<path style='fill:"+frameCol;									// Start of bar
+			str+="opacity:"+(alpha/100)+"' d='M";								// Alpha								
+			str+="5%,"+y;														// Pos 
+			str+=" L95%,"+y;													// Pos 
+			str+=" L95%,88%";													// Pos 
+			str+=" L5%,88%";													// Pos 
+			str+="Z'/>\n";														// End bar
+			}
+			str+="<text x='"+x+"' y='"+y+"' ";									// Text pos
 		str+="style='opacity:"+(alpha/100);										// Alpha
 		str+=";text-anchor:"+e+";fill:"+fontCol;								// Anchor / color
 		str+=";font-family:"+fontFace.toLowerCase()+";font-size:"+fontSize;		// Style							
-		var x=Math.floor(fontSize/10);											// Shadow size
+		if (fontStyle.match(/bold/i))	str+=";font-weight:bold";				// Bold?
+		if (fontStyle.match(/ital/i))	str+=";font-style:italic";				// Italic?
+		var x=Math.max(Math.floor(fontSize/10),1);								// Shadow size
 		if (fontShad)															// If a shadow
-			str+=";text-shadow:"+x+"px "+x+"px "+Math.round(x*1.5)+"px "+fontShad;	// Add it
+			str+=";text-shadow:"+x+"px "+x+"px "+x*2+"px "+fontShad;			// Add it
 		str+="'>"+titleText;													// String
 		str+="</text>\n";														// End text
-		trace(str)
 		return str+"</svg>";													// Return completed SVG
 	}
 
