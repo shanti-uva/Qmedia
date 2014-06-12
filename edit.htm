@@ -957,16 +957,16 @@
 		if (type != "Title")													// If not title
 			return;																// Quit
 		var titleText="";
-		var fontSize=24;
+		var fontSize=18;
 		var fontCol="#ff9900";
 		var fontShad="#333333";
 		var frameCol="#cccccc";
 		var titlePos="Lower third";
 		var titleAlign="Center";
 		var frameType="None";
-		var frameGrad="None";
+		var frameGrad="";
 		var fontFace="Sane-Serif";
-		var fontStyle="Regular";
+		var fontStyle="Bold";
 		if (val.match(/qtitle/i)) {												// If an existing title
 			var v=val.split('|');												// Split into parts
 			titlePos=v[1];		titleAlign=v[2];	titleText=v[11];			// Pos
@@ -980,9 +980,9 @@
 		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#000000'><b>Set title</b></span><br><br><p><table>";
      	str+="<tr><td>Position</td><td>"+MakeSelect("titlePos",false,["Top third","Middle","Lower third"],titlePos);
      	str+="</td><td>"+MakeSelect("titleAlign",false,["Left","Center","Right"],titleAlign)+"</td></tr>";
-//   	str+="<tr><td>Frame</td><td>"+MakeSelect("frameType",false,["None","Bar","Round bar", "Q bar"],frameType);
-//	   	str+="</td><td>"+MakeSelect("frameGrad",false,["No gradient","Left gradient","Right gradient","Center gradient","Top gradient"],frameGrad);
-//		str+="</td><td>"+MakeColorDot("Color","frameCol",frameCol)+"</td></tr>";
+	   	str+="<tr><td>Frame</td><td>"+MakeSelect("frameType",false,["None","Bar"],frameType);
+		str+="</td><td>"+MakeColorDot("Color","frameCol",frameCol);
+		str+="</td><td>"+MakeColorDot("Gradient end","frameGrad",frameGrad)+"</td></tr>";
 		str+="<tr><td>Font</td><td>"+MakeSelect("fontFace",false,["Sans-Serif","Serif","Monospace"],fontFace);
 	   	str+="</td><td>"+MakeSelect("fontStyle",false,["Regular","Bold","Italic","Bold/Ital"],fontStyle);
 	   	str+="</td><td>"+MakeSelect("fontSize",false,[10,12,14,16,18,24,36,48,72],fontSize);
@@ -993,12 +993,13 @@
 		$("#alertBoxDiv").append(str);	
 
 		$("#frameCol").data("frameCol",frameCol);
+		$("#frameGrad").data("frameGrad",frameGrad);
 		$("#fontCol").data("fontCol",fontCol);
 		$("#fontShad").data("fontShad",fontShad);
 		
 		function MakeSpec() {
 			var str="qTitle|"+$("#titlePos").val()+"|"+$("#titleAlign").val();
-			str+="|"+$("#frameType").val()+"|"+$("#frameGrad").val()+"|"+$("#frameCol").data("frameCol");
+			str+="|"+$("#frameType").val()+"|"+$("#frameGrad").data("frameGrad")+"|"+$("#frameCol").data("frameCol");
 			str+="|"+$("#fontFace").val()+"|"+$("#fontStyle").val();
 			str+="|"+$("#fontCol").data("fontCol")+"|"+$("#fontSize").val()+"|"+$("#fontShad").data("fontShad");
 			str+="|"+$("#titleText").val();
