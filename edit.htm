@@ -957,16 +957,17 @@
 		if (type != "Title")													// If not title
 			return;																// Quit
 		var titleText="";
-		var fontSize=18;
-		var fontCol="#ff9900";
+		var fontSize=16;
+		var fontCol="#ffd966";
 		var fontShad="#333333";
 		var frameCol="#cccccc";
 		var titlePos="Lower third";
-		var titleAlign="Center";
+		var titleAlign="Right";
 		var frameType="None";
-		var frameGrad="";
+		var frameGrad="#999999";
 		var fontFace="Sane-Serif";
 		var fontStyle="Bold";
+		trace(fontCol)
 		if (val.match(/qtitle/i)) {												// If an existing title
 			var v=val.split('|');												// Split into parts
 			titlePos=v[1];		titleAlign=v[2];	titleText=v[11];			// Pos
