@@ -541,9 +541,9 @@
 							AnimateContent(this.id,o,pane);						// Animate image, if set
 							})
 						}
-					else if (src.match(/</) || src.match(/qtitle/i) || src.match(/draw-/)) { // Markup, graphics, or title
+					else if (src.match(/</) || src.match(/qtitle/i)) {			// Markup, graphics, or title
 						ResizePanes();											// Force to proper size
-						if (src.match(/qtitle/i) || src.match(/draw-/))			// If a title or graphics
+						if (src.match(/qtitle/i))								// If a title
 							src=RenderGraphics(src);							// Render it in SVG
 						$("#overlayDiv").html(src);								// Populate overlay
 						}
@@ -662,18 +662,6 @@
 	
 	function RenderGraphics(spec)											// RENDER GRAPHICS TO SCREEN
 	{
-		if (spec.match(/draw-/)) {
-			if (!shivaLib)														// If no shivaLib
-				shivaLib=new SHIVA_Show();										// Alloc SHIVA_Show
-			if (!shivaLib.dr) 													// If not already instantiated
-				shivaLib.dr=new SHIVA_Draw(this.container,true);				// Alloc drawing module (silently)
-			shivaLib.AddOverlay(spec,true);										// Add segs
-			trace(spec)
-			trace(shivaLib.dr.segs)
-			var str=shivaLib.dr.SaveSVGData();									// Convert to SVG
-			trace(str)
-			return str;															// Return SVG
-			}
 		var alpha=100;
 		var x="10",y=20*sd.playerAspect,e="start";
 		var v=spec.split('|');													// Split into parts
@@ -721,7 +709,6 @@
 				}
 			
 			str+="Z'/>\n";														// End bar
-			trace(str)
 			}
 		str+="<text x='"+x+"' y='"+y+"' ";										// Text pos
 		str+="style='opacity:"+(alpha/100);										// Alpha
