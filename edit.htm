@@ -806,7 +806,7 @@
 	
 	function MakeContentTable() 											// MAKE TABLE AND SORT BY TIME
 	{	
-		var i,o,n=0,pic;i 
+		var i,o,n=0,pic;i;lastType=""; 
 		var trsty=" style='height:20px;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
 		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"'";
 		if (conPtr)	{															// If any indices
@@ -919,10 +919,17 @@
 
 			$("#idu"+i).on("change", function() {								// ON EDIT SOURCE
 					var id=this.id.substr(3);									// Get id
+					lastType="";												// Reset last
 					TitleEditor(id, $(this).val(), conPtr[id].c, function(s) {	// Edit source
 							conPtr[id].c=s;										// Set val
 						 	MakeContentTable();									// Show
 							});
+					});				
+
+			$("#idu"+i).on("click", function() {								// ON EDIT SOURCE
+					if (lastType == $(this).val())								// If same as last
+						$(this).trigger("change");								// Trigger change
+					lastType=$(this).val();										// The then is now
 					});				
 
 			$("#ida"+i).on("change", function() {								// ON CHANGE ACTION
@@ -967,7 +974,6 @@
 		var frameGrad="#999999";
 		var fontFace="Sane-Serif";
 		var fontStyle="Bold";
-		trace(fontCol)
 		if (val.match(/qtitle/i)) {												// If an existing title
 			var v=val.split('|');												// Split into parts
 			titlePos=v[1];		titleAlign=v[2];	titleText=v[11];			// Pos
