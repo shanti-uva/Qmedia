@@ -832,6 +832,7 @@
 			if (o.c && o.c.match(/<svg/i))				pic="SVG";
 			else if (o.c && o.c.match(/qhtml/i))		pic="HTML";
 			else if (o.c && o.c.match(/qtitle/i))		pic="Title";
+			else if (o.c && o.c.match(/qgraph/i))		pic="Graphics";
 			else										pic="Link";
 			if (conPtr == curJson.playerVectors) 								// Only in player
 				str+="&nbsp; "+MakeSelect("idu"+i,false,["Link","Title","SVG","HTML"],pic);	
@@ -929,7 +930,7 @@
 			$("#idu"+i).on("click", function() {								// ON EDIT SOURCE
 					if (lastType == $(this).val())								// If same as last
 						$(this).trigger("change");								// Trigger change
-					lastType=$(this).val();										// The then is now
+					lastType=$(this).val();										// Then is now
 					});				
 
 			$("#ida"+i).on("change", function() {								// ON CHANGE ACTION
@@ -961,6 +962,8 @@
 
 	function TitleEditor(num, type, val, callback) 							// TITLE EDITOR
 	{
+		if (type == "Graphics")													// If graphics
+			SendShivaMessage("Qmedia=annotate");								// Put up annotation
 		if (type != "Title")													// If not title
 			return;																// Quit
 		var titleText="";

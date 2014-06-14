@@ -103,7 +103,7 @@
 		<span id="infoLab" class="labels"></span>
 		<div id="infoMapDiv" style='position:absolute;top:0px;white-space:nowrap;opacity:inherit;display:none'> 
  			<img src="images/mapbut.gif" id="infomap" title="Show content map" style="cursor:pointer;opacity:0"> &nbsp;
- 			<img src="images/annotate.gif" id="annotate" width="12" title="Annotate" style="cursor:pointer">
+ 			<img src="images/annotate.gif" id="annotate" width="11" title="Annotate" style="cursor:pointer">
 	  	</div>
 		<div id="informationText" style="height:100%;overflow:hidden;margin-top:16px;opacity:inherit"></div>
 	</div>
@@ -713,7 +713,7 @@
 		str+="<text x='"+x+"' y='"+y+"' ";										// Text pos
 		str+="style='opacity:"+(alpha/100);										// Alpha
 		str+=";text-anchor:"+e+";fill:"+fontCol;								// Anchor / color
-		str+=";font-family:"+fontFace.toLowerCase()+";font-size:"+Math.round(fontSize/4);	// Style							
+		str+=";font-family:"+fontFace.toLowerCase()+";font-size:"+Math.round(fontSize/4)+"px";	// Style							
 		if (fontStyle.match(/bold/i))	str+=";font-weight:bold";				// Bold?
 		if (fontStyle.match(/ital/i))	str+=";font-style:italic";				// Italic?
 		if (fontShad)															// If a shadow
@@ -1117,6 +1117,13 @@
 			if (v[2] == "bot")													// If bot
 				sd.transInfoRatio=v[3]-0;										// Set it	
 			ResizePanes();														// Resize								
+			}
+		else if (v[0] == "Qmedia=annotate") {									// Annotate
+			if (!shivaLib)														// If not already there
+				shivaLib=new SHIVA_Show("overlayDiv");							// Alloc SHIVA_Show
+			var t=$("#contentDiv").css("top").replace(/px/,"")-0+40;			// In contents
+			shivaLib.DrawOverlay();												// Make sure contexts are set up
+			shivaLib.Annotate(18,t);											// Show it
 			}
 		}
 	}
