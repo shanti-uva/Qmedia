@@ -463,6 +463,11 @@
 
 	function GetFlickrImage(callback)										// GET FLICKR IMAGE
 	{
+		
+		
+		trace(qmf.GetCookie("flickr"));											// Get Flickr from cookie
+
+		
 		$("#alertBoxDiv").remove();												// Remove any old ones
 		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
 		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
@@ -502,7 +507,7 @@
 		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
 		str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
 		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#000099'><b>Get Image from Flickr</b></span><p>";
-		str+="<p style='text-align:right'>Flickr user name: <input id='idName' type='text' style='width:100px' class='is'> &nbsp;<button id='getBut' class='bs'>Get</button></p>";
+		str+="<p style='text-align:right'>Flickr user name: <input id='idName' type='text' value='"+qmf.GetCookie('flickr')+"' style='width:100px' class='is'> &nbsp;<button id='getBut' class='bs'>Get</button></p>";
 		str+="<div style='display:inline-block;width:365px;height:120px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
 		str+="<table id='collectTable' style='font-size:11px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
 		str+="<tr><td><b>Collection</b></td><td width='20'></td></tr>";			// Add header
@@ -529,9 +534,11 @@
   		
  		$("#getBut").on("click",function() {									// ON GET CONTENT BUTTON
 	   		cols=[];															// Reset array of collections
+			Sound("click");														// Click
 			var id=$("#idName").val();											// ID name
  			var url="https://api.flickr.com/services/rest/?method=flickr.people.findByUsername&format=rest&api_key="+apiKey+"&username="+id;
-  			$.ajax({ type:"GET", url:url, dataType:"xml",						// Call REST to get user id
+	 		qmf.SetCookie("flickr",id,7);										// Save cookie
+ 			$.ajax({ type:"GET", url:url, dataType:"xml",						// Call REST to get user id
   				success: function(xml){											// Om XML
 	   				if ($(xml).find("err").length) {							// If an error tag
 	   					$("#picGal").html("<p style='text-align:center;color:990000'><b>"+$(xml).find("err").attr("msg")+"</b></p>");
@@ -587,6 +594,7 @@
 						$("#collectTable").append(str);								// Add row														
 					
 						$("#fda"+i).on("click", function() {						// On collection click
+							Sound("click");											// Click
 							$("#picGal").html("<p style='text-align:center'><b>Choose set to view</b></p>");
 							$("#ida"+curCollection).css({"color":"#000000","font-weight":"normal"});	// Uncolor last
 							curCollection=this.id.substr(3);						// Set cur collection
@@ -611,6 +619,7 @@
 			$("#setTable").append(str);											// Add row
 			
 			$("#ids"+j).on("click", function() { 								// On set click
+				Sound("click");													// Click
 				$("#ids"+curSet).css({"color":"#000000","font-weight":"normal"});	// Uncolor last
 				curSet=this.id.substr(3);										// Cur set
 				$("#ids"+curSet).css({"color":"#990000","font-weight":"bold"});	// Color current
@@ -644,6 +653,7 @@
 				$("#picGal").html(str);											// Add to gallery
 				for (i=0;i<photos.length;++i) {									// For each pic
 					$("#idp"+i).on("click", function(){							// ON PHOTO CLICK
+						Sound("click");											// Click
 						ChoosePhoto(this.id.substr(3));							// Preview and choose photo
 						});														// End photo click
 					}
@@ -675,6 +685,7 @@
 	
 				for (i=0;i<sizes.length;++i)									// For each size
 					$("#fdx"+i).on("click", function() {						// On button click
+						Sound("click");											// Click
 						callback(sizes[this.id.substr(3)].source);				// Send url to cb
 						$("#alertBoxDiv").remove();								// Close dialog
 						});
