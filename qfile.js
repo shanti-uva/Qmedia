@@ -463,11 +463,6 @@
 
 	function GetFlickrImage(callback)										// GET FLICKR IMAGE
 	{
-		
-		
-		trace(qmf.GetCookie("flickr"));											// Get Flickr from cookie
-
-		
 		$("#alertBoxDiv").remove();												// Remove any old ones
 		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
 		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
@@ -495,8 +490,7 @@
  		$(".ui-button").css({"border-radius":"30px","outline":"none"});
  	}
 
-
-	function GetFlickrImage(callback)										// GET FLICKR IMAGE
+	function GetFlickrImage(callback, mapMode)								// GET FLICKR IMAGE
 	{
 		var apiKey="edc6ee9196af0ad174e8dd2141434de3";
 		var trsty=" style='cursor:pointer;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' onMouseOut='this.style.backgroundColor=\"#f8f8f8\"'";
@@ -505,7 +499,10 @@
 		
 		$("#alertBoxDiv").remove();												// Remove any old ones
 		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
-		str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
+		str="<p><img src='";													// Image start
+		if (mapMode)	str+="img/MapScholarLogo.png' width='32";				// Use MPS logo
+		else			str+="images/qlogo32.png";								// Qmedia logo
+		str+="' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
 		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#000099'><b>Get Image from Flickr</b></span><p>";
 		str+="<p style='text-align:right'>Flickr user name: <input id='idName' type='text' value='"+qmf.GetCookie('flickr')+"' style='width:100px' class='is'> &nbsp;<button id='getBut' class='bs'>Get</button></p>";
 		str+="<div style='display:inline-block;width:365px;height:120px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
@@ -660,9 +657,9 @@
 				}});															// Ajax get photos end
 	}
 
- 	function ChoosePhoto(id) 												// PREVIEW AND CHOOSE PHOTO SIZES
+	function ChoosePhoto(id) 												// PREVIEW AND CHOOSE PHOTO SIZES
  	{
-		var o,sizes=[],i
+		var o,sizes=[],i;
 		var url="https://api.flickr.com/services/rest/?method=flickr.photos.getSizes&format=rest&api_key="+apiKey+"&photo_id="+photos[id].id;
 		$.ajax({ type:"GET", url:url, dataType:"xml",							// Call REST to get sizes
 			success: function(xml) {											// On XML
@@ -679,13 +676,26 @@
 				str+="<div style='position:absolute;top:"+t+"px;left:550px;width:232px;text-align:right'>";
 				str+="<p style='font-size:14px'><b>"+photos[id].title+"</b></p>";		
 				str+="<p style='font-size:11px'>Choose size below:</p>";		
-				for (i=0;i<sizes.length;++i)									// For each size
-					str+="<button style='margin-bottom:5px' class='bs' id='fdx"+i+"'>"+sizes[i].label+"</button><br>"
-					$("#picGal").html(str+"</div>");							// Fill gallery
-	
+				for (i=0;i<sizes.length;++i) {									// For each size
+					if (mapMode)												// If making for MapScholar
+						str+=sizes[i].label+"<input type='checkbox' id='fdx"+i+"'><br>";
+					else														// Regular buttons			
+						str+="<button style='margin-bottom:5px' class='bs' id='fdx"+i+"'>"+sizes[i].label+"</button><br>"
+					}
+				if (mapMode)													// If making for MapScholar
+					str+="<br><textarea style='width:200px' id='ftbx'></textarea><br>";		// Holder for image names
+				$("#picGal").html(str+"</div>");								// Fill gallery
 				for (i=0;i<sizes.length;++i)									// For each size
 					$("#fdx"+i).on("click", function() {						// On button click
 						Sound("click");											// Click
+						if (mapMode) {											// If making for MapScholar
+							str="";												// Clear
+							for (var j=0;j<sizes.length;++j)					// For each size
+								if ($("#fdx"+j).prop("checked"))				// If checked
+									str+=sizes[j].source+"\t";					// Add
+							$("#ftbx").val(str);								// Set it							
+							return;												// Quit
+							}
 						callback(sizes[this.id.substr(3)].source);				// Send url to cb
 						$("#alertBoxDiv").remove();								// Close dialog
 						});
