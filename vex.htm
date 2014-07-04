@@ -12,7 +12,7 @@
 		body { 	font-family:Verdana,Geneva,sans-serif; font-size:13px; }
 </style>
 <body>
-	<div id="containerDiv" style="width:100%;height:100%">
+	<div id="containerDiv" style="width:90%;height:90%;padding-left:20px">
     	<canvas id="tabCanvas"></canvas>
   	</div>
 <script>
@@ -51,7 +51,7 @@
 			artist.render(renderer);											// Draw it
 	        $("#error").text("");												// Clear error display
         	} 
-        catch (e) {																// On error
+        catch(e) {																// On error
 			console.log(e);														// Show it
 			$("#error").html(e.message.replace(/[\n]/g, '<br/>'));				// Set display
         	}
@@ -68,16 +68,18 @@
  	function shivaEventHandler(e)											// ON SHIVA EVENT
 	{
 		if (e.data.match(/ShivaAct=/))	{										// If data
-			var v=e.data.split("|");											// Get elements
-			if (v.length == 1)													// If no =data tag
-				curTab=v[0].replace(/ShivaAct=/,"");							// Remove header
-			else																// Has =data tag
-				curTab=v[v.length-1];											// Data is last element
-			curTab=curTab.replace(/~/g,"\n");									// Decode CRs
-			RenderTab();														// Draw it
+			curTab=e.data.replace(/ShivaAct=/,"");								// Remove header
+		trace(curTab);trace("-----------------");
+ 			curTab=curTab.replace(/data\|/i,"");									// Remove header id
+		trace(curTab);trace("-----------------");
+ 			curTab=curTab.replace(/~/g,"\n");									// Decode CRs
+		trace(curTab);trace("-----------------");
+ 			RenderTab();														// Draw it
  			}
 		}
  
+  	function trace(msg) { console.log(msg) }
+  
    </script>
   
 </body>
