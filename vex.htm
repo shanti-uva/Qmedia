@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  	<title>Qmedia tab</title>
+	<link REL="SHORTCUT ICON" HREF="qlogo.ico">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>	
+	<script src="http://www.vexflow.com/support/vexflow-min.js"></script>
+	<script src="http://www.vexflow.com/support/underscore-min.js"></script>
+	<script src="http://www.vexflow.com/support/tabdiv-min.js"></script>
+</head>
+<style>
+		body { 	font-family:Verdana,Geneva,sans-serif; font-size:13px; }
+</style>
+<body>
+	<div id="containerDiv" style="width:100%;height:100%">
+    	<canvas id="tabCanvas"></canvas>
+  	</div>
+<script>
+
+ 	var renderer,artist,vextab;
+    var curTab=""																// Holds tabs
+ 	$(window).resize(RenderTab);												// Re-render when resized
+   	$(document).ready(function() {												// When loaded
+		renderer=new Vex.Flow.Renderer($('#tabCanvas')[0],Vex.Flow.Renderer.Backends.CANVAS);	// New base renderer
+		artist=new Vex.Flow.Artist(0,0,100,{scale: 1});							// New artist
+     	vextab=new Vex.Flow.VexTab(artist);										// New tab parser
+		if (window == window.parent) {											// If standalone
+			$("body").append("<textarea cols='70' rows='4' id='tabEdit'></textarea>")	// Add text area
+ 		    $("#tabEdit").keyup(_.throttle(RenderTab,250));						// Set text on key
+			$("body").append("<br><button id='saveBut' onclick='GetData()'>Get tabs</button>");
+ 			$("body").append("&nbsp; &nbsp;Click <a href='//www.vexflow.com/vextab/tutorial.html' target=/_blank'> here</a> for VexTab  tutorial"); // Add link to docs		
+ 			$("body").append("<br><br><div style='color:#990000' id='error'></div>"); // Add error field				
+ 			}
+ 		RenderTab();															// Draw it
+ 		if (window.addEventListener) 											// If supported this way
+			window.addEventListener("message",shivaEventHandler,false);			// Add event handler
+		else																	// Use other method
+			window.attachEvent("message",shivaEventHandler);					// Add handler
+		});
+
+    function RenderTab() 													// RENDER TAB
+	{
+		try {																	// Try
+			artist.width=$("#containerDiv").width();							// Reset width
+			vextab.reset();														// Reset tab parser
+			artist.reset();														// Reset artist
+			if (window == window.parent)										// If standalone
+				vextab.parse($("#tabEdit").val());								// Get from textarea
+			else																// Display mode
+				vextab.parse(curTab);											// Set tabs to draw
+			artist.render(renderer);											// Draw it
+	        $("#error").text("");												// Clear error display
+        	} 
+        catch (e) {																// On error
+			console.log(e);														// Show it
+			$("#error").html(e.message.replace(/[\n]/g, '<br/>'));				// Set display
+        	}
+      }
+
+ 	function GetData() 														// GET FORMATTED DATA
+ 	{
+ 		curTab="data|"+$("#tabEdit").val();										// Get string
+ 		curTab=curTab.replace(/\r/g,"\n");										// CR -> LF
+ 		curTab=curTab.replace(/\n+/g,"~");										// LF(s) -> single ~
+		window.prompt("To copy graphics to clipboard: Hit Ctrl+C, then press OK",curTab);
+ 	}
+ 	
+ 	function shivaEventHandler(e)											// ON SHIVA EVENT
+	{
+		if (e.data.match(/ShivaAct=/))	{										// If data
+			var v=e.data.split("|");											// Get elements
+			if (v.length == 1)													// If no =data tag
+				curTab=v[0].replace(/ShivaAct=/,"");							// Remove header
+			else																// Has =data tag
+				curTab=v[v.length-1];											// Data is last element
+			curTab=curTab.replace(/~/g,"\n");									// Decode CRs
+			RenderTab();														// Draw it
+ 			}
+		}
+ 
+   </script>
+  
+</body>
+</html>
