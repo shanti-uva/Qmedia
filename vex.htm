@@ -35,7 +35,7 @@
  		if (window.addEventListener) 											// If supported this way
 			window.addEventListener("message",shivaEventHandler,false);			// Add event handler
 		else																	// Use other method
-			window.attachEvent("message",shivaEventHandler);					// Add handler
+			window.attachEvent("message",shivaEventHandler);					// Add handler		
 		});
 
     function RenderTab() 													// RENDER TAB
@@ -69,12 +69,9 @@
 	{
 		if (e.data.match(/ShivaAct=/))	{										// If data
 			curTab=e.data.replace(/ShivaAct=/,"");								// Remove header
-		trace(curTab);trace("-----------------");
- 			curTab=curTab.replace(/data\|/i,"");									// Remove header id
-		trace(curTab);trace("-----------------");
- 			curTab=curTab.replace(/~/g,"\n");									// Decode CRs
-		trace(curTab);trace("-----------------");
- 			RenderTab();														// Draw it
+			curTab=curTab.replace(/data\|/i,"");									// Remove header id
+			curTab=curTab.replace(/~/g,"\n");									// Decode CRs
+			RenderTab();														// Draw it
  			}
 		}
  
