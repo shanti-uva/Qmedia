@@ -567,10 +567,10 @@
 						else													// Same image base
 							AnimateContent(div+"IF",o,pane);					// Animate iframe, if set
 						
-						$("#"+div+"IF").on("load",function() {					// On image loaded
+						$("#"+div+"IF").on("load",function() {					// On iframe loaded
 							if (o.h) {
 								var win=document.getElementById(div+"IF").contentWindow;	// Point at iFrame	
-								win.postMessage("ShivaAct=data|"+o.h,"*");					// Send message to container
+								win.postMessage("ShivaAct="+o.h,"*");						// Send message to container
 								}
 							AnimateContent(this.id,o,pane);						// Animate image, if set
 							})

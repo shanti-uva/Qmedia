@@ -27,9 +27,11 @@
 		if (window == window.parent) {											// If standalone
 			$("body").append("<textarea cols='70' rows='4' id='tabEdit'></textarea>")	// Add text area
  		    $("#tabEdit").keyup(_.throttle(RenderTab,250));						// Set text on key
-			$("body").append("<br><button id='saveBut' onclick='GetData()'>Get tabs</button>");
- 			$("body").append("&nbsp; &nbsp;Click <a href='//www.vexflow.com/vextab/tutorial.html' target=/_blank'> here</a> for VexTab  tutorial"); // Add link to docs		
- 			$("body").append("<br><br><div style='color:#990000' id='error'></div>"); // Add error field				
+ 			$("body").append("<br><button id='saveBut' onclick='GetData()'>Get tabs</button>");
+			$("body").append("&nbsp; &nbsp;Click <a href='//www.vexflow.com/vextab/tutorial.html' target=/_blank'> here</a> for VexTab  tutorial"); // Add link to docs		
+ 			$("body").append("<br><br><textarea cols='70' rows='4' id='xmlEdit'></textarea>")	// Add xml area
+  			$("body").append("<br><button id='saveBut' onclick='GetXML()'>Convert XML</button>&nbsp; &nbsp;Paste XML in box above");
+			$("body").append("<br><br><div style='color:#990000' id='error'></div>"); // Add error field				
  			}
  		RenderTab();															// Draw it
  		if (window.addEventListener) 											// If supported this way
@@ -65,17 +67,51 @@
 		window.prompt("To copy graphics to clipboard: Hit Ctrl+C, then press OK",curTab);
  	}
  	
+  	function GetXML() 														// GET XML DATA
+ 	{
+ 		var m=0,d="q";
+ 		var inChord=false;
+ 		var curDur="q";
+ 		var tab="tabstave\nnotes"
+ 		var xml=$.parseXML($("#xmlEdit").val());								// Get xml
+		var numMeasures=$(xml).find("measure").length;							// Number of measure
+		$(xml).find("measure").each( function() {								// For each measure
+			if (m++)	tab+=" | ";												// If not 1st, add bar
+			$(this).find("note").each( function() {								// For each measure
+				if ($(this).find("type").text() == "quarter") 		d="q";		// Set dur
+				else if ($(this).find("type").text() == "eighth") 	d="8";		// Set dur
+				else if ($(this).find("type").text() == "half") 	d="h";		// Set dur
+				else if ($(this).find("type").text() == "16th") 	d="16";		// Set dur
+				else if ($(this).find("type").text() == "whole") 	d="w";		// Set dur
+				else if ($(this).find("type").text() == "32nd") 	d="32";		// Set dur
+				else												d="q";		// Def to 1/4								
+				if (d != curDur) tab+=" :"+d+" ";								// Add duration
+				curDur=d;														// Set flag
+				if (!inChord)	tab+="(",inChord=true;							// Add group start
+				tab+=$(this).find("fret").text()+"/"+$(this).find("string").text();	// Add note
+				if ($(this).find("chord").length) 	tab+=")",inChord=false;		// If chord end, end it
+				else								tab+=".";					// Add note to existing chord
+				});													
+			});													
+		$("#tabEdit").val(tab);													// Put in vex text
+		RenderTab();															// Show it
+	}
+ 
  	function shivaEventHandler(e)											// ON SHIVA EVENT
 	{
 		if (e.data.match(/ShivaAct=/))	{										// If data
 			curTab=e.data.replace(/ShivaAct=/,"");								// Remove header
-			curTab=curTab.replace(/data\|/i,"");									// Remove header id
+			curTab=curTab.replace(/data\|/i,"");								// Remove header id
 			curTab=curTab.replace(/~/g,"\n");									// Decode CRs
 			RenderTab();														// Draw it
  			}
 		}
  
   	function trace(msg) { console.log(msg) }
+  
+  	
+  
+  
   
    </script>
   
