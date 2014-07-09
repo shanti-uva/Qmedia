@@ -69,31 +69,75 @@
  	
   	function GetXML() 														// GET XML DATA
  	{
- 		var m=0,d="q";
- 		var inChord=false;
- 		var curDur="q";
+ 		var i,m=0,o,notes;
+ 		var inC=false;
+ 		var curDur="";
  		var tab="tabstave\nnotes"
  		var xml=$.parseXML($("#xmlEdit").val());								// Get xml
 		var numMeasures=$(xml).find("measure").length;							// Number of measure
 		$(xml).find("measure").each( function() {								// For each measure
-			if (m++)	tab+=" | ";												// If not 1st, add bar
+			if (inC)		tab+=") ";												// Close note note cluster, if open 
+			if (m++)		tab+="| ";											// If not 1st, add bar
+			notes=[];															// New note array						
 			$(this).find("note").each( function() {								// For each measure
-				if ($(this).find("type").text() == "quarter") 		d="q";		// Set dur
-				else if ($(this).find("type").text() == "eighth") 	d="8";		// Set dur
-				else if ($(this).find("type").text() == "half") 	d="h";		// Set dur
-				else if ($(this).find("type").text() == "16th") 	d="16";		// Set dur
-				else if ($(this).find("type").text() == "whole") 	d="w";		// Set dur
-				else if ($(this).find("type").text() == "32nd") 	d="32";		// Set dur
-				else												d="q";		// Def to 1/4								
-				if (d != curDur) tab+=" :"+d+" ";								// Add duration
-				curDur=d;														// Set flag
-				if (!inChord)	tab+="(",inChord=true;							// Add group start
-				tab+=$(this).find("fret").text()+"/"+$(this).find("string").text();	// Add note
-				if ($(this).find("chord").length) 	tab+=")",inChord=false;		// If chord end, end it
-				else								tab+=".";					// Add note to existing chord
+				o={};															// New note obj
+				if ($(this).find("type").text() == "quarter") 		o.d="q";	// Set dur
+				else if ($(this).find("type").text() == "eighth") 	o.d="8";	// Set dur
+				else if ($(this).find("type").text() == "half") 	o.d="h";	// Set dur
+				else if ($(this).find("type").text() == "16th") 	o.d="16";	// Set dur
+				else if ($(this).find("type").text() == "whole") 	o.d="w";	// Set dur
+				else if ($(this).find("type").text() == "32nd") 	o.d="32";	// Set dur
+				else												o.d="q";	// Def to 1/4								
+				o.fret=$(this).find("fret").text()-0;							// Set fret			
+				o.string=$(this).find("string").text()-0;						// Set string
+				o.chord=0;														// Assume it's a free note
+				o.rest=($(this).find("rest").length > 0);						// Set rest
+				o.grace=($(this).find("rest").length > 0);						// Set grace
+				o.grace=($(this).find("rest").length > 0);						// Set up
+				if ($(this).find("up-bow").length)	 		o.bow="u";  		// Bow up
+				else if ($(this).find("down-bow").length)	o.bow="d";  			// Bow down
+				if ($(this).find("chord").length) {								// If part of a chord
+					if (notes.length) { 										// Not first note
+						if (notes[notes.length-1].chord == 0) {					// If not notes attached yet
+							notes[notes.length-1].chord=1;						// Flag as chord start
+							o.chord=2;											// This is a member
+							}	
+						}
+					}
+				if (notes.length && $(this).find("hammer-on").attr("type") == "stop") 			// A hammer-on
+					notes[notes.length-1].hammer=o.fret;						// Set fret
+				else 
+					notes.push(o);												// Add note to measure
 				});													
+			for (i=0;i<notes.length;++i) {										// For each note in measure
+				o=notes[i];														// Get note			
+				if (curDur != o.d) {											// A new dur
+					curDur=o.d;													// Then is now
+					tab+=" :"+o.d;												// Add duration
+					}
+				if (o.rest)	{													// rest
+					tab+=" ## ";												// Add rest
+					continue;													// Next note
+					}
+				if (o.chord == 1) 												// Chord start	
+					tab+=" (";													// Open chord													
+				else if (o.chord > 1) 											// Chord member	
+					tab+=".";													// Attach note to last													
+				else
+					tab+=" ";													// A single note
+				if (o.fret && o.string)	{										// If defines
+					tab+=o.fret;												// Add fret
+					if (o.hammer)		tab+="h"+o.hammer;						// Add hammer is spec'd
+					if (o.bend)	tab+="b"+(o.bend+o.fret);						// Add hammer is spec'd
+					if (o.bow)	tab+=o.bow;										// Add bow is spec'd
+					tab+="/"+o.string;											// Add string
+					}
+				if (o.chord)  													// Chord	
+					if ((i == notes.length-1) || (notes[i+1].chord != 2) )		// Next note is NOT a member
+						tab+=") ";												// Close chord													
+				}			
 			});													
-		$("#tabEdit").val(tab);													// Put in vex text
+			$("#tabEdit").val(tab);													// Put in vex text
 		RenderTab();															// Show it
 	}
  
