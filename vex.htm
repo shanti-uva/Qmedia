@@ -31,7 +31,10 @@
 			$("body").append("&nbsp; &nbsp;Click <a href='//www.vexflow.com/vextab/tutorial.html' target=/_blank'> here</a> for VexTab  tutorial"); // Add link to docs		
  			$("body").append("<br><br><textarea cols='70' rows='4' id='xmlEdit'></textarea>")	// Add xml area
   			$("body").append("<br><button id='saveBut' onclick='GetXML()'>Convert XML</button>&nbsp; &nbsp;Paste XML in box above");
-			$("body").append("<br><br><div style='color:#990000' id='error'></div>"); // Add error field				
+ 			$("body").append("<br><select id='xmlMpl'><option>1</option><option>2</option><option selected=selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select> Measures per line");
+ 			$("body").append(" <input id='xmlNote' type='checkbox'> Show musical notation?");
+ 			$("body").append(" <input id='xmlRhythm' type='checkbox'> Notation rhythm?");
+ 			$("body").append("<br><br><div style='color:#990000' id='error'></div>"); // Add error field				
  			}
  		RenderTab();															// Draw it
  		if (window.addEventListener) 											// If supported this way
@@ -70,14 +73,18 @@
   	function GetXML() 														// GET XML DATA
  	{
  		var i,m=0,o,notes;
- 		var inC=false;
- 		var curDur="";
- 		var tab="tabstave\nnotes"
+  		var curDur="";
+ 		var tab=""
  		var xml=$.parseXML($("#xmlEdit").val());								// Get xml
+		var mpl=$("#xmlMpl").val();												// Get measures/line
 		var numMeasures=$(xml).find("measure").length;							// Number of measure
 		$(xml).find("measure").each( function() {								// For each measure
-			if (inC)		tab+=") ";												// Close note note cluster, if open 
-			if (m++)		tab+="| ";											// If not 1st, add bar
+			if (!(m++%mpl)) {													// If a line break
+				tab+="\ntabstave";												// Add stave
+				if ($("#xmlNote").prop("checked")) tab+=" notation=true";		// Show notation
+				tab+="\nnotes";													// Add notes header
+				}				
+			else	tab+="| ";													// If not 1st, add bar
 			notes=[];															// New note array						
 			$(this).find("note").each( function() {								// For each measure
 				o={};															// New note obj
@@ -88,14 +95,15 @@
 				else if ($(this).find("type").text() == "whole") 	o.d="w";	// Set dur
 				else if ($(this).find("type").text() == "32nd") 	o.d="32";	// Set dur
 				else												o.d="q";	// Def to 1/4								
+				if ($("#xmlRhythm").prop("checked"))	o.d+="S";				// Rhythm mode		
 				o.fret=$(this).find("fret").text()-0;							// Set fret			
 				o.string=$(this).find("string").text()-0;						// Set string
 				o.chord=0;														// Assume it's a free note
 				o.rest=($(this).find("rest").length > 0);						// Set rest
 				o.grace=($(this).find("rest").length > 0);						// Set grace
-				o.grace=($(this).find("rest").length > 0);						// Set up
+				o.alter=($(this).find("alter").length > 0);						// Set alter
 				if ($(this).find("up-bow").length)	 		o.bow="u";  		// Bow up
-				else if ($(this).find("down-bow").length)	o.bow="d";  			// Bow down
+				else if ($(this).find("down-bow").length)	o.bow="d";  		// Bow down
 				if ($(this).find("chord").length) {								// If part of a chord
 					if (notes.length) { 										// Not first note
 						if (notes[notes.length-1].chord == 0) {					// If not notes attached yet
@@ -127,9 +135,10 @@
 					tab+=" ";													// A single note
 				if (o.fret && o.string)	{										// If defines
 					tab+=o.fret;												// Add fret
-					if (o.hammer)		tab+="h"+o.hammer;						// Add hammer is spec'd
-					if (o.bend)	tab+="b"+(o.bend+o.fret);						// Add hammer is spec'd
-					if (o.bow)	tab+=o.bow;										// Add bow is spec'd
+					if (o.hammer)	tab+="h"+o.hammer;							// Add hammer? 
+					if (o.bend)		tab+="b"+(o.bend+o.fret);					// Add bend? 
+					if (o.alter)	tab+="v";									// Add vibrato?
+					if (o.bow)		tab+=o.bow;									// Add bow?
 					tab+="/"+o.string;											// Add string
 					}
 				if (o.chord)  													// Chord	
