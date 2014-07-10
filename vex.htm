@@ -15,6 +15,9 @@
 	<div id="containerDiv" style="width:90%;height:90%;padding-left:20px">
     	<canvas id="tabCanvas"></canvas>
   	</div>
+  	
+
+  	
 <script>
 
  	var renderer,artist,vextab;
@@ -30,11 +33,12 @@
  			$("body").append("<br><button id='saveBut' onclick='GetData()'>Get tabs</button>");
 			$("body").append("&nbsp; &nbsp;Click <a href='//www.vexflow.com/vextab/tutorial.html' target=/_blank'> here</a> for VexTab  tutorial"); // Add link to docs		
  			$("body").append("<br><br><textarea cols='70' rows='4' id='xmlEdit'></textarea>")	// Add xml area
-  			$("body").append("<br><button id='saveBut' onclick='GetXML()'>Convert XML</button>&nbsp; &nbsp;Paste XML in box above");
+  			$("body").append("<br><button id='saveBut' onclick='GetXML()'>Convert XML</button>&nbsp; &nbsp;Paste XML in box above <i>-- or --</i> &nbsp;<input type='file' id='files' name='files[]' />");
  			$("body").append("<br><select id='xmlMpl'><option>1</option><option>2</option><option selected=selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select> Measures per line");
  			$("body").append(" <input id='xmlNote' type='checkbox'> Show musical notation?");
  			$("body").append(" <input id='xmlRhythm' type='checkbox'> Notation rhythm?");
  			$("body").append("<br><br><div style='color:#990000' id='error'></div>"); // Add error field				
+			document.getElementById('files').addEventListener('change',onFileSelect,false);	// Add handler
  			}
  		RenderTab();															// Draw it
  		if (window.addEventListener) 											// If supported this way
@@ -43,6 +47,21 @@
 			window.attachEvent("message",shivaEventHandler);					// Add handler		
 		});
 
+    
+	function onFileSelect(evt) 												// FILE SELECT HANDLER
+	{
+	    var file=document.getElementById('files').files[0];						// Get first selected file
+		if (!file) 	 															// If not found
+			return;																// Quit
+		var reader=new FileReader();											// Alloc reader
+		reader.readAsText(file.slice(0,file.size));								// Start reading
+	
+	    reader.onloadend=function(evt) {										// ON FINISHED LOADING
+	       if (evt.target.readyState == FileReader.DONE)  						// When done
+	 			$("#xmlEdit").val(evt.target.result);							// Copy to text box
+		    }
+ 	 }
+     
     function RenderTab() 													// RENDER TAB
 	{
 		try {																	// Try
