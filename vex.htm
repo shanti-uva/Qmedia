@@ -51,7 +51,9 @@
 	    var file=document.getElementById('files').files[0];						// Get first selected file
 		if (!file) 	 															// If not found
 			return;																// Quit
-		var reader=new FileReader();											// Alloc reader
+		if (typeof FileReader == "undefined") 									// On Safari
+			return alert("Sorry this is not supported on your browser. Try Chrome or FireFox.")
+			var reader=new FileReader();											// Alloc reader
 		reader.readAsText(file.slice(0,file.size));								// Start reading
 	
 	    reader.onloadend=function(evt) {										// ON FINISHED LOADING
