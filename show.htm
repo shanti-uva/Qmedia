@@ -151,6 +151,7 @@
 	var searchMode=false;														// Don't trigger anything
 	var keyFlag="";																// Holds key flags												
 	var host="//qmediaplayer.com/";												// Set host
+	var playerStarted=-1;														// Player started
 	var userName="",password="",curShow=0;										// Login info
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -975,6 +976,24 @@
 		$("#slider ui-slider-handle").focus();									// Focus on slider
 	}
 
+	function RecordPlayTime()												// RECORD PLAY TIME
+	{
+		if ((sd.logIn != "true")|| (playerStarted == -1))						// If not saving answers
+			return;																// Quit
+		var dat={};
+		var url=host+"saveuserdata.php";										// Base file
+		dat["email"]=userName;													// Add email
+		dat["password"]=password;												// Add password
+		dat["show"]=curShow;													// Add shownum
+		var dur=(playerNow-playerStarted).toFixed(2);							// Calc duration
+		if (dur < .5)															// Not enough time
+			return;																// Quit
+		
+		dat["event"]=new Date().toLocaleString()+"\tPlay\t"+playerStarted.toFixed(1)+"\t"+playerNow.toFixed(1)+"\t"+dur+"\n";	// Add event
+		$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat});  	// Post data
+		playerStarted=-1;														// Disable play start
+	}
+
 	function shivaEventHandler(e)											// ON SHIVA EVENT
 	{
 		var str,i;
@@ -986,10 +1005,12 @@
 			else if (ev.event == "play") {										// If play			
 				$("#playBut").attr("src","images/pausebut.gif");				// Show pause but
 				playerMode="play";												// Set mode
+				playerStarted=playerNow;										// Save start point
  				}
 			else if ((ev.event == "pause") || (ev.event == "finish")) {			// If pause/end			
   				$("#playBut").attr("src","images/playbut.gif");					// Show play but
 				playerMode="pause";												// Set mode
+    			RecordPlayTime();												// Record play time, if any
     			}
 			else if (ev.method == "getDuration") {								// If duration	
    				playerTRT=ev.value;												// Get duration
@@ -1182,6 +1203,8 @@
 				player=new Date().getTime()-(playerNow*1000);					// Get current time			
 			if (what == "play")													// Only in play
 				RunPlayer("show");												// Show where we're at
+			if (playerMode == "play")	playerStarted=playerNow;				// Save start point
+			if (playerMode == "pause")	RecordPlayTime();						// Record player action
 			}
 		else if ((what == "scrub") || (what == "seek"))  {						// Scrub
 			clearInterval(paneAnimationTimer);									// Kill pane timer
@@ -1217,6 +1240,7 @@
 				player.contentWindow.postMessage("{\"method\":\"pause\"}","*");	// Send
  			else if (playerType == "html5") 									// If HTML5
 				player.pause(); 												// Pause
+			RecordPlayTime();													// Record player action, if any
 			}
 		else if (what == "show") {												// Scrub
 			var str=SecondsToTimecode(playerNow)+" / ";							// Cur time
@@ -1305,10 +1329,13 @@
        							if (playerMode == "empty" && !isMobile) 		// If first time
        								player.pauseVideo();						// Pause
 								playerMode="play";								// Set mode
+       							playerStarted=playerNow;						// Save start point
+
        							}
        						else if ((s.data == 2) || (s.data == 0)) {			// In pause
   								$("#playBut").attr("src","images/playbut.gif");	// Show play but
 								playerMode="pause";								// Set mode
+       							RecordPlayTime();								// Record play if any
        							}
        						},
 	            		"onReady": function(s) { RunPlayer("ready") }			// When ready
@@ -1352,16 +1379,18 @@
 
  				myVid.onended= function() {										// When done
   					RunPlayer("pause");											// Pause
-					};
+ 					};
 
 				myVid.onplay= function() {										// When playing
 					$("#playBut").attr("src","images/pausebut.gif");			// Show pause but
  						playerMode="play";										// Set mode
- 					};
+					playerStarted=playerNow;									// Save start point
+					};
 
 				myVid.onpause= function() {										// When paused
 					$("#playBut").attr("src","images/playbut.gif");				// Show play but
  						playerMode="pause";										// Set mode
+  					RecordPlayTime();											// Record play time, if any
   					};
   		 		
  			  	myVid.addEventListener("loadstart",myVid.onloadstart);	 		// Add listener for safari

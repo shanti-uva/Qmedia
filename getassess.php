@@ -6,18 +6,21 @@ require_once('config.php');
 			
 	$email="";
 	$show="";
+	$password="";
 	if (isSet($_REQUEST['email'])) 								// If set
 		$email=addslashes($_REQUEST['email']);					// Get email
 	if (isSet($_REQUEST['show'])) 								// If set
 		$show=addslashes($_REQUEST['show']);					// Get show
-	
+	if (isSet($_REQUEST['password'])) 							// If set
+		$password=addslashes($_REQUEST['password']);			// Get password
+			
 	$query="SELECT * FROM qusers WHERE ";						// Query start 
 	if ($email)													// If a email spec'd
 		$query.="email = '".$email."'";							// Add email
 	if ($show && $email)										// If both
 		$query.=" AND";											// Add AND
 	if ($show)													// If a show spec'd
-		$query.=" showNum = '".$show."'";							// Look for a particular show
+		$query.=" showNum = '".$show."'";						// Look for a particular show
 	$result=mysql_query($query);								// Query
 	if ($result == false) {										// Bad query
 		print("-1\n");											// Return error
