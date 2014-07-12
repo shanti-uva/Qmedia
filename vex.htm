@@ -128,8 +128,10 @@
 				o.string=$(this).find("string").text()-0;						// Set string
 				o.chord=0;														// Assume it's a free note
 				o.rest=($(this).find("rest").length > 0);						// Set rest
-				o.grace=($(this).find("rest").length > 0);						// Set grace
-				o.alter=($(this).find("alter").length > 0);						// Set alter
+				o.grace=($(this).find("grace").length > 0);						// Set grace
+				if (o.grace)	return true;									// Skip grace
+						
+//				o.alter=($(this).find("alter").length > 0);						// Set alter
 				if ($(this).find("up-bow").length)	 		o.bow="u";  		// Bow up
 				else if ($(this).find("down-bow").length)	o.bow="d";  		// Bow down
 				if ($(this).find("bend-alter").length)		o.bend=Math.ceil($(this).find("bend-alter").eq(0).text());	// Bend
@@ -141,6 +143,7 @@
 							}	
 						}
 					}
+				
 				if (notes.length && $(this).find("hammer-on").attr("type") == "stop") 			// A hammer-on
 					notes[notes.length-1].hammer=o.fret;						// Set fret
 				else 
@@ -148,6 +151,7 @@
 				});													
 			for (i=0;i<notes.length;++i) {										// For each note in measure
 				o=notes[i];														// Get note			
+				trace(o.chord)
 				if (curDur != o.d) {											// A new dur
 					curDur=o.d;													// Then is now
 					tab+=" :"+o.d;												// Add duration
