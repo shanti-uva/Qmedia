@@ -137,21 +137,18 @@
 				if ($(this).find("bend-alter").length)		o.bend=Math.ceil($(this).find("bend-alter").eq(0).text());	// Bend
 				if ($(this).find("chord").length) {								// If part of a chord
 					if (notes.length) { 										// Not first note
-						if (notes[notes.length-1].chord == 0) {					// If not notes attached yet
+						if (notes[notes.length-1].chord == 0) 					// If not notes attached yet
 							notes[notes.length-1].chord=1;						// Flag as chord start
-							o.chord=2;											// This is a member
-							}	
+						o.chord=2;												// This is a member
 						}
 					}
 				
-				if (notes.length && $(this).find("hammer-on").attr("type") == "stop") 			// A hammer-on
+				if (notes.length && $(this).find("hammer-on").attr("type") == "stop") 	// A hammer-on
 					notes[notes.length-1].hammer=o.fret;						// Set fret
-				else 
-					notes.push(o);												// Add note to measure
+				notes.push(o);													// Add note to measure
 				});													
 			for (i=0;i<notes.length;++i) {										// For each note in measure
 				o=notes[i];														// Get note			
-				trace(o.chord)
 				if (curDur != o.d) {											// A new dur
 					curDur=o.d;													// Then is now
 					tab+=" :"+o.d;												// Add duration
@@ -166,7 +163,7 @@
 					tab+=".";													// Attach note to last													
 				else
 					tab+=" ";													// A single note
-				if (o.fret && o.string)	{										// If defines
+				if ((o.fret != undefined) && o.string)	{						// If defined
 					tab+=o.fret;												// Add fret
 					if (o.hammer)	tab+="h"+o.hammer;							// Add hammer? 
 					if (o.bend)		tab+="b"+(o.bend+o.fret);					// Add bend? 
