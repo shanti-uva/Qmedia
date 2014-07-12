@@ -32,8 +32,10 @@
 			$("body").append("&nbsp; &nbsp;Click <a href='//www.vexflow.com/vextab/tutorial.html' target=/_blank'> here</a> for VexTab  tutorial"); // Add link to docs		
  			$("body").append("<br><br><textarea cols='70' rows='4' id='xmlEdit'></textarea>")	// Add xml area
   			$("body").append("<br><button id='saveBut' onclick='GetXML()'>Convert XML</button>&nbsp; &nbsp;Paste XML in box above <i>-- or --</i> &nbsp;<input type='file' id='files' name='files[]' />");
- 			$("body").append("<br><select id='xmlMpl'><option>1</option><option>2</option><option selected=selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select> Measures per line");
- 			$("body").append(" <input id='xmlNote' type='checkbox'> Show musical notation?");
+ 			$("body").append("<br>Bars per line: <select id='xmlMpl'><option>1</option><option>2</option><option selected=selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select>");
+ 			$("body").append(" Starting bar: <input id='xmlStart' type='text' size=1' value='1'>");
+ 			$("body").append(" Ending bar: <input id='xmlEnd' type='text' size='1'>");
+  			$("body").append("<br><input id='xmlNote' type='checkbox'> Show musical notation?");
  			$("body").append(" <input id='xmlRhythm' type='checkbox'> Notation rhythm?");
  			$("body").append("<br><br><div style='color:#990000' id='error'></div>"); // Add error field				
 			document.getElementById('files').addEventListener('change',onFileSelect,false);	// Add handler
@@ -91,13 +93,20 @@
  	
   	function GetXML() 														// GET XML DATA
  	{
- 		var i,m=0,o,notes;
+ 		var i,m=0,n=0,o,notes;
   		var curDur="";
  		var tab=""
  		var xml=$.parseXML($("#xmlEdit").val());								// Get xml
 		var mpl=$("#xmlMpl").val();												// Get measures/line
+		var s=$("#xmlStart").val()-1;											// Get start
+		var e=$("#xmlEnd").val();												// Get end
+		if (!e)	e=1000;															// No end
+
 		var numMeasures=$(xml).find("measure").length;							// Number of measure
+		xml=$(xml).find("part").eq(0);											// Point at first part		
 		$(xml).find("measure").each( function() {								// For each measure
+			if (n++ < s)	return true;										// Before time, continue
+			if (n > e)		return false;										// After time, quit
 			if (!(m++%mpl)) {													// If a line break
 				tab+="\ntabstave";												// Add stave
 				if ($("#xmlNote").prop("checked")) tab+=" notation=true";		// Show notation
@@ -123,6 +132,7 @@
 				o.alter=($(this).find("alter").length > 0);						// Set alter
 				if ($(this).find("up-bow").length)	 		o.bow="u";  		// Bow up
 				else if ($(this).find("down-bow").length)	o.bow="d";  		// Bow down
+				if ($(this).find("bend-alter").length)		o.bend=Math.ceil($(this).find("bend-alter").eq(0).text());	// Bend
 				if ($(this).find("chord").length) {								// If part of a chord
 					if (notes.length) { 										// Not first note
 						if (notes[notes.length-1].chord == 0) {					// If not notes attached yet
