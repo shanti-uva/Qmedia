@@ -1210,6 +1210,7 @@
 		str+="<tr><td width=18></td><td>Title</td><td><input class='bs' type='text' id='title' value='"+(curJson.title ? curJson.title :'')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Overall width</td><td><input class='bs' type='text' id='width' value='"+curJson.width+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>InfoMap source</td><td><input class='bs' type='text' id='infoMapSource' value='"+(curJson.infoMapSource ? curJson.infoMapSource : '')+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>External CSS stylesheet</td><td><input class='bs' type='text' id='extCSS' value='"+(curJson.extCSS ? curJson.extCSS : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Transcript pane label</td><td><input class='bs' type='text' id='transLab' value='"+(curJson.transLab ? curJson.transLab : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Information pane label</td><td><input class='bs' type='text' id='infoLab' value='"+(curJson.infoLab ? curJson.infoLab : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Index pane label</td><td><input class='bs' type='text' id='contentsLab' value='"+(curJson.contentsLab ? curJson.contentsLab : '' )+"'></td></tr>";	// Get setting
@@ -1236,28 +1237,29 @@
 		str+="&nbsp;&nbsp;<button"+butsty+"onclick='Preview()'>Preview</button>";	// Preview button
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 		
-		$("#title").on("change", function() { curJson.title=$(this).val(); });	// Extract value	
-		$("#width").on("change", function() { curJson.width=$(this).val(); });	// Extract value	
+		$("#title").on("change", function() { curJson.title=$(this).val(); });					// Extract value	
+		$("#width").on("change", function() { curJson.width=$(this).val(); });					// Extract value	
 		$("#infoMapSource").on("change", function() { curJson.infoMapSource=$(this).val(); });	// Extract value	
-		$("#transLab").on("change", function() { curJson.transLab=$(this).val(); });	// Extract value	
-		$("#infoLab").on("change", function() { curJson.infoLab=$(this).val(); });		// Extract value	
-		$("#contentsLab").on("change", function() { curJson.contentsLab=$(this).val(); });	// Extract value	
-		$("#transLab").on("change", function() { curJson.transLab=$(this).val(); });	// Extract value	
+		$("#extCSS").on("change", function() { curJson.extCSS=$(this).val(); });				// Extract value	
+		$("#transLab").on("change", function() { curJson.transLab=$(this).val(); });			// Extract value	
+		$("#infoLab").on("change", function() { curJson.infoLab=$(this).val(); });				// Extract value	
+		$("#contentsLab").on("change", function() { curJson.contentsLab=$(this).val(); });		// Extract value	
+		$("#transLab").on("change", function() { curJson.transLab=$(this).val(); });			// Extract value	
 		$("#contentsPlayOnClick").on("change", function() { curJson.contentsPlayOnClick=$(this).val(); });	// Extract value	
-		$("#logIn").on("change", function() { curJson.logIn=$(this).val(); });	// Extract value	
+		$("#logIn").on("change", function() { curJson.logIn=$(this).val(); });					// Extract value	
 		$("#playerSource").on("change", function() { curJson.playerSource=$(this).val(); });	// Extract value	
-		$("#playerStart").on("change", function() { curJson.playerStart=$(this).val(); });	// Extract value	
-		$("#playerStop").on("change", function() { curJson.playerStop=$(this).val(); });	// Extract value	
+		$("#playerStart").on("change", function() { curJson.playerStart=$(this).val(); });		// Extract value	
+		$("#playerStop").on("change", function() { curJson.playerStop=$(this).val(); });		// Extract value	
 		$("#playerAspect").on("change", function() { curJson.playerAspect=$(this).val(); });	// Extract value	
 		$("#playerSlideRatio").on("change", function() { curJson.playerSlideRatio=$(this).val(); });	// Extract value	
-		$("#playerControls").on("change", function() { curJson.playerControls=$(this).val(); });	// Extract value	
-		$("#playerAuto").on("change", function() { curJson.playerAuto=$(this).val(); });	// Extract value	
+		$("#playerControls").on("change", function() { curJson.playerControls=$(this).val(); });// Extract value	
+		$("#playerAuto").on("change", function() { curJson.playerAuto=$(this).val(); });		// Extract value	
 		$("#playerVolume").on("change", function() { curJson.playerVolume=$(this).val(); });	// Extract value	
 		$("#playerQuality").on("change", function() { curJson.playerQuality=$(this).val(); });	// Extract value	
-		$("#transInfoRatio").on("change", function() { curJson.transInfoRatio=$(this).val(); });	// Extract value	
-		$("#transHgt").on("change", function() { curJson.transHgt=$(this).val(); });	// Extract value	
+		$("#transInfoRatio").on("change", function() { curJson.transInfoRatio=$(this).val(); });// Extract value	
+		$("#transHgt").on("change", function() { curJson.transHgt=$(this).val(); });			// Extract value	
 		$("#transLanguage").on("change", function() { curJson.transLanguage=$(this).val(); });	// Extract value	
-		$("#transLangs").on("change", function() { curJson.transLangs=$(this).val(); });	// Extract value	
+		$("#transLangs").on("change", function() { curJson.transLangs=$(this).val(); });		// Extract value	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

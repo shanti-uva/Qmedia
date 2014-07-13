@@ -12,46 +12,65 @@
  
 	<style type="text/css">
 		body { 			font-family:Verdana,Geneva,sans-serif; font-size:9px; }
-		.rounded-corners { -moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;}
+		.qm-rounded-corners { -moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;}
 		tr.odd { 		background-color:#e0e0e0; }
 		.ui-autocomplete { max-height: 300px; overflow-y: auto; }
 	
- 		.unselectable { -moz-user-select: none;     -khtml-user-select: none;
+ 		.qm-unselectable { -moz-user-select: none;     -khtml-user-select: none;
 		   			 	-webkit-user-select: none;  -ms-user-select: none;   user-select: none;
 		   				}
-		.title { 		font-family:Verdana,Geneva,sans-serif; font-size:x-large;color:#fff;
+		.qm-splash { 	text-align:center;position:absolute;top:100px;left:200px;
+						}
+		.qm-base { 		font-family:Verdana,Geneva,sans-serif;
+						}	
+		.qm-title { 	font-family:Verdana,Geneva,sans-serif; font-size:x-large;color:#fff;
 						padding:8px;margin:0px;font-weight:bold;
 						-moz-border-radius:4px;-webkit-border-radius:4px;-khtml-border-radius:4px;border-radius:4px;
 						background-color:#ccc;
 					  	}
-		.contents { 	font-family:Verdana,Geneva,sans-serif; font-size:13px; 
+		.qm-control { 	padding:4px;margin:0px;margin-top:6px;
+						-moz-border-radius:6px;-webkit-border-radius:6px;-khtml-border-radius:6px;border-radius:6px;
+						background-color:#ccc;
+						} 
+		.qm-scrubber { 	
+						}	
+		.qm-slideControls { 	
+						}	
+		.qm-contents { 	font-family:Verdana,Geneva,sans-serif; font-size:13px; 
 						padding:0px; margin:0px;padding-right:16px;background-color:#fff;border-top:8px solid #fff;
 						} 
-		.trans { 		font-family:Verdana,Geneva,sans-serif; font-size:13px;
+		.qm-contentsText{
+						height:90%;overflow:auto;margin-top:16px;opacity:inherit;
+						}
+		.qm-trans { 	font-family:Verdana,Geneva,sans-serif; font-size:13px;
 						margin:0px; padding:0px;padding-right:8px;padding-left:16px;
 						overflow:hidden;background-color:#fff;border-top:8px solid #fff;
 						cursor:pointer;
 						}
-		.slide { 		overflow:hidden;
+		.qm-transText { height:90%;overflow:auto;margin-top:16px;padding-right:8px;opacity:inherit;
 						}
-		.control { 		padding:4px;margin:0px;margin-top:6px;
-						-moz-border-radius:6px;-webkit-border-radius:6px;-khtml-border-radius:6px;border-radius:6px;
-						background-color:#ccc;
-						} 
-		.info { 		font-family:Verdana,Geneva,sans-serif; font-size:13px;
+		.qm-transSearch { position:absolute;top:0px;white-space:nowrap;opacity:inherit;
+						}
+		.qm-slide { 	overflow:hidden;
+						}
+		.qm-info { 		font-family:Verdana,Geneva,sans-serif; font-size:13px;
 						margin:0px; padding:0px;background-color:#fff;border-top:8px solid #fff;
 						overflow:hidden;
 						}
-		.labels { 		font-family:Verdana,Geneva,sans-serif; font-size:16px;
+		.qm-infoText {  height:100%;overflow:hidden;margin-top:16px;opacity:inherit;
+						}
+		.qm-infoMap { 	position:absolute;top:0px;white-space:nowrap;opacity:inherit;display:none;
+						}
+		.qm-labels { 	font-family:Verdana,Geneva,sans-serif; font-size:16px;
 						color:#999;font-weight:bold;background-color:#fff;
 						}
-		.timeDisp { 	font-family:Verdana,Geneva,sans-serif; font-size:9px;
+		.qm-timeDisp { 	font-family:Verdana,Geneva,sans-serif; font-size:9px;
 						color:#666;width:100px;display:inline-block;text-align:center;
 						}
-		.prompt { 		font-family:Verdana,Geneva,sans-serif; font-size:10px;
+		.qm-prompt { 	font-family:Verdana,Geneva,sans-serif; font-size:10px;
 						color:#000;width:100%;text-align:right;padding-top:4px;background-color:#fff;
 						}
-		.is {			border-radius:10px;padding-left:8px;padding-right:8px;padding-top:1px;
+		.qm-is {		border-radius:10px;padding-left:8px;padding-right:8px;padding-top:1px;
 						border:1px solid #999;font-size:12px;height;20px;width:200px;
 						]
 
@@ -68,51 +87,51 @@
 
 </head>
 <body>
-<div id="splashDiv" style="text-align:center;position:absolute;top:100px;left:200px"><img src="qlogo.png"></div>
-<div id="showDiv" style="padding:0px;margin:0px;opacity:0;">
-	<div id="titleDiv" style="position:absolute;opacity:inherit" class="title unselectable"></div>
-	<div id="playerDiv" style="position:absolute;opacity:inherit" class="unselectable"></div>
-	<div id="slideDiv" style="position:absolute;opacity:inherit" class="slide unselectable"></div>
-	<div id="controlDiv" style="position:absolute;opacity:inherit" class="control unselectable">
+<div id="splashDiv" class="qm-splash"><img src="qlogo.png"></div>
+<div id="showDiv" style="padding:0px;margin:0px;opacity:0;" class="qm-base">
+	<div id="titleDiv" style="position:absolute;opacity:inherit" class="qm-title qm-unselectable"></div>
+	<div id="playerDiv" style="position:absolute;opacity:inherit" class="qm-unselectable"></div>
+	<div id="slideDiv" style="position:absolute;opacity:inherit" class="qm-slide qm-unselectable"></div>
+	<div id="controlDiv" style="position:absolute;opacity:inherit" class="qm-control qm-unselectable">
 		<div style="width:100%;height:6px;background-color:#fff;position:absolute;top:-6px;"></div>
 	  	<img id="playBut" src="images/playbut.gif" onclick="RunPlayer('play')" title="Play video" style="vertical-align:-4px;cursor:pointer">
-   		<div id="timeDisp" class="timeDisp unselectable"></div>
-   		<div style="display:inline-block" id="slider"></div>&nbsp;&nbsp;
+   		<div id="timeDisp" class="qm-timeDisp qm-unselectable"></div>
+   		<div style="display:inline-block" id="slider" class="qm-scrubber"></div>&nbsp;&nbsp;
 	   	<img src="images/settingsbut.gif" id="settings" title="Settings menu" style="vertical-align:-2px;cursor:pointer"><span style="vertical-align:1px">&nbsp;&nbsp;</span>
-   		<span id='slideControlsDiv'>
+   		<span id="slideControlsDiv" class="slideControls">
 	  		<img src="images/startdot.gif" onclick="RunSlide('last')" title="Go to previous slide" style="vertical-align:-2px;cursor:pointer"><span style="vertical-align:1px">&nbsp;&nbsp;|&nbsp;</span>
 	   		<img src="images/enddot.gif" onclick="RunSlide('next')" title="Go to next slide" style="vertical-align:-2px;cursor:pointer">&nbsp;
 		</span>
 	</div>
-	<div id="playerSiz" style="position:absolute;width:8px;cursor:col-resize;opacity:inherit" class="unselectable" title="Resize player">
-		<div id="playerSiz1" style="position:absolute;width:40px;height:100%;left:-16px" class="unselectable"></div>
+	<div id="playerSiz" style="position:absolute;width:8px;cursor:col-resize;opacity:inherit" class="qm-unselectable" title="Resize player">
+		<div id="playerSiz1" style="position:absolute;width:40px;height:100%;left:-16px" qm-class="qm-unselectable"></div>
 	</div>
-	<div id="contentDiv" style="position:absolute;top:0px;opacity:inherit" class="contents unselectable">
-		<span id="contentsLab" class="labels"></span>
-		<div id="contentsText" style="height:90%;overflow:auto;margin-top:16px;opacity:inherit"></div>
+	<div id="contentDiv" style="position:absolute;top:0px;opacity:inherit" class="qm-contents qm-unselectable">
+		<span id="contentsLab" class="qm-labels"></span>
+		<div id="contentsText" class="qm-contentsText"></div>
 	</div>
-	<div id="transDiv" style="position:absolute;opacity:inherit" class="trans">
-		<span id="transLab" class="labels"></span>
-		<div id="transSearchDiv" style='position:absolute;top:0px;white-space:nowrap;opacity:inherit'> 
+	<div id="transDiv" style="position:absolute;opacity:inherit" class="qm-trans">
+		<span id="transLab" class="qm-labels"></span>
+		<div id="transSearchDiv" class="qm-transSearch"> 
 			<input style='width:100px;font-size:13px;border:1px solid #ddd' id='transSearch'>
   			<img src="images/settingsbut.gif" id="transSettings" title="Transcript menu" style="vertical-align:-2px;cursor:pointer">
 	  	</div>
-  		<div id="transcriptText" style="height:90%;overflow:auto;margin-top:16px;padding-right:8px;opacity:inherit"></div>
+  		<div id="transcriptText" class="qm-transText"></div>
  	</div>
-	<div id="infoDiv" style="position:absolute;opacity:inherit" class="info">
-		<span id="infoLab" class="labels"></span>
-		<div id="infoMapDiv" style='position:absolute;top:0px;white-space:nowrap;opacity:inherit;display:none'> 
+	<div id="infoDiv" style="position:absolute;opacity:inherit" class="qm-info">
+		<span id="infoLab" class="qm-labels"></span>
+		<div id="infoMapDiv" class="qm-infoMap"> 
  			<img src="images/mapbut.gif" id="infomap" title="Show content map" style="cursor:pointer;opacity:0"> &nbsp;
  			<img src="images/annotate.gif" id="annotate" width="11" title="Annotate" style="cursor:pointer">
 	  	</div>
-		<div id="informationText" style="height:100%;overflow:hidden;margin-top:16px;opacity:inherit"></div>
+		<div id="informationText" class="qm-infoText"></div>
 	</div>
-	<div id="transHgt" style="position:absolute;width:1000px;height:7px;cursor:row-resize;border-bottom:3px solid #ccc" class="unselectable" title="Change transcript height">
-			<p id="prompt" class="prompt">The University of Virginia</p>
+	<div id="transHgt" style="position:absolute;width:1000px;height:7px;cursor:row-resize;border-bottom:3px solid #ccc" class="qm-unselectable" title="Change transcript height">
+			<p id="prompt" class="qm-prompt">The University of Virginia</p>
 			<div id="botMarkup"></div>
 	</div>
-	<div id="transSiz" style="position:absolute;width:8px;cursor:col-resize;opacity:inherit" class="unselectable" title="Resize transcript">
-		<div style="position:absolute;width:40px;height:100%;top:32px;left:-4px" class="unselectable"></div>
+	<div id="transSiz" style="position:absolute;width:8px;cursor:col-resize;opacity:inherit" class="qm-unselectable" title="Resize transcript">
+		<div style="position:absolute;width:40px;height:100%;top:32px;left:-4px" class="qm-unselectable"></div>
 	</div>
 	<div id="cache0" style="display:none"></div><div id="cache1" style="display:none"></div><div id="cache2" style="display:none"></div><div id="cache3" style="display:none"></div>
 </div>
@@ -245,7 +264,7 @@
 			str+="<tr><td>Take notes</td><td><input id='pNotes' type='checkbox'></td></tr>";
 			str+="<tr><td>Zen mode</td><td><input id='pZen' type='checkbox'></td></tr>";
 			str+="</table>";
-			$("body").append("<div id='setpopup' style='display:none;position:absolute;width:"+w+"px;height:auto;background-color:#f8f8f8;left:"+x+"px;top:"+y+"px;border:1px solid #ccc;padding:8px' class='rousnded-corners'>"+str+"</div>");
+			$("body").append("<div id='setpopup' style='display:none;position:absolute;width:"+w+"px;height:auto;background-color:#f8f8f8;left:"+x+"px;top:"+y+"px;border:1px solid #ccc;padding:8px'>"+str+"</div>");
 			var y=$("#controlDiv").css("top").replace(/px/,"")-$("#setpopup").height()-11;			
 			$("#pZen").prop("checked",playerZen);								// Set Zen box
 			$("#pNotes").prop("checked",playerNotes);							// Set Notes box
@@ -304,7 +323,9 @@
 			show.playerStart=0.0;												// Assign one
 		if (show.playerStop == undefined) 										// No start spec'd
 			show.playerStop=600.0;												// Assign one
-		sd=show;
+		if (show.extCSS) 														// If an external CSS file declared
+		    $("head").append($("<link rel='stylesheet' type='text/css' href='"+show.extCSS+"'>")),trace(show.extCSS);
+ 		sd=show;
 		for (i=0;i<4;++i) {														// For each show pane
 			showVectors[i]=[];													// Create timing vector arrays 
 			showCurSource[i]="";												// No source yet
@@ -900,7 +921,7 @@
 			var str="<table><tr height='18'><td>Language</td><td>";
 			str+=MakeSelect("tLang",false,sd.transLangs.split("|"),sd.transLanguage,"style='font-size:10px'")+"</td></tr>";
 			str+="</table>";
-			$("body").append("<div id='setpopup' style='display:none;position:absolute;width:"+w+"px;height:auto;background-color:#f8f8f8;left:"+x+"px;top:"+y+"px;border:1px solid #ccc;padding:8px' class='rousnded-corners'>"+str+"</div>");
+			$("body").append("<div id='setpopup' style='display:none;position:absolute;width:"+w+"px;height:auto;background-color:#f8f8f8;left:"+x+"px;top:"+y+"px;border:1px solid #ccc;padding:8px'>"+str+"</div>");
 			var y=$("#controlDiv").css("top").replace(/px/,"")-0+24+$("#controlDiv").height();			
 			$("#setpopup").css("top",y);										// Position above control bat
 			$("#setpopup").show('slide',{direction:'right'},300);				// Show it
@@ -1458,7 +1479,7 @@
 		var x=$("#playerDiv").width()/2-50;
 		var y=$("#playerDiv").css("top").replace(/px/,"")-30+$("#playerDiv").height()/2;
 		$("#popup").remove();
-		var str="<div id='popup' style='position:absolute;display:none;background-color:#eee;left:"+x+"px;top:"+y+"px;border:1px solid;padding:12px' class='rounded-corners'>"+msg+"</div>";
+		var str="<div id='popup' style='position:absolute;display:none;background-color:#eee;left:"+x+"px;top:"+y+"px;border:1px solid;padding:12px' class='qm-rounded-corners'>"+msg+"</div>";
 		$("body").append(str);
 		$("#popup").show().delay(700).hide(300)
 		}
@@ -1553,13 +1574,13 @@
 	{
 		Sound("click");															// Click sound
 		$("#alertBoxDiv").remove();											// Remove any old ones
-		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
+		$("body").append("<div class='qm-unselectable' id='alertBoxDiv'></div>");														
 		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
 		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>Login</b></span><p>";
 		str+="<div style='font-size:14px;margin:14px'>Please type your username or email, and password:<br></div>";
 		str+="<table style='font-size:14px;margin:14px'>";
-		str+="<tr><td>User name </td><td><input class='is' type='text' id='gtBoxUn'></td></tr>";
-		str+="<tr><td>Password</td><td><input class='is' type='password' id='gtBoxPw'></td></tr></table>";
+		str+="<tr><td>User name </td><td><input class='qm-is' type='text' id='gtBoxUn'></td></tr>";
+		str+="<tr><td>Password</td><td><input class='qm-is' type='password' id='gtBoxPw'></td></tr></table>";
 		$("#alertBoxDiv").append(str);	
 		$("#alertBoxDiv").dialog({ width:400, modal:true, buttons: {
 		            	"Cancel": function() { 	$(this).remove(); sd.logIn == "false"},
@@ -1594,7 +1615,7 @@
 	function AlertBox(title, content, callback)								// ALERT BOX
 	{
 		$("#alertBoxDiv").remove();												// Remove any old ones
-		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
+		$("body").append("<div class='qm-unselectable' id='alertBoxDiv'></div>");														
 		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
 		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>"+title+"</b></span></p>";
 		str+="<div style='font-size:14px;margin:16px'>"+content+"</div>";
@@ -1641,7 +1662,7 @@
 			return;																// Turn it off
 		var ts="color:#009900;cursor:pointer";									// Timecode style
 		var ns="font-size:13px;border:none;background:none;width:100%;padding:0px;margin:0px"; // Note style	
-		str="<div class='rounded-corners' id='notesDiv' style='position:absolute;padding:8px;overflow-y:auto;overflow-x:hidden;";	// Div
+		str="<div class='qm-rounded-corners' id='notesDiv' style='position:absolute;padding:8px;overflow-y:auto;overflow-x:hidden;";	// Div
 		str+="width:"+sd.width/2+"px;height:"+($("#infoDiv").height()-16)+"px;";	// Set sizing
 		str+="background-color:#f8f8f8;border:1px solid #ccc;box-shadow:4px 4px 8px #ccc;";	// Set coloring
 		str+="top:"+$("#infoDiv").offset().top+"px;left:"+sd.width/4+"px;'>";	// Set position
