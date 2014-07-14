@@ -79,18 +79,15 @@
 	var curPage=0;																// Current page of assessment
 	var numTries=0;																// Number of tries at page
 	var curTime;																// Current player time
-		
+	var qe=new QmediaEvents("QmediaAssess");									// Alloc events library
+			
 	$(document).ready(function() {											// WHEN PAGE LOADED
-		if (window.addEventListener) 											// If supported this way
-			window.addEventListener("message",shivaEventHandler,false);			// Add event handler
-		else																	// Use other method
-			window.attachEvent("message",shivaEventHandler);					// Add handler
-		SendShivaMessage("QmediaAssess=ready","");								// Send ready message
+		qe.SendMessage("ready","");												// Send ready message
 		$("body").on("keydown", function(e) {									// Handle key down
 				if (e.which == 27) 												// Esc key
 					Draw(aData.pages.length);									// Move on
 				});
-		setInterval(function(){	SendShivaMessage("QmediaAssess=time","")},500);	// Get player time						
+		setInterval(function(){	qe.SendMessage("time")},500);					// Get player time						
 	
 		/////////////////////////////////////////////////////////////////	
 		var e={}
@@ -102,13 +99,13 @@
 		e.data+=',\"prompt":"Drag then"';
 		e.data+=',"optionType":"match","options":["first:sex","second:drugs","third:rock","fourth:roll"]}';
 		e.data+="]}"
-//		shivaEventHandler(e);													
+//		QmediaEventHandler(e);													
 		/////////////////////////////////////////////////////////////////	
 
 
 		});
 		
-	function shivaEventHandler(e)											// ON SHIVA EVENT
+	function QmediaEventHandler(e)											// ON SHIVA EVENT
 	{
 		var v=e.data.split("|");												// Split into parts													
 		if (v[0] == "ShivaAct=data") {											// If a data 
@@ -123,7 +120,7 @@
 	{
 		var i,lab,str="",col="#000";												
 		if (num >= aData.pages.length) {										// Past last page
-			SendShivaMessage("QmediaAssess=done");								// Send done message
+			qe.SendMessage("done");												// Send done message
 			return;																// Quit
 			}
 		if (curPage != num)														// If a new page
@@ -170,11 +167,11 @@
 			str+="style='width:"+$("#optionsLDiv").parent().width()*.8+"px'></textarea><br></span>";	// area
 			}	
 		else if (d.optionType == "notes") {										// Notes option
-			SendShivaMessage("QmediaAssess=notes","start");						// Send start message
+			qe.SendMessage("notes","start");									// Send start message
 			if (d.pic) str+="<img src='"+d.pic+"' height=75><br>";				// Add pic
 			}	
 		else if (d.optionType == "draw")	{									// Drae option
-			SendShivaMessage("QmediaAssess=draw","start|bottom|"+d.background);	// Send start message
+			qe.SendMessage("draw","start|bottom|"+d.background);				// Send start message
 			if (d.pic) str+="<img src='"+d.pic+"' height=75><br>";				// Add pic
 			}	
 		str+="<p style='text-align:center'><input id='nextBut' type='button' value='Next' class='nextbutSty'>"; 	// Add button
@@ -199,19 +196,19 @@
 			++numTries;															// Increment tries
 			if (d.optionType == "write") {										// Draw style
 				ans=$("#opt").val();											// Get answer
-				SendShivaMessage("QmediaAssess=answer",curPage+"|"+ans);		// Send answer message
+				qe.SendMessage("answer",curPage+"|"+ans);						// Send answer message
 				if (!d.numTries || ans)											// If requiring an answer
 					Draw(curPage+1);											// Move on
 				return;															// Quit
 				}	
 			else if (d.optionType == "notes") {									// Notes style
-				SendShivaMessage("QmediaAssess=answer",curPage+"|personalNotes");	// Send answer message
+				qe.SendMessage("answer",curPage+"|personalNotes");				// Send answer message
 				Draw(curPage+1);												// Move on
 				return;															// Quit
 				}
 			else if (d.optionType == "draw") {									// Draw style
-				SendShivaMessage("QmediaAssess=answer",curPage);				// Send answer message
-				SendShivaMessage("QmediaAssess=draw","done");					// Send done message
+				qe.SendMessage("answer",curPage+"|draw");						// Send answer message
+				qe.SendMessage("draw","done");									// Send done message
 				Draw(curPage+1);												// Move on
 				return;															// Quit
 				}	
@@ -291,7 +288,7 @@
 				 	if (numTries < d.numTries)									// If more tries ahead
 				 		str+="<div style='text-align:center'><b>Please try again</b> ("+numTries+"/"+d.numTries+")</div>";	// Show progress
 					}
-				SendShivaMessage("QmediaAssess=answer",curPage+"|"+ans);		// Send answer message
+				qe.SendMessage("answer",curPage+"|"+ans);						// Send answer message
 				str+="</p><div style='text-align:center'>";						// Center
 				str+="<input id='contBut' type='button' value='Continue' class='nextbutSty'></div></div>"; 	// Add button
 				$("#optionsLDiv").html(str);									// Set div
@@ -310,40 +307,30 @@
 			
 		$("#skipBut").on("click",function() {									// SKIP BUTTON HANDLER
 			if (d.optionType == "draw") 										// Draw style
-				SendShivaMessage("QmediaAssess=draw","done");					// Send done message
+				qe.SendMessage("draw","done");									// Send done message
 			else if (d.optionType == "notes") 									// Notes style
-				SendShivaMessage("QmediaAssess=answer",curPage+"|personalNotes");	// Send answer message
-			SendShivaMessage("QmediaAssess=answer",curPage+"|skip");			// Send answer message
+				qe.SendMessage("answer",curPage+"|personalNotes");				// Send answer message
+			qe.SendMessage("answer",curPage+"|skip");							// Send answer message
 			Draw(curPage+1);													// Move on
 			});
 		
 	}
-	
-	
-	function SendShivaMessage(cmd, msg) 									// SEND SHIVA MESSAGE 
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// HELPERS
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	function Shuffle(array) 												// FISHER-YATES SHUFFLE
 	{
-		var id=window.name;														// Get from name
-		if (!id) 																// Firefox/IE issue
-			id="posterFrame-"+(""+window.location.search.match(/&if=[0-9A-z]+/)).substr(4);	// Extract id
-		var str=cmd+"|"+id;														// Add src and window						
-		if (msg)																// If more to it
-			str+="|"+msg;														// Add it
-		if (window.parent)														// If has a parent
-			window.parent.postMessage(str,"*");									// Send message to parent wind
-		else																	// Local	
-			window.postMessage(str,"*");										// Send message to wind
-	}
-	
-	
-	function Shuffle(array) {												// FISHER-YATES SHUFFLE
-    for (var i = array.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-    return array;
-}
+	   	var i,j,t;
+		for (i=array.length-1;i>0;i--) {										// Work backwards thru array
+			j=Math.floor(Math.random()*(i+1));									// Get random num
+	      	t=array[i];															// Save current
+	        array[i]=array[j];													// Swap 
+	        array[j]=t;															// with random 
+	   		}
+    	return array;															// Return shuffled array
+	}	
 	
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{
@@ -358,6 +345,30 @@
 		else
 			console.log(msg);
 	}
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// QMEDIA EVENT HANDLING
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+	function QmediaEvents(id)													// CONSTRUCTOR
+	{
+		if (window.addEventListener) 											// If supported this way
+			window.addEventListener("message",QmediaEventHandler,false);		// Add event handler
+		else																	// Use other method
+			window.attachEvent("message",QmediaEventHandler);					// Add handler
+		this.header=id+"=";														// Set header
+	}
+	
+	QmediaEvents.prototype.SendMessage=function(cmd, msg)					// SEND MESSAGE TO CONTAINER
+		{
+		var str=this.header+cmd+"|extra";										// Add header				
+		if (msg) str+="|"+msg;													// If more to it, add
+		if (window.parent)														// If has a parent
+			window.parent.postMessage(str,"*");									// Send message to parent wind
+		else																	// Local	
+			window.postMessage(str,"*");										// Send message to wind
+	}
+
 	
 	
 </script>

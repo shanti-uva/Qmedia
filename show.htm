@@ -326,7 +326,7 @@
 		if (show.playerStop == undefined) 										// No start spec'd
 			show.playerStop=600.0;												// Assign one
 		if (show.extCSS) 														// If an external CSS file declared
-		    $("head").append($("<link rel='stylesheet' type='text/css' href='"+show.extCSS+"'>")),trace(show.extCSS);
+		    $("head").append($("<link rel='stylesheet' type='text/css' href='"+show.extCSS+"'>"));
  		sd=show;
 		for (i=0;i<4;++i) {														// For each show pane
 			showVectors[i]=[];													// Create timing vector arrays 
@@ -1093,6 +1093,9 @@
 				playerNotes=false;												// Set flag
 				VideoNotes();													// Save notes and kill dialog
 				v[3]=notesText;													// Save notes to server
+				}
+			else if (v[3] == "draw") {											// If draw
+				v[3]="Draw data goes here";										// Save drawing to server
 				}
 			dat["event"]=new Date().toLocaleString()+"\tStep\t"+v[2]+"\t"+v[3]+"\n";		// Add event
 			if (sd.logIn == "true")															// If saving answers
