@@ -49,6 +49,9 @@
 						}
 		.qm-transText { height:90%;overflow:auto;margin-top:16px;padding-right:8px;opacity:inherit;
 						}
+		.qm-transHigh {
+						background-color:#ff0000;
+						}
 		.qm-transSearch { position:absolute;top:0px;white-space:nowrap;opacity:inherit;
 						}
 		.qm-slide { 	overflow:hidden;
@@ -793,9 +796,9 @@
 		var tran=sd.transText;													// Copy original
 		if (start != end) {														// If something to highlight
 			var str=tran.substring(0,start);									// Pre highlight
-			str+="<span style='background-color:#ddeeff";						// Add style
-			if (end == undefined)	str+=";background-color:#ffaaaa",end=start-0+1;	// Highlighting one char
-			str+="'>"+tran.substring(start,end);								// Highlight portion
+			str+="<span class='qm-transHigh'";									// Add style
+			if (end == undefined)	str+=" style='background-color:#ffaaaa'",end=start-0+1;	// Highlighting one char
+			str+=">"+tran.substring(start,end);								// Highlight portion
 			str+="</span>";														// End style
 			str+=tran.substring(end);											// Add end
 			tran=str;															// Copy
