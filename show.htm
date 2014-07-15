@@ -585,7 +585,7 @@
 							}
 						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
 							$("#"+div+"IF").remove();							// Remove any existing iframes
-							if ((o.d) && (o.c.match(/scroll/i))) 	extra="";	// Add scroll bars
+//							if ((o.d) && (o.c.match(/scroll/i))) 	extra="";	// Add scroll bars
 							$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' style='opacity:0' src='"+src+"'></iframe>");	// Load in iframe
 							}
 						else													// Same image base
@@ -1632,7 +1632,6 @@
   		$(".ui-button").css({"border-radius":"30px","outline":"none"});
 	}
 
-	
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{
 		if (p4 != undefined)

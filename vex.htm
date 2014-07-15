@@ -4,9 +4,9 @@
   	<title>Qmedia tab</title>
 	<link REL="SHORTCUT ICON" HREF="qlogo.ico">
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>	
-	<script src="http://www.vexflow.com/support/vexflow-min.js"></script>
-	<script src="http://www.vexflow.com/support/underscore-min.js"></script>
-	<script src="http://www.vexflow.com/support/tabdiv-min.js"></script>
+	<script src="lib/vexflow-min.js"></script>
+	<script src="lib/underscore-min.js"></script>
+	<script src="lib/tabdiv-min.js"></script>
 </head>
 <style>
 		body { 	font-family:Verdana,Geneva,sans-serif; font-size:13px; }
@@ -97,11 +97,13 @@
  		var i,m=0,n=0,o,notes;
   		var curDur="",tuple;
  		var tab=""
+ 		
  		var xml=$.parseXML($("#xmlEdit").val());								// Get xml
 		var mpl=$("#xmlMpl").val();												// Get measures/line
 		var s=$("#xmlStart").val()-1;											// Get start
 		var e=$("#xmlEnd").val();												// Get end
 		var stems=$("#xmlStems").val();											// Get stems
+		
 		if (!e || isNaN(e))	e=1000;												// No end
 		if (stems != "no")														// If stems set
 			tab+="options tab-stems=true tab-stem-direction="+stems+"\n"; 		// Add options
