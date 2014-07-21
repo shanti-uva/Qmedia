@@ -164,12 +164,16 @@
 		setInterval(function() { SendShivaMessage("Qmedia=time",curTime) },500); // Set timer 1-fps
 		qmf.LoadFile("qmf"+curShow);											// Load project
 		$("#editDiv").show();													// Show editor
+
 		$("#playerSiz").draggable({												// DRAG PLAYER WIDTH HANDLER
 			cursorAt:{left:-8},iframeFix:true,									// Cursor offset
 			cursor: "col-resize", axis:"x",										// X-only
-			containment:[0,0,curJson.width,0],
+//			containment:[0,0,wid,0],
 			drag: function(event, ui) {											// On drag
-			 	playerZoom=Math.max(0,Math.min(1,(event.clientX)/curJson.width));	// Set ratio between windows
+				var wid=curJson.width;											// Copy width
+				if ((" "+curJson.width).match("%"))								// If % in width
+					wid=$("body").width()*.66;									// Use 66%										
+			 	playerZoom=Math.max(0,Math.min(1,(event.clientX)/wid));			// Set ratio between windows
 				Draw();															// Resize panes
 				}
 			});
@@ -216,6 +220,8 @@
 	function Preview(time)													// PREVIEW SHOW
 	{
 		Do();																	// Save for undo
+		if (curPane == "settings") 												// If current pane Settings
+			Draw();																// Redraw frame because width may be reset
 		Sound("click");															// Click
 		curJson.curShow=curShow;												// Set current show
 		SendShivaMessage("Qmedia=data",JSON.stringify(curJson));				// Send to show player	   		
@@ -242,11 +248,14 @@
 	function Draw()															// RESIZE PANES
 	{ 
 		var str;
-		var w=window.innerWidth-curJson.width*playerZoom-32;					// Editor width
+		var wid=curJson.width;													// Copy width
+		if ((" "+curJson.width).match("%"))										// If % in width
+			wid=$("body").width()*.66;											// Use 66%										
+		var w=window.innerWidth-(wid*playerZoom)-32;							// Editor width
 		var h=window.innerHeight-64;											// Editor height
-		$("#playerIF").prop("width",curJson.width);								// Player wid
+		$("#playerIF").prop("width",wid);										// Player wid
 		$("#playerIF").prop("height",h+40);										// Hgt
-		$("#editDiv").css({width:w+"px",left:curJson.width*playerZoom+16+"px",height:h+"px"});		// Overall div
+		$("#editDiv").css({width:w+"px",left:wid*playerZoom+16+"px",height:h+"px"}); // Overall div
 		$("#getHelp").css({left:w-24+"px"});									// Help dot to right
 	
 		$("#showName").html("&nbsp; Current show: <b>"+curShow+"</b>");			// Show name
@@ -269,8 +278,10 @@
 				"-webkit-transform":"matrix("+playerZoom+",0,0,"+playerZoom+",0,0)",
 	 			"-transform":"matrix("+playerZoom+",0,0,"+playerZoom+",0,0)",
 	   			});
-		
-		$("#playerSiz").css({ left:(curJson.width*playerZoom+8)+"px"});			// Set sizer pos
+		var wid=curJson.width;													// Copy width
+		if ((" "+curJson.width).match("%"))										// If % in width
+			wid=$("body").width()*.66;											// Use 66%										
+		$("#playerSiz").css({ left:(wid*playerZoom+8)+"px"});					// Set sizer pos
 	}
 
 ///////////// INDEX ////////////////
