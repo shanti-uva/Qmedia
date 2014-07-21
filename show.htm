@@ -221,6 +221,8 @@
 				},
 			drag: function(event, ui) {											// On drag
 				var wid=Math.min($("body").width(),sd.width);					// Cap at screen size
+				if ((" "+sd.width).match("%"))									// If % in width
+					wid=$("body").width()*(sd.width.replace(/%/,"")/100);		// Get proper width											
 			 	sd.playerSlideRatio=Math.max(0,Math.min(1,(event.clientX-8)/(wid+16)));	// Set ratio between windows
 				if (Math.abs(sd.playerSlideRatio-.5) < .01) 					// If close to center
 					sd.playerSlideRatio=.5;										// Snap it there
@@ -444,6 +446,8 @@
 			$("#titleDiv").css("display","initial");							// Title
 			}
 		var wid=Math.min($("body").width(),sd.width);							// Cap at screen size
+		if ((" "+sd.width).match("%"))											// If % in width
+			wid=$("body").width()*(sd.width.replace(/%/,"")/100);				// Get proper width											
 		$("#showDiv").width(wid);												// Set show width
 		$("#transHgt").width(wid);												// Set width
 		$("#titleDiv").width(wid-16);											// Set title width
@@ -462,7 +466,10 @@
 		$("#playerSiz").css({ left:(w+8)+"px",height:h+"px",top:pt+"px"});		// Set sizer pos
 		h+=pt;																	// Point at top of control bar
 		var ct=h+$("#controlDiv").height()+14;									// Contents top
-		$("#contentDiv").css({ top:ct+"px",height:sd.transHgt+"px"});			// Position/size contents
+		var trh=sd.transHgt;													// Copy trans hgt
+		if ((" "+sd.transHgt).match("%")) 										// If % in transhgt
+			trh=$(window).height()-ct-34;										// Get proper transhgt											
+		$("#contentDiv").css({ top:ct+"px",height:trh+"px"});					// Position/size contents
 		var cw=$("#contentDiv").width()-8;										// Get width of content panel
 		if (sd.indexVectors)													// If an index
 			cw+=16;																// Pad it out
@@ -472,17 +479,17 @@
 			sw+=$("#slideControlsDiv").width();									// Room for controls
 		$("#slider").width(wid-sw);												// Slider width
 		w=wid*r2;																// Transcript width
-		$("#transDiv").css({ left:cw+"px",width:(w-cw-8)+"px",height:sd.transHgt+"px",top:ct+"px"});
-		$("#transSiz").css({ left:(w+8)+"px",height:sd.transHgt+"px",top:ct+"px"});// Pos transcript sizer
+		$("#transDiv").css({ left:cw+"px",width:(w-cw-8)+"px",height:trh+"px",top:ct+"px"});
+		$("#transSiz").css({ left:(w+8)+"px",height:trh+"px",top:ct+"px"});		// Pos transcript sizer
 		w=wid*(1-sd.transInfoRatio)-8;											// Info window width
 		if (w > wid-50) {														// All info
 			w+=8;																// Remove border
 			$("#contentDiv").css("display","none");								// Hide contents
 			$("#transDiv").css("display","none");								// Hide transcript
 			}
-		$("#infoDiv").css({ left:(wid-w+8)+"px",width:Math.max(w,0)+"px",height:sd.transHgt+"px",top:ct+"px"});
-		if (sd.transHgt) {														// If a height set
-			ct+=(sd.transHgt-0);													// Add it to top					
+		$("#infoDiv").css({ left:(wid-w+8)+"px",width:Math.max(w,0)+"px",height:trh+"px",top:ct+"px"});
+		if (sd.transHgt && !isNaN(sd.transHgt)) {								// If a height NUMERICALLY set
+			ct+=(trh-0);														// Add it to top					
 			$("#transHgt").css("opacity",1);									// Show
 			}
 		else																	// No bottom
@@ -906,6 +913,8 @@
 				},
 			drag: function(event, ui) {											// On drag
 				var wid=Math.min($("body").width(),sd.width);					// Cap at screen size
+				if ((" "+sd.width).match("%"))									// If % in width
+					wid=$("body").width()*(sd.width.replace(/%/,"")/100);		// Get proper width											
 			 	sd.transInfoRatio=Math.max(0,Math.min(1,(event.clientX)/wid));	// Set ratio between windows
 				if (Math.abs(sd.transInfoRatio-.5) < .01) 						// If close to center
 					sd.transInfoRatio=.5;										// Snap it there
@@ -1666,10 +1675,13 @@
 			return;																// Turn it off
 		var ts="color:#009900;cursor:pointer";									// Timecode style
 		var ns="font-size:13px;border:none;background:none;width:100%;padding:0px;margin:0px"; // Note style	
+		var wid=sd.width;														// Copy width
+		if ((" "+sd.width).match("%"))											// If % in width
+			wid=$("body").width()*(sd.width.replace(/%/,"")/100);				// Get proper width											
 		str="<div class='qm-rounded-corners' id='notesDiv' style='position:absolute;padding:8px;overflow-y:auto;overflow-x:hidden;";	// Div
-		str+="width:"+sd.width/2+"px;height:"+($("#infoDiv").height()-16)+"px;";	// Set sizing
+		str+="width:"+wid/2+"px;height:"+($("#infoDiv").height()-16)+"px;";	// Set sizing
 		str+="background-color:#f8f8f8;border:1px solid #ccc;box-shadow:4px 4px 8px #ccc;";	// Set coloring
-		str+="top:"+$("#infoDiv").offset().top+"px;left:"+sd.width/4+"px;'>";	// Set position
+		str+="top:"+$("#infoDiv").offset().top+"px;left:"+wid/4+"px;'>";		// Set position
 		str+="<table id='notesTbl' width='100%'>";								// Table
 		str+="<div style='text-align:center;font-size:16px;'>Personal notes</div><hr>";
 		str+="<div style='position:absolute;top:-2px;left:0px;width:100%;text-align:right;color:#999'><br/>Find: <input type='input' id='notesSearch' style='height:12px;width:60px;font-size:10px;padding:0px;margin:0px;border:1px solid #ccc'/>"
