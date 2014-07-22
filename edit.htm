@@ -612,7 +612,7 @@
 	{	
 		if (!curJson.assessments[curEdit].pages)								// If not pages yet
 			curJson.assessments[curEdit].pages=[];								// Alloc array
-		curJson.assessments[curEdit].pages.push({ title:"untitled",optionsType:"radio" });	// Add page to array
+		curJson.assessments[curEdit].pages.push({ title:"untitled",optionType:"radio" });	// Add page to array
 		curPage=curJson.assessments[curEdit].pages.length-1;					// Point at page
 		Sound("click");															// Click sound
 		MakePageTable();														// Make page table
@@ -853,7 +853,7 @@
 			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Settings:</b></div>";
 			if (conPtr != curJson.playerVectors) { 								// Not in player
 				str+="<input id='idr"+i+"' type='text' style='text-align:center;width:50px;height:15px' class='is' value='";
-				str+=(o.r) ? Math.round(o.r*100)+"% split'> " : "No split'> ";			
+				str+=(o.r != undefined) ? Math.round(o.r*100)+"% split'> " : "No split'> ";			
 				}
 			if (!o.z)							pic="No zoom";
 			else if (o.z.split("|")[2] < 1)		pic="Inset";

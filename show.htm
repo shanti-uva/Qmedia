@@ -1106,7 +1106,7 @@
 			else if (v[3] == "draw") {											// If draw
 				v[3]="Draw data goes here";										// Save drawing to server
 				}
-			dat["event"]=new Date().toLocaleString()+"\tStep\t"+v[2]+"\t"+v[3]+"\n";		// Add event
+			dat["event"]=new Date().toLocaleString()+"\tAssess\t"+showVectors[slidePane][curAssess].cs.split("=")[1]+"\rStep\t"+v[2]+"\t"+v[3]+"\n";		// Add event
 			if (sd.logIn == "true")															// If saving answers
 				$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat});  	// Post data
 			}
