@@ -860,7 +860,7 @@
 			else								pic="Zoom";							
 			str+="<input id='idz"+i+"' type='text' style='text-align:center;width:50px;height:15px' class='is' value='"+pic+"'> ";
 			if (conPtr != curJson.playerVectors) 								// Not in player
-				str+=MakeSelect("ida"+i,false,["No action","play","pause","seek", "jump"],(""+o.p).split(":")[0]);	
+				str+=MakeSelect("ida"+i,false,["No action","play","pause","seek", "jump","load"],(""+o.p).split(":")[0]);	
 			str+=" <input id='idh"+i+"' type='text' style='text-align:center;width:30px;height:15px' class='is' value='Send'>";
 			str+="</td><td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteContent(this.id)'></td></tr><tr><td colspan='3'><hr></td></tr>";	// Add trashcan
 			$("#contentTable").append(str);										// Add row
@@ -951,12 +951,15 @@
 					var str=$("#ida"+id).val();									// Get val
 					conPtr[id].p=str;											// Set val
 					if (str.match(/action/))	conPtr[id].p="";				// Null it out
-					else if ((str == "seek") || (str == "jump")) {				// Need a time
+					else if ((str == "seek") || (str == "jump") || (str == "load")) {	// Need more info
 						var t="";												// No time
+						var h="To when";										// Header
+						var m="Type where in the media clip you want to go (in seconds)."; // Message
+						if (str == "load") 										// If a load
+						 	h="Load new show",m="Type number of show to load.";	// Set proper text
 						if (conPtr[id].p.split(":")[1] != undefined)			// If a time set	
 							t=conPtr[id].p.split(":")[1];						// Get time
-						GetTextBox("To when", "Type where in the media clip you want to go (in seconds).",t,
-	 						function(t) {										// On entry
+						GetTextBox(h,m,t,function(t) {							// On entry
 	 							if (t && !isNaN(t)) 							// If a number
 								conPtr[id].p=str+":"+t;							// Add to command	  							
 								});

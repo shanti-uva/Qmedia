@@ -1327,10 +1327,10 @@
 				$("#vplayer").height(w*sd.playerAspect);						// Set height
 				}
 			}
-		else if (what == "load") {												// Volume
-			if (!player)	return;												// If no player yet, quit
-			if (playerType == "youtube") 										// If YouTube
-				player.loadVideoById(param);									// Load video
+		else if (what == "load") {												// Load a new show
+			RunInfo("pause");													// Pause
+			var url="//qmediaplayer.com/loadshow.php?id="+param;				// Get from db
+			$.ajax({ url: url, dataType:'jsonp' });								// Get jsonp and call LoadShow() from it
 			}
 		else if (what == "ready") {												// When ready
 			if (sd.playerAuto == "true")										// If autoplay
