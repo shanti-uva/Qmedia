@@ -1098,7 +1098,7 @@
 				$("#pzdiv").height(imgHgt);										// Set height of container
 
 				$("#imgzbx").css("left",(600*zoom[0+off])-(z*300)-dx+"px");		// left
-				$("#imgzbx").css("top",(imgHgt*zoom[1+off])-(z*300*curJson.playerAspect)-dy+"px");		// Top
+				$("#imgzbx").css("top",((600*imgAsp)*zoom[1+off])-(z*300*curJson.playerAspect)-dy+"px");		// Top
 				$("#imgzbx").width(z*600);										// Set width
 				$("#imgzbx").height(z*600*curJson.playerAspect);				// Height
 				$("#imgzbx").show();											// Show
@@ -1117,7 +1117,7 @@
 						var w=300*z;
 						var h=w*curJson.playerAspect;
 						zoom[0+off]=(dx+w)/600;
-						zoom[1+off]=(dy+h)/imgHgt;
+						zoom[1+off]=(dy+h)/(imgAsp*600);
 						}	
 					});
 	

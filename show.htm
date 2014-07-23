@@ -662,6 +662,8 @@
 			}
 		var pw=$("#"+id).width();												// Width of pane
 		var ph=$("#"+id).height();												// Height of pane
+		var dh=$("#"+id).parent().height();										// Container div height
+		
 		clearInterval(imageAnimationTimer[pane]);								// Kill timer
 		var startTime=new Date().getTime();										// Set start
 		if (playerMode != "play")												// If not playing
@@ -679,12 +681,12 @@
 			y=(sy-0)+(ey-sy)*now;												// Get y
 			z=(sz-0)+(ez-sz)*now;												// Get z
 			if (z < 1) {														// If PIP
-				x=x*pw-(pw*z/2);												// Pos X										
+				x=x*pw-(pw*z/2);												// Pos x										
 				y=y*ph-(ph*z/2);												// Pos Y										
 				}
 			else{
 				x=-x*pw*z+(pw/2);												// Pos x
-				y=-y*ph*z+(ph/2);												// Pos y
+				y=(ph*z*-y)+(dh/2);												// Pos y
 				}
 			$("#"+id).css({	"-webkit-transform-origin":"0 0", 					// Move image
 				"transform-origin":"0 0",			
