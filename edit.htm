@@ -1106,6 +1106,9 @@
 				$("#imgzbx").resizable({ aspectRatio:true, maxWidth:600, 		// HANDLE RESIZE
 					stop:function() {											// When stopped
 						zoom[2+off]=600/$("#imgzbx").width();					// Set zoom
+						var z=1/zoom[2+off];									// Inverse zoom
+						$("#imgzbx").css("left",(600*zoom[0+off])-(z*300)-dx+"px");	// left
+						$("#imgzbx").css("top",((600*imgAsp)*zoom[1+off])-(z*300*curJson.playerAspect)-dy+"px"); // Top
 						}	
 					});
 		
@@ -1181,8 +1184,10 @@
 				if (!zoom[6]) zoom[6]=zoom[2];									// Add zoom
 				off=4;															// Set offset to start
 				}
-			else if (w == "No start") 											// Remove start
-				zoom=[zoom[0],zoom[1],zoom[2],zoom[3]];
+			else if (w == "No start") {											// Remove start
+				zoom=[zoom[0],zoom[1],zoom[2],zoom[3]];							// Clear start
+				$("#whichpz").val("Set end");									// Set to end
+				}
 			showZoom();															// Redraw
 			});
 

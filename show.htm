@@ -646,6 +646,7 @@
 
 	function AnimateContent(id, vec, pane)									// ANIMATE IMAGE OR IFRAME
 	{
+
 		var x,y,z,dur=500;
 		if (!vec.z)	{															// If not pan and zoom set
 			$("#"+id).css("opacity",1);											// Make it visible	
@@ -660,15 +661,14 @@
 			sx=sy=.5;															// Center
  			sz=1;																// 100%		
 			}
+		var divs=["playerDiv","slideDiv","transDiv","infoDiv"];					// To get div from pane
 		var pw=$("#"+id).width();												// Width of pane
 		var ph=$("#"+id).height();												// Height of pane
-		var dh=$("#"+id).parent().height();										// Container div height
-		
+		var dh=$("#"+divs[pane]).height();										// Container div height
 		clearInterval(imageAnimationTimer[pane]);								// Kill timer
 		var startTime=new Date().getTime();										// Set start
 		if (playerMode != "play")												// If not playing
 			dur=1;																// Go to end quickly
-		
 		imageAnimationTimer[pane]=setInterval(function() {						// Set timer
 			var tx=0,ty=0;
 			var now=(new Date().getTime()-startTime)/dur;						// Get now
