@@ -177,6 +177,7 @@
 	var host="//qmediaplayer.com/";												// Set host
 	var playerStarted=-1;														// Player started
 	var userName="",password="",curShow=0;										// Login info
+	var stopLoop=false;															// Flags when to stop looping
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INIT
@@ -1198,7 +1199,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-var stopLoop=false;
 
 	function RunPlayer(what, param, param2)									// PLAYER ACTIONS
 	{
@@ -1208,16 +1208,17 @@ var stopLoop=false;
 				return;															// Quit
 			$("#loopButton").remove();											// Remove loop button if there
 			if (what == "loop") {												// A loop
-				$("#titleDiv").append("<button id='loopButton' style='margin-left:20px;vertical-align:4px;border:1px solid #fff;' class='qm-bs'>Stop looping</button>");
-//				if ((what == "loop") && stopLoop) 
-//					what="play",param=undefined;
+				if ((what == "loop") && stopLoop) 								// If in a loop and button hit
+					return stopLoop=false;										// Reset flag and quit
+				else															// First loop, add stop button
+					$("#titleDiv").append("<button id='loopButton' style='margin-left:20px;vertical-align:4px;border:1px solid #fff;' class='qm-bs'>Stop looping</button>");
 				
 				$("#loopButton").on("click",function() {						// On click
-						stopLoop=true;
+						stopLoop=true;											// Set flag to quit
+						$("#loopButton").remove();								// Remove loop button
 						});
 					}
-//			trace(what,param)
-				if ($("#playBut").attr("src") == "images/playbut.gif")	{			// If in pause
+			if ($("#playBut").attr("src") == "images/playbut.gif")	{			// If in pause
 				$("#playBut").attr("src","images/pausebut.gif");				// Show pause but
 				playerMode="play";												// Set mode
  				}
