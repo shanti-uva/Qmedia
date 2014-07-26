@@ -1213,6 +1213,7 @@
 				if ((""+param).match(/:/))										// In tc format
 					param=TimecodeToSeconds(param);								// Convert to secs
 				playerCurTime=playerNow=Math.max(Math.min(param,sd.playerStop),0);	// Set cur time
+				trace(param)
 				}	
 			if (!player) {														// If no player yet
 				RunPlayer("show");												// Show where we're at
@@ -1330,7 +1331,7 @@
 				}
 			}
 		else if (what == "load") {												// Load a new show
-			RunInfo("pause");													// Pause
+			RunPlayer("pause");													// Pause
 			var url="//qmediaplayer.com/loadshow.php?id="+param;				// Get from db
 			$.ajax({ url: url, dataType:'jsonp' });								// Get jsonp and call LoadShow() from it
 			}
