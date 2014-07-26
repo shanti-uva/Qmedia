@@ -1213,7 +1213,6 @@
 				if ((""+param).match(/:/))										// In tc format
 					param=TimecodeToSeconds(param);								// Convert to secs
 				playerCurTime=playerNow=Math.max(Math.min(param,sd.playerStop),0);	// Set cur time
-				trace(param)
 				}	
 			if (!player) {														// If no player yet
 				RunPlayer("show");												// Show where we're at
