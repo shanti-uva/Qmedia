@@ -74,7 +74,10 @@
 						}
 		.qm-is {		border-radius:10px;padding-left:8px;padding-right:8px;padding-top:1px;
 						border:1px solid #999;font-size:12px;height;20px;width:200px;
-						]
+						}
+		.qm-bs {		border-radius:10px;padding-left:8px;padding-right:8px;padding-top:1px;
+						border:1px solid #999;font-size:12px;height;20px;color:#666;
+						}
 
  	</style>
 
@@ -1195,13 +1198,26 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+var stopLoop=false;
+
 	function RunPlayer(what, param, param2)									// PLAYER ACTIONS
 	{
 		var i,str;
-		if ((what == "play") || (what == "jump")) {								// Play
+		if ((what == "play") || (what == "jump") || (what == "loop")) {			// Play/jump/loop
 			if ((playerMode == "empty") && isMobile)							// Mobiles need user to initiate touch before controlled play
 				return;															// Quit
-			if ($("#playBut").attr("src") == "images/playbut.gif")	{			// If in pause
+			$("#loopButton").remove();											// Remove loop button if there
+			if (what == "loop") {												// A loop
+				$("#titleDiv").append("<button id='loopButton' style='margin-left:20px;vertical-align:4px;border:1px solid #fff;' class='qm-bs'>Stop looping</button>");
+//				if ((what == "loop") && stopLoop) 
+//					what="play",param=undefined;
+				
+				$("#loopButton").on("click",function() {						// On click
+						stopLoop=true;
+						});
+					}
+//			trace(what,param)
+				if ($("#playBut").attr("src") == "images/playbut.gif")	{			// If in pause
 				$("#playBut").attr("src","images/pausebut.gif");				// Show pause but
 				playerMode="play";												// Set mode
  				}
@@ -1214,6 +1230,8 @@
 					param=TimecodeToSeconds(param);								// Convert to secs
 				playerCurTime=playerNow=Math.max(Math.min(param,sd.playerStop),0);	// Set cur time
 				}	
+		
+				
 			if (!player) {														// If no player yet
 				RunPlayer("show");												// Show where we're at
 				return;															// Quit
@@ -1242,6 +1260,7 @@
 				RunPlayer("show");												// Show where we're at
 			if (playerMode == "play")	playerStarted=playerNow;				// Save start point
 			if (playerMode == "pause")	RecordPlayTime();						// Record player action
+			
 			}
 		else if ((what == "scrub") || (what == "seek"))  {						// Scrub
 			clearInterval(paneAnimationTimer);									// Kill pane timer
