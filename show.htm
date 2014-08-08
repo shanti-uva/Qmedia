@@ -1203,7 +1203,7 @@
 	function RunPlayer(what, param, param2)									// PLAYER ACTIONS
 	{
 		var i,str;
-		if ((what == "play") || (what == "jump") || (what == "loop")) {			// Play/jump/loop
+		if ((what == "play") || (what == "jump")) {								// Play/jump
 			if ((playerMode == "empty") && isMobile)							// Mobiles need user to initiate touch before controlled play
 				return;															// Quit
 			$("#loopButton").remove();											// Remove loop button if there
