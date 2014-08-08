@@ -1027,7 +1027,7 @@
 		if (dur < .5)															// Not enough time
 			return;																// Quit
 		
-		dat["event"]=new Date().toLocaleString()+"\tPlay\t"+playerStarted.toFixed(1)+"\t"+playerNow.toFixed(1)+"\t"+dur+"\n";	// Add event
+		dat["event"]=new Date().toISOString()+"\tPlay\t"+playerStarted.toFixed(1)+"\t"+playerNow.toFixed(1)+"\t"+dur+"\n";	// Add event
 		$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat});  	// Post data
 		playerStarted=-1;														// Disable play start
 	}
@@ -1112,7 +1112,7 @@
 			else if (v[3] == "draw") {											// If draw
 				v[3]="Draw data goes here";										// Save drawing to server
 				}
-			dat["event"]=new Date().toLocaleString()+"\tAssess\t"+showVectors[slidePane][curAssess].cs.split("=")[1]+"\rStep\t"+v[2]+"\t"+v[3]+"\n";		// Add event
+			dat["event"]=new Date().toISOString()+"\tAssess\t"+showVectors[slidePane][curAssess].cs.split("=")[1]+"\t"+v[2]+"\t"+v[3]+"\n";		// Add event
 			if (sd.logIn == "true")															// If saving answers
 				$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat});  	// Post data
 			}
@@ -1628,7 +1628,7 @@
 								dat["email"]=userName;							// Add email
 								dat["password"]=password;						// Add password
 								dat["show"]=curShow;							// Add shownum
-								dat["event"]=new Date().toLocaleString()+"\tLogged in\n";	// Add event
+								dat["event"]=new Date().toISOString()+"\tLogged in\n";	// Add event
 								$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat,  	// Post data
 									success:function(d) { 						// On success		
 									 	if (d.match(/pass/i)) 					// Passwords dont match

@@ -16,7 +16,7 @@ require_once('config.php');
 			
 	$query="SELECT * FROM qusers WHERE ";						// Query start 
 	if ($email)													// If a email spec'd
-		$query.="email = '".$email."'";							// Add email
+		$query.="email = '".strtolower($email)."'";				// Add email
 	if ($show && $email)										// If both
 		$query.=" AND";											// Add AND
 	if ($show)													// If a show spec'd
