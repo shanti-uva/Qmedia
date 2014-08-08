@@ -177,7 +177,7 @@
 	var host="//qmediaplayer.com/";												// Set host
 	var playerStarted=-1;														// Player started
 	var userName="",password="",curShow=0;										// Login info
-	var stopLoop=false;															// Flags when to stop looping
+	var loopStart=loopEnd=0;													// Looping
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INIT
@@ -840,24 +840,41 @@
 				str+="<span style='color:#aaa'><b>- </b></span>"; 				// Add d
 			if (toc[i].s && (toc[i].s.match(/b/i)))	str+="<b>";					// If bold
 			if (toc[i].s && (toc[i].s.match(/i/i)))	str+="<i>";					// If italic
-			str+=toc[i].c;														// Add title
+			str+=toc[i].c.replace(/\[loop\]/,"");								// Add title w/o [loop]
 			if (toc[i].s && (toc[i].s.match(/i/i)))	str+="</i>";				// If italic
 			if (toc[i].s && (toc[i].s.match(/b/i)))	str+="</b>";				// If bold
+			if (toc[i].c && (toc[i].c.match(/\[loop\]/i))) 						// If looping
+				str+=" - <a style='color:#009900' id='loop"+i+"'>Loop</a>";		// Add tag
 			str+="</div>";														// End div
 			}
 		$("#contentsText").html(str+"</div>");									// Set div contents
 		
 		for (i=0;i<toc.length;++i) 												// For each index
-			$("#toc"+i).on("click", function() {								// Add hander
-				var id=this.id.substr(3);										// Get id
+			$("#toc"+i).on("click", function(e) {								// Add hander
+				loopStart=loopEnd=0;											// Not looping
+				var id=this.id.substr(3)-0;										// Get id
 				searchMode=false;												// Allow other events
 				playerNow=sd.indexVectors[id].t-0;								// Set time
-	//			RunPlayer("show");												// Resize panes
 				if (sd.contentsPlayOnClick == "false")							// Otherwise seek when clicked
 					RunPlayer("scrub",playerNow);								// Seek
 				else
 					RunPlayer("play");											// Play
+				if ((" "+e.target.id).match(/loop/i)) {							// If loop clicked
+					Sound("click");												// Click
+					if ($("#"+e.target.id).text().match(/loop/i)) {				// Not looping
+						$("#"+e.target.id).text("Stop");						// Set to stop
+						$("#"+e.target.id).css("color","#990000");				// Red
+						loopStart=sd.indexVectors[id].t-0;						// Loop start
+						loopEnd=sd.indexVectors[id+1].t-0;						// Loop end
+						}
+					else{														// Looping
+						$("#"+e.target.id).text("Loop");						// Set to start
+						$("#"+e.target.id).css("color","#009900");				// Green
+						loopStart=loopEnd=0;									// Not looping
+						}
+					}
 			});
+			
 	}
 
 	function MakeTranscript()												// CREATE TRANSCRIPT
@@ -1010,6 +1027,8 @@
 		if (playerCurTime >= sd.playerStop)										// Past end
 			RunPlayer("pause");													// Pause
 		playerNow=Math.min(playerCurTime,sd.playerStop);						// Get capped time
+		if (loopEnd && (playerNow >= loopEnd))									// If looping and past end of loop
+			RunPlayer("play",playerNow=loopStart);								// Go there
 		RunPlayer("show");														// Show status
 		$("#slider ui-slider-handle").focus();									// Focus on slider
 	}
@@ -1206,18 +1225,6 @@
 		if ((what == "play") || (what == "jump")) {								// Play/jump
 			if ((playerMode == "empty") && isMobile)							// Mobiles need user to initiate touch before controlled play
 				return;															// Quit
-			$("#loopButton").remove();											// Remove loop button if there
-			if (what == "loop") {												// A loop
-				if ((what == "loop") && stopLoop) 								// If in a loop and button hit
-					return stopLoop=false;										// Reset flag and quit
-				else															// First loop, add stop button
-					$("#titleDiv").append("<button id='loopButton' style='margin-left:20px;vertical-align:4px;border:1px solid #fff;' class='qm-bs'>Stop looping</button>");
-				
-				$("#loopButton").on("click",function() {						// On click
-						stopLoop=true;											// Set flag to quit
-						$("#loopButton").remove();								// Remove loop button
-						});
-					}
 			if ($("#playBut").attr("src") == "images/playbut.gif")	{			// If in pause
 				$("#playBut").attr("src","images/pausebut.gif");				// Show pause but
 				playerMode="play";												// Set mode
@@ -1231,8 +1238,6 @@
 					param=TimecodeToSeconds(param);								// Convert to secs
 				playerCurTime=playerNow=Math.max(Math.min(param,sd.playerStop),0);	// Set cur time
 				}	
-		
-				
 			if (!player) {														// If no player yet
 				RunPlayer("show");												// Show where we're at
 				return;															// Quit
