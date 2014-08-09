@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>3D test</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	</head>
+
+	<body>
+		<script src="../lib/wgl/three.min.js"></script>
+		<script src="../lib/wgl/loaders/OBJLoader.js"></script>
+		<script src="../lib/wgl/controls/OrbitControls.js"></script>
+		<script src="../lib/wgl/Detector.js"></script>
+	<style type="text/css">
+		body { font-family:Verdana,Geneva,sans-serif; font-size:xx-small;margin:0px;padding:0px }
+	</style>
+		
+<script>
+
+	var container,obj;
+	var camera,scene,renderer,controls;
+	var mouseX=0,mouseY=0;
+	var qe=new QmediaEvents("QmediaAssess");									// Alloc events library
+	init();
+	animate();
+
+	function init() {
+		container=document.createElement('div');
+		document.body.appendChild(container);
+		camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,1,2000);
+		camera.position.z=300;
+		controls = new THREE.OrbitControls( camera );
+		controls.damping = 0.2;
+		controls.addEventListener( 'change', render );
+
+		scene=new THREE.Scene();
+		
+		var ambient=new THREE.AmbientLight(0x101030);
+		scene.add(ambient);
+
+		var directionalLight=new THREE.DirectionalLight(0xffeedd);
+		directionalLight.position.set(0,0,1);
+		scene.add(directionalLight);
+
+		var manager=new THREE.LoadingManager();
+		manager.onProgress=function(item,loaded,total ) {
+			console.log(item,loaded,total);
+			};
+
+		var texture=new THREE.Texture();
+		var loader=new THREE.ImageLoader(manager);
+		loader.load('map.jpg',function(image) {
+			texture.name="tex";
+			texture.image=image;
+			texture.needsUpdate=true;
+			});
+
+		var loader=new THREE.OBJLoader(manager);
+		loader.load('male02.obj',function(object) {
+			object.traverse(function(child) {
+				if (child instanceof THREE.Mesh) {
+					child.material.map=texture;
+				}
+			obj=object;
+			});
+
+		object.position.y=-80;
+		scene.add(object);		
+		qe.SendMessage("ready","");												// Send ready message
+		});
+
+	var urls=['px'+'.jpg','nx'+'.jpg','py'+'.jpg','ny'+'.jpg','pz'+'.jpg','nz'+'.jpg'];
+	var reflectionCube = THREE.ImageUtils.loadTextureCube(urls);
+	reflectionCube.format = THREE.RGBFormat;
+	var refractionCube = new THREE.CubeTexture( reflectionCube.image, new THREE.CubeRefractionMapping() );
+	refractionCube.format = THREE.RGBFormat;
+
+	var cubeMaterial3 = new THREE.MeshLambertMaterial( { color: 0xff6600, ambient: 0x993300, envMap: reflectionCube, combine: THREE.MixOperation, reflectivity: 0.3 } );
+	var cubeMaterial2 = new THREE.MeshLambertMaterial( { color: 0xffee00, ambient: 0x996600, envMap: refractionCube, refractionRatio: 0.95 } );
+	var cubeMaterial1 = new THREE.MeshLambertMaterial( { color: 0xffffff, ambient: 0xaaaaaa, envMap: reflectionCube } )
+
+	var shader = THREE.ShaderLib[ "cube" ];
+	shader.uniforms[ "tCube" ].value=reflectionCube;
+
+	var material = new THREE.ShaderMaterial( {
+		fragmentShader: shader.fragmentShader, vertexShader: shader.vertexShader,
+		uniforms: shader.uniforms, depthWrite: false, side: THREE.BackSide
+		}),
+
+	mesh=new THREE.Mesh( new THREE.BoxGeometry( 800, 800, 800 ), material );
+	scene.add( mesh );
+
+	renderer=new THREE.WebGLRenderer();
+	renderer.setSize(window.innerWidth,window.innerHeight-2);
+	container.appendChild(renderer.domElement);
+	window.addEventListener('resize',onWindowResize,false );
+	controls.addEventListener('change', render);
+		animate();
+	}
+
+	function onWindowResize() 
+	{
+		trace(scene)
+		camera.aspect=window.innerWidth/window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize(window.innerWidth,window.innerHeight-2);
+	}
+
+	function animate() 
+	{
+		requestAnimationFrame(animate);
+		controls.update();
+		render();
+	}
+
+	function render() 
+	{
+		renderer.render(scene,camera);
+
+	}
+
+	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
+	{
+		if (p4 != undefined)
+			console.log(msg,p1,p2,p3,p4);
+		else if (p3 != undefined)
+			console.log(msg,p1,p2,p3);
+		else if (p2 != undefined)
+			console.log(msg,p1,p2);
+		else if (p1 != undefined)
+			console.log(msg,p1);
+		else
+			console.log(msg);
+	}
+
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// QMEDIA EVENT HANDLING
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+	function QmediaEventHandler(e)											// ON SHIVA EVENT
+	{
+		var v=e.data.split("|");												// Split into parts													
+		if (v[0] == "ShivaAct=data") {											// If a data 
+			aData=$.parseJSON(v[1]);											// Convert to obj
+			Draw(0,false);														// Draw page
+			}												
+	}	
+
+	function QmediaEvents(id)												// CONSTRUCTOR
+	{
+		if (window.addEventListener) 											// If supported this way
+			window.addEventListener("message",QmediaEventHandler,false);		// Add event handler
+		else																	// Use other method
+			window.attachEvent("message",QmediaEventHandler);					// Add handler
+		this.header=id+"=";														// Set header
+	}
+	
+	QmediaEvents.prototype.SendMessage=function(cmd, msg)					// SEND MESSAGE TO CONTAINER
+		{
+		var str=this.header+cmd+"|extra";										// Add header				
+		if (msg) str+="|"+msg;													// If more to it, add
+		if (window.parent)														// If has a parent
+			window.parent.postMessage(str,"*");									// Send message to parent wind
+		else																	// Local	
+			window.postMessage(str,"*");										// Send message to wind
+	}
+
+</script>
+</body>
+</html>
