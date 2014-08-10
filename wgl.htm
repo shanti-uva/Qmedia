@@ -31,8 +31,6 @@
   		container=document.createElement('div');								// Make container div
 		document.body.appendChild(container);									// Add to body
  		camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,1,2000);	// Create camera
-		camera.position.z=300;
-		
 		SetControlMode(controlMode);											// Default control mode
 		renderer=new THREE.WebGLRenderer();										// Create renderer
 		renderer.setSize(window.innerWidth,window.innerHeight-2);				// Set remder size
@@ -82,26 +80,22 @@
 		reflectionCube.format = THREE.RGBFormat;
 		var refractionCube = new THREE.CubeTexture( reflectionCube.image, new THREE.CubeRefractionMapping() );
 		refractionCube.format = THREE.RGBFormat;
-	
 		var cubeMaterial3 = new THREE.MeshLambertMaterial( { color: 0xff6600, ambient: 0x993300, envMap: reflectionCube, combine: THREE.MixOperation, reflectivity: 0.3 } );
 		var cubeMaterial2 = new THREE.MeshLambertMaterial( { color: 0xffee00, ambient: 0x996600, envMap: refractionCube, refractionRatio: 0.95 } );
 		var cubeMaterial1 = new THREE.MeshLambertMaterial( { color: 0xffffff, ambient: 0xaaaaaa, envMap: reflectionCube } )
-	
 		var shader = THREE.ShaderLib[ "cube" ];
 		shader.uniforms[ "tCube" ].value=reflectionCube;
-	
 		var material = new THREE.ShaderMaterial( {
 			fragmentShader: shader.fragmentShader, vertexShader: shader.vertexShader,
 			uniforms: shader.uniforms, depthWrite: false, side: THREE.BackSide
 			}),
-	
 		mesh=new THREE.Mesh( new THREE.BoxGeometry( 800, 800, 800 ), material );
 		scene.add(mesh);
 
 		// END CONTENT
 
 		Animate();																	// Animate
-		$("body").append("<div style='position:absolute;top:0px;z-index:1000;color:white'><br> &nbsp; Hit the 'c' key to change control mode</div>")
+		$("body").append("<div style='position:absolute;top:0px;z-index:1000;color:white'><br> &nbsp; Hit the 'c' key to change control mode, 'h' to go home.</div>")
 		qe.SendMessage("ready","");													// Send ready message
 	
 	});
