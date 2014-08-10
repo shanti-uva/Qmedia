@@ -21,7 +21,7 @@
 <script>
 
 	var container;																// Iframe to hold WebGL player
-	var curTime;																// Current play time
+	var startTime;																// Current play time
 	var keys=[];																// Hold keyframes
 	var camera,scene,renderer,controls,clock;									// WebGL guts
 	var qe=new QmediaEvents("QmediaAssess");									// Alloc events library
@@ -30,7 +30,10 @@
 	$(document).ready(function() {												// When loaded
   		container=document.createElement('div');								// Make container div
 		document.body.appendChild(container);									// Add to body
- 		SetControlMode(controlMode);											// Default control mode
+ 		camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,1,2000);	// Create camera
+		camera.position.z=300;
+		
+		SetControlMode(controlMode);											// Default control mode
 		renderer=new THREE.WebGLRenderer();										// Create renderer
 		renderer.setSize(window.innerWidth,window.innerHeight-2);				// Set remder size
 		container.appendChild(renderer.domElement);								// Add renderer
@@ -113,7 +116,7 @@
 	function Animate() 															// ANIMATION LOOP
 	{
 		requestAnimationFrame(Animate);												// Set timer
-		if (controls)																// If controls set
+		if (controls && (controlMode != "goto"))									// If controls set
 			controls.update(clock.getDelta());										// Update position?
 		renderer.render(scene,camera);												// Render
 	}
@@ -122,18 +125,15 @@
 	{
       	clock=new THREE.Clock();													// Reset clock
 	  	controlMode=mode;															// Set mode flag
- 		camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,1,2000);	// Create camera
-		controls=null;																// No controls
+ 		controls=null;																// No controls
 		switch (controlMode) {														// Route on mode
  			case "orbit":
     			controls=new THREE.OrbitControls(camera);
   				controls.damping = 0.2;
-	 			camera.position.z=300;
      			break;
    			case "first":
      			controls=new THREE.FirstPersonControls(camera);
- 				camera.position.z=500;
-		       	controls.lookSpeed = 0.05;
+ 		       	controls.lookSpeed = 0.05;
 		        controls.movementSpeed = 50;
 		        controls.noFly = true;
 		        controls.lookVertical = true;
@@ -143,42 +143,44 @@
 		        controls.lon=-90;
 		        controls.lat=0;
 		        break;
- 			case "key":
+ 			case "key": case "":
 				var i,s,e,pct;
 				controls={};
- 				camera.position.z=300;
-    				controls.update=function() {
-					var time=clock.elapsedTime;									// Get elapsed time
-					for (i=keys.length-1;i>=0;--i) 								// Work backwards
-						if (keys[i][0] <= time)									// If it's this one
-							break;												// Stop looking
-					if (i < 0)													// Didn't find one
-						return;													// Quit
-					s=e=keys[i];												// Point to start			
-					if (i <	keys.length-1)										// If not last
-						e=keys[i+1];											// Point at end				
-					pct=e[0]-s[0];												// Duration
-					if (pct)	pct=(time-s[0])/pct;							// Point within key 0-1
-					if (s[7] == 2)												// Slow in and out
-						pct=1.0-((Math.cos(3.1414*pct)+1)/2.0);					// Full cosine curve
-					else if (s[7] == 1)											// Slow in
-						pct=1.0-(Math.cos(1.5707*pct));							// 1st quadrant of cosine curve
-					else if (s[7] == 3)											// Slow out
-						pct=1.0-(Math.cos(1.5707+(1.5707*pct))+1.0);			// 2nd quadrant of cosine curve
-					camera.position.x=s[1]-0+(e[1]-s[1])*pct;					// Get val
-					camera.position.y=s[2]-0+(e[2]-s[2])*pct;					// Get val
-					camera.position.z=s[3]-0+(e[3]-s[3])*pct;					// Get val
-					camera.rotation.x=s[4]-0+(e[4]-s[4])*pct;					// Get val
-					camera.rotation.y=s[5]-0+(e[5]-s[5])*pct;					// Get val
-					camera.rotation.z=s[6]-0+(e[6]-s[6])*pct;					// Get val
-					};
- 				break;
+   				if (controlMode == "key")										// If key mode
+					startTime=new Date().getTime()/1000;						// Set start
+ 	    			controls.update=function() {							// UPDATE FUNCTION
+						var time=new Date().getTime()/1000-startTime;			// Get now
+						for (i=keys.length-1;i>=0;--i) 							// Work backwards
+							if (keys[i][0] <= time)								// If it's this one
+								break;											// Stop looking
+						if (i < 0)												// Didn't find one
+							return;												// Quit
+						s=e=keys[i];											// Point to start			
+						if (i <	keys.length-1)									// If not last
+							e=keys[i+1];										// Point at end				
+						pct=e[0]-s[0];											// Duration
+						if (pct)	pct=(time-s[0])/pct;						// Point within key 0-1
+						if (s[7] == 2)											// Slow in and out
+							pct=1.0-((Math.cos(3.1414*pct)+1)/2.0);				// Full cosine curve
+						else if (s[7] == 1)										// Slow in
+							pct=1.0-(Math.cos(1.5707*pct));						// 1st quadrant of cosine curve
+						else if (s[7] == 3)										// Slow out
+							pct=1.0-(Math.cos(1.5707+(1.5707*pct))+1.0);		// 2nd quadrant of cosine curve
+						camera.position.x=s[1]-0+(e[1]-s[1])*pct;				// Get val
+						camera.position.y=s[2]-0+(e[2]-s[2])*pct;				// Get val
+						camera.position.z=s[3]-0+(e[3]-s[3])*pct;				// Get val
+						camera.rotation.x=s[4]-0+(e[4]-s[4])*pct;				// Get val
+						camera.rotation.y=s[5]-0+(e[5]-s[5])*pct;				// Get val
+						camera.rotation.z=s[6]-0+(e[6]-s[6])*pct;				// Get val
+						};
+	 				break;
        		}
       	}
  		
 	keys.push([0,0,0,300, 	0,0,0,1]);
-	keys.push([3,100,0,300,	0,0,0,3]);
-	keys.push([6,200,0,300,	0,3,0,0]);
+	keys.push([3,100,0,300,	0,0,0,0]);
+	keys.push([6,200,0,300,	0,3,0,3]);
+	keys.push([9,0,0,300, 	0,0,0,1]);
 	
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{
@@ -206,7 +208,7 @@
 			SetControlMode(controlMode);
 			}
 		if (e.which == 71) {
-			SetControlMode("key");
+			SetControlMode("goto");
 			var str=prompt("Type Go to pos: x=,y=...");
 			var v=str.split(",");
 			for (var i=0;i<v.length;++i) {
@@ -217,6 +219,7 @@
 				if (v[i].split("=")[0] == "yr")	camera.rotation.y=v[i].split("=")[1]-0;
 				if (v[i].split("=")[0] == "zr")	camera.rotation.z=v[i].split("=")[1]-0;
 				}
+			SetControlMode("orbit");
 			}
 		if (e.which == 75) 
 			SetControlMode("key");
@@ -237,8 +240,18 @@
 			for (var i=0;i<keys.length;++i)										// For each set	
 				keys[i]=keys[i].split(',');										// Make into array
 			}											
+		else if (v[0] == "ShivaAct=goto") {										// If goto
+			SetControlMode("goto");												// Control mode
+			camera.position.x=s[1];												// Get val
+			camera.position.y=s[2];												// Get val
+			camera.position.z=s[3];												// Get val
+			camera.rotation.x=s[4];												// Get val
+			camera.rotation.y=s[5];												// Get val
+			camera.rotation.z=s[6];												// Get val
+			}
 		else if (v[0] == "ShivaAct=play") 										// If play
 			SetControlMode("key");												// Play it
+
 		else if (v[0] == "ShivaAct=pause") 										// If pause
 			;																	// Pause it
 		}	
