@@ -840,7 +840,7 @@
 				str+="<span style='color:#aaa'><b>- </b></span>"; 				// Add d
 			if (toc[i].s && (toc[i].s.match(/b/i)))	str+="<b>";					// If bold
 			if (toc[i].s && (toc[i].s.match(/i/i)))	str+="<i>";					// If italic
-			str+=toc[i].c.replace(/\[loop\]/,"");								// Add title w/o [loop]
+			str+=toc[i].c.replace(/\[loop\]/i,"");								// Add title w/o [loop]
 			if (toc[i].s && (toc[i].s.match(/i/i)))	str+="</i>";				// If italic
 			if (toc[i].s && (toc[i].s.match(/b/i)))	str+="</b>";				// If bold
 			if (toc[i].c && (toc[i].c.match(/\[loop\]/i))) 						// If looping
@@ -862,6 +862,8 @@
 				if ((" "+e.target.id).match(/loop/i)) {							// If loop clicked
 					Sound("click");												// Click
 					if ($("#"+e.target.id).text().match(/loop/i)) {				// Not looping
+						if (playerMode != "play") 								// If not playing
+							RunPlayer("play");									// Put into play
 						$("#"+e.target.id).text("Stop");						// Set to stop
 						$("#"+e.target.id).css("color","#990000");				// Red
 						loopStart=sd.indexVectors[id].t-0;						// Loop start
