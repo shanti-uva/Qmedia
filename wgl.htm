@@ -32,7 +32,7 @@
  		camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,1,2000);	// Create camera
 		camera.position.z=400;													// Set z
 		SetControlMode(controlMode);											// Default control mode
-		renderer=new THREE.WebGLRenderer();										// Create renderer
+		renderer=new THREE.WebGLRenderer({antialias:true});						// Create renderer
 		renderer.setSize(window.innerWidth,window.innerHeight-2);				// Set remder size
 		container.appendChild(renderer.domElement);								// Add renderer
 		window.addEventListener('resize',onWindowResize,false );				// Add resize event
