@@ -1,12 +1,10 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 	<title>3D test</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 </head>
-
 <body>
  	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>	
 	<script src="lib/wgl/three.min.js"></script>
@@ -21,16 +19,17 @@
 <script>
 
 	var container;																// Iframe to hold WebGL player
-	var startTime;																// Current play time
+	var startTime,offTime=0;													// Current play time
 	var keys=[];																// Hold keyframes
 	var camera,scene,renderer,controls,clock;									// WebGL guts
 	var qe=new QmediaEvents("QmediaAssess");									// Alloc events library
-	var controlMode="orbit";
+	var controlMode="orbit",lastMode;
 
 	$(document).ready(function() {												// When loaded
   		container=document.createElement('div');								// Make container div
 		document.body.appendChild(container);									// Add to body
  		camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,1,2000);	// Create camera
+		camera.position.z=400;													// Set z
 		SetControlMode(controlMode);											// Default control mode
 		renderer=new THREE.WebGLRenderer();										// Create renderer
 		renderer.setSize(window.innerWidth,window.innerHeight-2);				// Set remder size
@@ -95,7 +94,7 @@
 		// END CONTENT
 
 		Animate();																	// Animate
-		$("body").append("<div style='position:absolute;top:0px;z-index:1000;color:white'><br> &nbsp; Hit the 'c' key to change control mode, 'h' to go home.</div>")
+		$("body").append("<div style='position:absolute;top:0px;z-index:1000;color:white'><br> &nbsp; Hit the C key to change control mode, P to play/pause, H for home</div>")
 		qe.SendMessage("ready","");													// Send ready message
 	
 	});
@@ -115,18 +114,20 @@
 		renderer.render(scene,camera);												// Render
 	}
 
-	function SetControlMode(mode)												// SET CAMERA CONTROL MODE
+	function SetControlMode(mode, time)											// SET CAMERA CONTROL MODE
 	{
       	clock=new THREE.Clock();													// Reset clock
 	  	controlMode=mode;															// Set mode flag
  		controls=null;																// No controls
 		switch (controlMode) {														// Route on mode
  			case "orbit":
+		 	  	lastMode=controlMode;												// Save mode
     			controls=new THREE.OrbitControls(camera);
   				controls.damping = 0.2;
-     			break;
+    			break;
    			case "first":
-     			controls=new THREE.FirstPersonControls(camera);
+  		 	  	lastMode=controlMode;												// Save mode
+	   			controls=new THREE.FirstPersonControls(camera);
  		       	controls.lookSpeed = 0.05;
 		        controls.movementSpeed = 50;
 		        controls.noFly = true;
@@ -142,8 +143,10 @@
 				controls={};
    				if (controlMode == "key")										// If key mode
 					startTime=new Date().getTime()/1000;						// Set start
- 	    			controls.update=function() {							// UPDATE FUNCTION
+ 	    			
+ 	    			controls.update=function() {								// UPDATE FUNCTION
 						var time=new Date().getTime()/1000-startTime;			// Get now
+						time+=(offTime-0);										// Add offset
 						for (i=keys.length-1;i>=0;--i) 							// Work backwards
 							if (keys[i][0] <= time)								// If it's this one
 								break;											// Stop looking
@@ -166,15 +169,18 @@
 						camera.rotation.x=s[4]-0+(e[4]-s[4])*pct;				// Get val
 						camera.rotation.y=s[5]-0+(e[5]-s[5])*pct;				// Get val
 						camera.rotation.z=s[6]-0+(e[6]-s[6])*pct;				// Get val
+						if (i == keys.length-1)									// If done
+							SetControlMode(lastMode);							// Return to previous mode
 						};
 	 				break;
        		}
       	}
  		
 	keys.push([0,0,0,300, 	0,0,0,1]);
-	keys.push([3,100,0,300,	0,0,0,0]);
-	keys.push([6,200,0,300,	0,3,0,3]);
-	keys.push([9,0,0,300, 	0,0,0,1]);
+	keys.push([5,100,0,300,	0,0,0,0]);
+	keys.push([10,200,0,300,	0,-1,0,0]);
+	keys.push([15,36.340,30.424,-151.439,-0.024,0.025,0.001,3]);
+	keys.push([30,0,0,300, 	0,0,0,1]);
 	
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{
@@ -192,8 +198,11 @@
 
 
 	$("body").on("keydown", function(e) {							// KEYDOWN HANDLER
-		if (e.which == 13) 
-			trace(camera.rotation)
+		if (e.which == 75) {
+			var str=camera.position.x.toFixed(3)+","+camera.position.y.toFixed(3)+","+camera.position.z.toFixed(3)+",";
+			str+=camera.rotation.x.toFixed(3)+","+camera.rotation.y.toFixed(3)+","+camera.rotation.z.toFixed(3);
+			console.log(str);
+			}
 		if (e.which == 67) {
 			if (controlMode == "orbit") 
 				controlMode="first";
@@ -201,9 +210,9 @@
 				controlMode="orbit";
 			SetControlMode(controlMode);
 			}
-		if (e.which == 71) {
+		if (e.which == 71) {													// G for goto
 			SetControlMode("goto");
-			var str=prompt("Type Go to pos: x=,y=...");
+			var str=prompt("Type Go to pos: t=,x=,y=...");
 			var v=str.split(",");
 			for (var i=0;i<v.length;++i) {
 				if (v[i].split("=")[0] == "x")	camera.position.x=v[i].split("=")[1]-0;
@@ -215,8 +224,22 @@
 				}
 			SetControlMode("orbit");
 			}
-		if (e.which == 75) 
-			SetControlMode("key");
+		if (e.which == 80) {													// P for play
+			if (controlMode == "key")											// If key playing
+				SetControlMode(lastMode);										// Return to previous mode
+			else{																// Start playing
+				if (e.shiftKey)													// As for time
+					offTime=prompt("Type time")-0;								// Get offset
+				else															// Just play
+					offTime=0;													// No offset
+				SetControlMode("key");											// Play
+				}
+			}
+		if (e.which == 72) {													// H for home
+			camera.position.z=500;
+			camera.position.x=camera.position.y=0;	
+			camera.rotation.x=camera.rotation.y=camera.rotation.z=0;
+			}
 
 		});			
 
@@ -228,11 +251,14 @@
 	function QmediaEventHandler(e)											// ON SHIVA EVENT
 	{
 		var v=e.data.split("|");												// Split into parts													
-		if (v[0] == "ShivaAct=data") {											// If a data 
-			keys=v[1].split(';')												// Get key sets
+		if (v[0] == "ShivaAct=key") {											// If a data 
+			keys=v[3].split(';')												// Get key sets
 //			keys="0,0,0,300,0,0,0,1;3,100,0,300,0,0,0,3;6,200,0,300,0,3,0,0".split(';');
 			for (var i=0;i<keys.length;++i)										// For each set	
 				keys[i]=keys[i].split(',');										// Make into array
+			offTime=v[2]-0;														// Start time
+			if (v[1] == "play")													// If immediately playing
+				SetControlMode("key");											// Play it
 			}											
 		else if (v[0] == "ShivaAct=goto") {										// If goto
 			SetControlMode("goto");												// Control mode
@@ -243,11 +269,14 @@
 			camera.rotation.y=s[5];												// Get val
 			camera.rotation.z=s[6];												// Get val
 			}
-		else if (v[0] == "ShivaAct=play") 										// If play
+		else if (v[0] == "ShivaAct=play") {										// If play
+			offTime=0;															// No offset
+			if (v[1])	offTime=v[1]-0;											// If time spec'd
 			SetControlMode("key");												// Play it
-
+			}
 		else if (v[0] == "ShivaAct=pause") 										// If pause
-			;																	// Pause it
+			if (controlMode == "key")											// If key playing
+				SetControlMode(lastMode);										// Return to previous mode
 		}	
 
 	function QmediaEvents(id)												// CONSTRUCTOR
