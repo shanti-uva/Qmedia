@@ -22,10 +22,12 @@
 	var startTime,offTime=0;													// Current play time
 	var keys=[];																// Hold keyframes
 	var camera,scene,renderer,controls,clock;									// WebGL guts
-	var qe=new QmediaEvents("QmediaAssess");									// Alloc events library
+	var qe=new QmediaEvents("Qmedia3D");										// Alloc events library
 	var controlMode="orbit",lastMode;
+trace(23)
 
 	$(document).ready(function() {												// When loaded
+		$("body").on("keydown",onKeyDown);										// Register handler
   		container=document.createElement('div');								// Make container div
 		document.body.appendChild(container);									// Add to body
  		camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,1,2000);	// Create camera
@@ -197,7 +199,9 @@
 	}
 
 
-	$("body").on("keydown", function(e) {							// KEYDOWN HANDLER
+	function onKeyDown(e) 													// KEYDOWN HANDLER
+	{
+		trace(e)
 		if (e.which == 75) {
 			var str=camera.position.x.toFixed(3)+","+camera.position.y.toFixed(3)+","+camera.position.z.toFixed(3)+",";
 			str+=camera.rotation.x.toFixed(3)+","+camera.rotation.y.toFixed(3)+","+camera.rotation.z.toFixed(3);
@@ -240,8 +244,7 @@
 			camera.position.x=camera.position.y=0;	
 			camera.rotation.x=camera.rotation.y=camera.rotation.z=0;
 			}
-
-		});			
+		}
 
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -253,7 +256,7 @@
 		var v=e.data.split("|");												// Split into parts													
 		if (v[0] == "ShivaAct=key") {											// If a data 
 			keys=v[3].split(';')												// Get key sets
-//			keys="0,0,0,300,0,0,0,1;3,100,0,300,0,0,0,3;6,200,0,300,0,3,0,0".split(';');
+//			keys="-100,0,0,300,0,0,0,1;3,100,0,300,0,0,0,3;6,200,0,300,0,3,0,0".split(';');
 			for (var i=0;i<keys.length;++i)										// For each set	
 				keys[i]=keys[i].split(',');										// Make into array
 			offTime=v[2]-0;														// Start time
@@ -261,22 +264,29 @@
 				SetControlMode("key");											// Play it
 			}											
 		else if (v[0] == "ShivaAct=goto") {										// If goto
+			var s=v[1].split(',')												// Get vals
 			SetControlMode("goto");												// Control mode
-			camera.position.x=s[1];												// Get val
-			camera.position.y=s[2];												// Get val
-			camera.position.z=s[3];												// Get val
-			camera.rotation.x=s[4];												// Get val
-			camera.rotation.y=s[5];												// Get val
-			camera.rotation.z=s[6];												// Get val
+			if (s[0] != undefined)	camera.position.x=s[0]-0;					// Get val
+			if (s[1] != undefined)	camera.position.y=s[1]-0;					// Get val
+			if (s[2] != undefined)	camera.position.z=s[2]-0;					// Get val
+			if (s[3] != undefined)	camera.rotation.x=s[3]-0;					// Get val
+			if (s[4] != undefined)	camera.rotation.y=s[4]-0;					// Get val
+			if (s[5] != undefined)	camera.rotation.z=s[5]-0;					// Get val
 			}
 		else if (v[0] == "ShivaAct=play") {										// If play
 			offTime=0;															// No offset
 			if (v[1])	offTime=v[1]-0;											// If time spec'd
 			SetControlMode("key");												// Play it
 			}
-		else if (v[0] == "ShivaAct=pause") 										// If pause
+		else if (v[0] == "ShivaAct=pause") { 									// If pause
 			if (controlMode == "key")											// If key playing
 				SetControlMode(lastMode);										// Return to previous mode
+			}
+		else if (v[0] == "ShivaAct=scene") 	{									// If scene
+			}
+		else if (v[0] == "ShivaAct=control") {									// If control
+			SetControlMode(v[1]);												// Set mode
+			}
 		}	
 
 	function QmediaEvents(id)												// CONSTRUCTOR
