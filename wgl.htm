@@ -24,7 +24,6 @@
 	var camera,scene,renderer,controls,clock;									// WebGL guts
 	var qe=new QmediaEvents("Qmedia3D");										// Alloc events library
 	var controlMode="orbit",lastMode;
-trace(23)
 
 	$(document).ready(function() {												// When loaded
 		$("body").on("keydown",onKeyDown);										// Register handler
@@ -201,7 +200,6 @@ trace(23)
 
 	function onKeyDown(e) 													// KEYDOWN HANDLER
 	{
-		trace(e)
 		if (e.which == 75) {
 			var str=camera.position.x.toFixed(3)+","+camera.position.y.toFixed(3)+","+camera.position.z.toFixed(3)+",";
 			str+=camera.rotation.x.toFixed(3)+","+camera.rotation.y.toFixed(3)+","+camera.rotation.z.toFixed(3);
