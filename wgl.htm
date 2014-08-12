@@ -20,9 +20,12 @@
 <script>
 
 
-
-//	var modelSrc="wgl/male02.obj";
-	var modelSrc="wgl/monster.dae";	
+	var modelSrc="wgl/male02.obj";
+	var modelScale=1;
+	var	ambientLight="#101030";
+	var spotLight="#ffeedd";
+	var skyBox=true;
+	
 	var container;																// Iframe to hold WebGL player
 	var startTime,offTime=0;													// Current play time
 	var keys=[];																// Hold keyframes
@@ -32,9 +35,17 @@
 	
 	if (!Detector.webgl) Detector.addGetWebGLMessage();							// If not Wrbgl, warn
 	var url=window.location.search.substring(1);								// Get query string
-	if (url) modelSrc=url;														// Use it
-
-
+	if (url) {																	// If a query
+		url=url.split("&");														// Split into parts
+		for (var i=0;i<url.length;++i) {										// For each key/val pair
+			var v=url[i].split("=");											// Split into key/val
+			if (v[0] == 'm')	modelSrc=v[1];									// If model
+			if (v[0] == 's')	modelScale=v[1]-0;								// If scale
+			if (v[0] == 'b')	skyBox=false;									// If no skybox
+			}
+		if (modelSrc.match(/\/\//))												// If external domain
+			modelSrc="proxy.php?url="+modelSrc;									// Add proxy
+		}
 	$(document).ready(function() {												// When loaded
 		$("body").on("keydown",onKeyDown);										// Register handler
   		container=document.createElement('div');								// Make container div
@@ -52,15 +63,7 @@
 		scene=new THREE.Scene();												
 		var manager=new THREE.LoadingManager();
 		manager.onProgress=function(item,loaded,total) { console.log(item,loaded,total); };
-		
-		// LIGHTING
-		
-		var ambient=new THREE.AmbientLight(0x101030);
-		scene.add(ambient);
-		var directionalLight=new THREE.DirectionalLight(0xffeedd);
-		directionalLight.position.set(0,0,1);
-		scene.add(directionalLight);
-	
+			
 		// TEXTURE
 
 		var texture=new THREE.Texture();
@@ -89,6 +92,8 @@
 		if (modelSrc.match(/\.dae/i)) {
 			var loader = new THREE.ColladaLoader();
 			loader.options.convertUpAxis=true;
+			ambientLight="#cccccc";
+			spotLight="#666666";
 			loader.load(modelSrc,function(object) {
 				model=object.scene;
 				model.traverse(function(child) {
@@ -98,28 +103,39 @@
 							}
 					});
 				model.position.y=-80;
+				model.scale.x=model.scale.y=model.scale.z=modelScale;
 				scene.add(model);		
 				});
 			}
 		
 		// SKYBOX
 		
-		var urls=['wgl/px.jpg','wgl/nx.jpg','wgl/py.jpg','wgl/ny.jpg','wgl/pz.jpg','wgl/nz.jpg'];
-		var reflectionCube = THREE.ImageUtils.loadTextureCube(urls);
-		reflectionCube.format = THREE.RGBFormat;
-		var refractionCube = new THREE.CubeTexture( reflectionCube.image, new THREE.CubeRefractionMapping() );
-		refractionCube.format = THREE.RGBFormat;
-		var cubeMaterial3 = new THREE.MeshLambertMaterial( { color: 0xff6600, ambient: 0x993300, envMap: reflectionCube, combine: THREE.MixOperation, reflectivity: 0.3 } );
-		var cubeMaterial2 = new THREE.MeshLambertMaterial( { color: 0xffee00, ambient: 0x996600, envMap: refractionCube, refractionRatio: 0.95 } );
-		var cubeMaterial1 = new THREE.MeshLambertMaterial( { color: 0xffffff, ambient: 0xaaaaaa, envMap: reflectionCube } )
-		var shader = THREE.ShaderLib[ "cube" ];
-		shader.uniforms[ "tCube" ].value=reflectionCube;
-		var material = new THREE.ShaderMaterial( {
-			fragmentShader: shader.fragmentShader, vertexShader: shader.vertexShader,
-			uniforms: shader.uniforms, depthWrite: false, side: THREE.BackSide
-			}),
-		mesh=new THREE.Mesh( new THREE.BoxGeometry( 800, 800, 800 ), material );
-		scene.add(mesh);
+		if (skyBox) {
+			var urls=['wgl/px.jpg','wgl/nx.jpg','wgl/py.jpg','wgl/ny.jpg','wgl/pz.jpg','wgl/nz.jpg'];
+			var reflectionCube = THREE.ImageUtils.loadTextureCube(urls);
+			reflectionCube.format = THREE.RGBFormat;
+			var refractionCube = new THREE.CubeTexture( reflectionCube.image, new THREE.CubeRefractionMapping() );
+			refractionCube.format = THREE.RGBFormat;
+			var cubeMaterial3 = new THREE.MeshLambertMaterial( { color: 0xff6600, ambient: 0x993300, envMap: reflectionCube, combine: THREE.MixOperation, reflectivity: 0.3 } );
+			var cubeMaterial2 = new THREE.MeshLambertMaterial( { color: 0xffee00, ambient: 0x996600, envMap: refractionCube, refractionRatio: 0.95 } );
+			var cubeMaterial1 = new THREE.MeshLambertMaterial( { color: 0xffffff, ambient: 0xaaaaaa, envMap: reflectionCube } )
+			var shader = THREE.ShaderLib[ "cube" ];
+			shader.uniforms[ "tCube" ].value=reflectionCube;
+			var material = new THREE.ShaderMaterial( {
+				fragmentShader: shader.fragmentShader, vertexShader: shader.vertexShader,
+				uniforms: shader.uniforms, depthWrite: false, side: THREE.BackSide
+				}),
+			mesh=new THREE.Mesh( new THREE.BoxGeometry( 800, 800, 800 ), material );
+			scene.add(mesh);
+			}
+
+		// LIGHTING
+		
+		var ambient=new THREE.AmbientLight(ambientLight);
+		scene.add(ambient);
+		var directionalLight=new THREE.DirectionalLight(spotLight);
+		directionalLight.position.set(0,0,1);
+		scene.add(directionalLight);
 
 		// END CONTENT
 
