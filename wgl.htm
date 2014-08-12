@@ -9,6 +9,7 @@
  	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>	
 	<script src="lib/wgl/three.min.js"></script>
 	<script src="lib/wgl/loaders/OBJLoader.js"></script>
+	<script src="lib/wgl/loaders/ColladaLoader.js"></script>
 	<script src="lib/wgl/controls/OrbitControls.js"></script>
 	<script src="lib/wgl/controls/FirstPersonControls.js"></script>
 	<script src="lib/wgl/Detector.js"></script>
@@ -18,12 +19,21 @@
 		
 <script>
 
+
+
+//	var modelSrc="wgl/male02.obj";
+	var modelSrc="wgl/monster.dae";	
 	var container;																// Iframe to hold WebGL player
 	var startTime,offTime=0;													// Current play time
 	var keys=[];																// Hold keyframes
-	var camera,scene,renderer,controls,clock;									// WebGL guts
+	var camera,scene,renderer,controls,clock,model;								// WebGL guts
 	var qe=new QmediaEvents("Qmedia3D");										// Alloc events library
 	var controlMode="orbit",lastMode;
+	
+	if (!Detector.webgl) Detector.addGetWebGLMessage();							// If not Wrbgl, warn
+	var url=window.location.search.substring(1);								// Get query string
+	if (url) modelSrc=url;														// Use it
+
 
 	$(document).ready(function() {												// When loaded
 		$("body").on("keydown",onKeyDown);										// Register handler
@@ -50,7 +60,7 @@
 		var directionalLight=new THREE.DirectionalLight(0xffeedd);
 		directionalLight.position.set(0,0,1);
 		scene.add(directionalLight);
-
+	
 		// TEXTURE
 
 		var texture=new THREE.Texture();
@@ -63,16 +73,35 @@
 		
 		// MODEL
 		
-		var loader=new THREE.OBJLoader(manager);
-		loader.load('wgl/male02.obj',function(object) {
-			object.traverse(function(child) {
-				if (child instanceof THREE.Mesh) 
-					child.material.map=texture;
+		if (modelSrc.match(/\.obj/i)) {
+			var loader=new THREE.OBJLoader(manager);
+			loader.load(modelSrc,function(object) {
+				model=object;
+				object.traverse(function(child) {
+					if (child instanceof THREE.Mesh) 
+						child.material.map=texture;
+					});
+				model.position.y=-80;
+				scene.add(model);		
 				});
-			object.position.y=-80;
-			scene.add(object);		
-			});
-
+			}
+		
+		if (modelSrc.match(/\.dae/i)) {
+			var loader = new THREE.ColladaLoader();
+			loader.options.convertUpAxis=true;
+			loader.load(modelSrc,function(object) {
+				model=object.scene;
+				model.traverse(function(child) {
+						if (child instanceof THREE.SkinnedMesh) {
+							var animation=new THREE.Animation(child,child.geometry.animation);
+							animation.play();
+							}
+					});
+				model.position.y=-80;
+				scene.add(model);		
+				});
+			}
+		
 		// SKYBOX
 		
 		var urls=['wgl/px.jpg','wgl/nx.jpg','wgl/py.jpg','wgl/ny.jpg','wgl/pz.jpg','wgl/nz.jpg'];
@@ -94,7 +123,7 @@
 
 		// END CONTENT
 
-		Animate();																	// Animate
+		animate();																	// Animate
 		$("body").append("<div style='position:absolute;top:0px;z-index:1000;color:white'><br> &nbsp; Hit the C key to change control mode, P to play/pause, H for home</div>")
 		qe.SendMessage("ready","");													// Send ready message
 	
@@ -107,11 +136,13 @@
 		renderer.setSize(window.innerWidth,window.innerHeight-2);					// Reset render size
 	}
 
-	function Animate() 															// ANIMATION LOOP
+	function animate() 															// ANIMATION LOOP
 	{
-		requestAnimationFrame(Animate);												// Set timer
-		if (controls && (controlMode != "goto"))									// If controls set
+		requestAnimationFrame(animate);												// Set timer
+		if (controls && (controlMode != "goto")) {									// If controls set
 			controls.update(clock.getDelta());										// Update position?
+			THREE.AnimationHandler.update(clock.getDelta());						// Update animation
+			}
 		renderer.render(scene,camera);												// Render
 	}
 
@@ -146,6 +177,8 @@
 					startTime=new Date().getTime()/1000;						// Set start
  	    			
  	    			controls.update=function() {								// UPDATE FUNCTION
+					if (!controlMode)	return;
+
 						var time=new Date().getTime()/1000-startTime;			// Get now
 						time+=(offTime-0);										// Add offset
 						for (i=keys.length-1;i>=0;--i) 							// Work backwards
