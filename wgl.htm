@@ -19,7 +19,6 @@
 		
 <script>
 
-
 	var modelSrc="wgl/male02.obj";
 	var modelScale=1;
 	var	ambientLight="#101030";
@@ -57,14 +56,11 @@
 		renderer.setSize(window.innerWidth,window.innerHeight-2);				// Set remder size
 		container.appendChild(renderer.domElement);								// Add renderer
 		window.addEventListener('resize',onWindowResize,false );				// Add resize event
-		
-		// START CONTENT
-		
-		scene=new THREE.Scene();												
-		var manager=new THREE.LoadingManager();
-		manager.onProgress=function(item,loaded,total) { console.log(item,loaded,total); };
+		scene=new THREE.Scene();												// Add scene											
+		var manager=new THREE.LoadingManager();									// Ad loader
+		manager.onProgress=function(item,loaded,total) { console.log(item,loaded,total); };	// Track progress
 			
-		// TEXTURE
+		// TEXTURE FOR MAPMAN MODEL
 
 		var texture=new THREE.Texture();
 		var loader=new THREE.ImageLoader(manager);
@@ -74,9 +70,9 @@
 			texture.needsUpdate=true;
 			});
 		
-		// MODEL
+		// MODEL IMPORTERS
 		
-		if (modelSrc.match(/\.obj/i)) {
+		if (modelSrc.match(/\.obj/i)) {										// IMPORT OBJ MODELS
 			var loader=new THREE.OBJLoader(manager);
 			loader.load(modelSrc,function(object) {
 				model=object;
@@ -89,7 +85,7 @@
 				});
 			}
 		
-		if (modelSrc.match(/\.dae/i)) {
+		if (modelSrc.match(/\.dae/i)) {										// IMPORT COLLADA DAE MODELS 
 			var loader = new THREE.ColladaLoader();
 			loader.options.convertUpAxis=true;
 			ambientLight="#cccccc";
@@ -136,8 +132,6 @@
 		var directionalLight=new THREE.DirectionalLight(spotLight);
 		directionalLight.position.set(0,0,1);
 		scene.add(directionalLight);
-
-		// END CONTENT
 
 		animate();																	// Animate
 		$("body").append("<div style='position:absolute;top:0px;z-index:1000;color:white'><br> &nbsp; Hit the C key to change control mode, P to play/pause, H for home</div>")
