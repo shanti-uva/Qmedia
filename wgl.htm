@@ -11,6 +11,8 @@
 	<script src="lib/wgl/loaders/OBJLoader.js"></script>
 	<script src="lib/wgl/loaders/ColladaLoader.js"></script>
 	<script src="lib/wgl/controls/OrbitControls.js"></script>
+	<script src="lib/wgl/controls/TrackballControls.js"></script>
+	<script src="lib/wgl/controls/FlyControls.js"></script>
 	<script src="lib/wgl/controls/FirstPersonControls.js"></script>
 	<script src="lib/wgl/Detector.js"></script>
 <style type="text/css">
@@ -40,6 +42,7 @@
 			var v=url[i].split("=");											// Split into key/val
 			if (v[0] == 'm')	modelSrc=v[1];									// If model
 			if (v[0] == 's')	modelScale=v[1]-0;								// If scale
+			if (v[0] == 'c')	controlMode=v[1];								// If control
 			if (v[0] == 'b')	skyBox=false;									// If no skybox
 			}
 		if (modelSrc.match(/\/\//))												// If external domain
@@ -47,14 +50,13 @@
 		}
 	$(document).ready(function() {												// When loaded
 		$("body").on("keydown",onKeyDown);										// Register handler
-  		container=document.createElement('div');								// Make container div
-		document.body.appendChild(container);									// Add to body
+ 		$("body").append("<div id='containerDiv'></div>");						// Add container div
  		camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,1,2000);	// Create camera
 		camera.position.z=400;													// Set z
 		SetControlMode(controlMode);											// Default control mode
 		renderer=new THREE.WebGLRenderer({antialias:true});						// Create renderer
 		renderer.setSize(window.innerWidth,window.innerHeight-2);				// Set remder size
-		container.appendChild(renderer.domElement);								// Add renderer
+		$("#containerDiv")[0].appendChild(renderer.domElement);								// Add renderer
 		window.addEventListener('resize',onWindowResize,false );				// Add resize event
 		scene=new THREE.Scene();												// Add scene											
 		var manager=new THREE.LoadingManager();									// Ad loader
@@ -167,6 +169,36 @@
     			controls=new THREE.OrbitControls(camera);
   				controls.damping = 0.2;
     			break;
+  			case "track":
+		 	  	lastMode=controlMode;												// Save mode
+    			controls=new THREE.TrackballControls(camera);
+  				controls.rotationSpeed = 0.5;
+  				controls.zoomSpeed = 0.5;
+    			controls.panSpeed = 0.5;
+   				break;
+  			case "fly":
+		 	  	lastMode=controlMode;												// Save mode
+    			controls=new THREE.FlyControls(camera);
+ 				controls.domElement=$("#containerDiv")[0];
+ 				controls.movementSpeed = 1000;
+				controls.domElement = container;
+				controls.rollSpeed = Math.PI / 24;
+				controls.autoForward = false;
+				controls.dragToLook = false;				
+				break;
+   			case "point":
+  		 	  	lastMode=controlMode;												// Save mode
+	   			controls=new THREE.PointerLockControls(camera);
+ 		       	controls.lookSpeed = 0.05;
+		        controls.movementSpeed = 50;
+		        controls.noFly = true;
+		        controls.lookVertical = true;
+		        controls.constrainVertical = false;
+		        controls.verticalMin = 1.0;
+		        controls.verticalMax = 2.0;
+		        controls.lon=-90;
+		        controls.lat=0;
+		        break;
    			case "first":
   		 	  	lastMode=controlMode;												// Save mode
 	   			controls=new THREE.FirstPersonControls(camera);
