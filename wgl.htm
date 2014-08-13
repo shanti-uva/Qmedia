@@ -12,7 +12,6 @@
 	<script src="lib/wgl/loaders/ColladaLoader.js"></script>
 	<script src="lib/wgl/controls/OrbitControls.js"></script>
 	<script src="lib/wgl/controls/TrackballControls.js"></script>
-	<script src="lib/wgl/controls/FlyControls.js"></script>
 	<script src="lib/wgl/controls/FirstPersonControls.js"></script>
 	<script src="lib/wgl/Detector.js"></script>
 <style type="text/css">
@@ -176,30 +175,7 @@
   				controls.zoomSpeed = 0.5;
     			controls.panSpeed = 0.5;
    				break;
-  			case "fly":
-		 	  	lastMode=controlMode;												// Save mode
-    			controls=new THREE.FlyControls(camera);
- 				controls.domElement=$("#containerDiv")[0];
- 				controls.movementSpeed = 1000;
-				controls.domElement = container;
-				controls.rollSpeed = Math.PI / 24;
-				controls.autoForward = false;
-				controls.dragToLook = false;				
-				break;
-   			case "point":
-  		 	  	lastMode=controlMode;												// Save mode
-	   			controls=new THREE.PointerLockControls(camera);
- 		       	controls.lookSpeed = 0.05;
-		        controls.movementSpeed = 50;
-		        controls.noFly = true;
-		        controls.lookVertical = true;
-		        controls.constrainVertical = false;
-		        controls.verticalMin = 1.0;
-		        controls.verticalMax = 2.0;
-		        controls.lon=-90;
-		        controls.lat=0;
-		        break;
-   			case "first":
+			case "first":
   		 	  	lastMode=controlMode;												// Save mode
 	   			controls=new THREE.FirstPersonControls(camera);
  		       	controls.lookSpeed = 0.05;
@@ -212,10 +188,10 @@
 		        controls.lon=-90;
 		        controls.lat=0;
 		        break;
- 			case "key": case "":
+ 			case "path": case "":
 				var i,s,e,pct;
 				controls={};
-   				if (controlMode == "key")										// If key mode
+   				if (controlMode == "path")										// If path mode
 					startTime=new Date().getTime()/1000;						// Set start
  	    			
  	    			controls.update=function() {								// UPDATE FUNCTION
@@ -302,14 +278,14 @@
 			SetControlMode("orbit");
 			}
 		if (e.which == 80) {													// P for play
-			if (controlMode == "key")											// If key playing
+			if (controlMode == "path")											// If key playing
 				SetControlMode(lastMode);										// Return to previous mode
 			else{																// Start playing
 				if (e.shiftKey)													// As for time
 					offTime=prompt("Type time")-0;								// Get offset
 				else															// Just play
 					offTime=0;													// No offset
-				SetControlMode("key");											// Play
+				SetControlMode("path");											// Play
 				}
 			}
 		if (e.which == 72) {													// H for home
@@ -327,14 +303,14 @@
 	function QmediaEventHandler(e)											// ON SHIVA EVENT
 	{
 		var v=e.data.split("|");												// Split into parts													
-		if (v[0] == "ShivaAct=key") {											// If a data 
+		if (v[0] == "ShivaAct=path") {											// If a data 
 			keys=v[3].split(';')												// Get key sets
 //			keys="-100,0,0,300,0,0,0,1;3,100,0,300,0,0,0,3;6,200,0,300,0,3,0,0".split(';');
 			for (var i=0;i<keys.length;++i)										// For each set	
 				keys[i]=keys[i].split(',');										// Make into array
 			offTime=v[2]-0;														// Start time
 			if (v[1] == "play")													// If immediately playing
-				SetControlMode("key");											// Play it
+				SetControlMode("path");											// Play it
 			}											
 		else if (v[0] == "ShivaAct=goto") {										// If goto
 			var s=v[1].split(',')												// Get vals
@@ -349,10 +325,10 @@
 		else if (v[0] == "ShivaAct=play") {										// If play
 			offTime=0;															// No offset
 			if (v[1])	offTime=v[1]-0;											// If time spec'd
-			SetControlMode("key");												// Play it
+			SetControlMode("path");												// Play it
 			}
 		else if (v[0] == "ShivaAct=pause") { 									// If pause
-			if (controlMode == "key")											// If key playing
+			if (controlMode == "path")											// If key playing
 				SetControlMode(lastMode);										// Return to previous mode
 			}
 		else if (v[0] == "ShivaAct=scene") 	{									// If scene
