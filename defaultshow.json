@@ -43,6 +43,11 @@ LoadShow({
 "c": ""
 },
 {
+"t": 30,
+"c": "qTitle|Lower third|Right|Bar|#999999|#cccccc|Sans-Serif|Bold/Ital|#ffd966|16|#333333|TV style title bar",
+"m": ""
+},
+{
 "t": 34,
 "c": "//icons.iconarchive.com/icons/gakuseisean/radium/256/Globe-Connected-icon.png",
 "z": ".17|.17|.3|8|.15|.15|.001",
