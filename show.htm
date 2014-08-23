@@ -463,9 +463,9 @@
 			pt+=$("#titleDiv").height()+24;										// Top of player
 		else																	// No title
 			$("#titleDiv").css("display","none")								// Hide bar
-		$("#playerDiv").css({ width:w+"px",top:pt+"px"});						// Set player pos
-		$("#overlayDiv").css({ width:w+"px",top:pt+"px",height:$("#playerDiv").height()+"px",left:"8px"});	// Set overlay
 		var h=Math.max(((wid-4)*sd.playerAspect)-(w*sd.playerAspect),w*sd.playerAspect);	// Player height
+		$("#playerDiv").css({ width:w+"px",top:pt+"px"});						// Set player pos
+		$("#overlayDiv").css({ width:w+"px",top:pt+"px",height:h+"px",left:"8px"});	// Set overlay
 		$("#slideDiv").css({ left:(wid-w2+8)+"px",width:(w2)+"px",top:pt+"px",height:h+"px"}); // Set slider pos/size
 		$("#playerSiz").css({ left:(w+8)+"px",height:h+"px",top:pt+"px"});		// Set sizer pos
 		h+=pt;																	// Point at top of control bar
@@ -650,7 +650,6 @@
 
 	function AnimateContent(id, vec, pane)									// ANIMATE IMAGE OR IFRAME
 	{
-
 		var x,y,z,dur=500;
 		if (!vec.z)	{															// If not pan and zoom set
 			$("#"+id).css("opacity",1);											// Make it visible	
