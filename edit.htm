@@ -792,9 +792,9 @@
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 		MakeContentTable();														// Make table
 	
-		$("#contentType").on("click",function(e) {								// ON OUTSIDE CLICK
+		$("#contentType").on("change",function(e) {								// ON OUTSIDE CLICK
 			var s=$("#contentType").val();										// Get selection
-				if (s.match(/info/i)) 	conPtr=curJson.infoVectors;				// Point at info
+			if (s.match(/info/i)) 	conPtr=curJson.infoVectors;					// Point at info
 			else if (s.match(/play/i)) 	conPtr=curJson.playerVectors;			// Point at player
 			else if (s.match(/slide/i)) conPtr=curJson.slideVectors;			// Point at slides
 			MakeContentTable();													// Make table
@@ -1206,6 +1206,7 @@
 		conPtr.splice(id,1);													// Remove from json
 		$("#idx"+id).remove();													// Remove from table
 		Sound("delete");														// Delete sound
+		MakeContentTable();														// Redraw table
 	}
 
 	function onPreviewContent(id) 												// ON PREVIEW CONTENT
