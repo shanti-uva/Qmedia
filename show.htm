@@ -221,7 +221,7 @@
 			cursorAt:{left:16},	iframeFix:true,									// Cursor offset
 			cursor: "col-resize", axis:"x",										// X-only
 			start: function(event, ui) {										// On drag start
-				$("#playerSiz1").css({ width:"1000px", left:"-500px" });		// Widen hiding div
+				$("#playerSiz1").css({ width:"500px", left:"-500px" });			// Widen hiding div
 				},
 			drag: function(event, ui) {											// On drag
 				var wid=Math.min($("body").width(),sd.width);					// Cap at screen size
