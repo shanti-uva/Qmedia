@@ -579,7 +579,7 @@
 					$(xml).find("photoset").each( function() {						// For each set
 						oo={};														// New obj
 						oo.id=$(this).attr("id");									// Get set id
-						oo.title=$(this).text();									// Get set title
+						oo.title=$(this).text().split("\n")[1];						// Get set title
 						o.sets.push(oo);											// Add set
 						});
 					if (o.sets.length)												// If some sets
@@ -672,10 +672,10 @@
 					sizes.push(o);												// Add size to array
 					});
 							
-				var t=$("#picGal").position().top;								// Gallery top
-				str+="<div style='position:absolute;top:"+t+"px;left:550px;width:232px;text-align:right'>";
-				str+="<p style='font-size:14px'><b>"+photos[id].title+"</b></p>";		
-				str+="<p style='font-size:11px'>Choose size below:</p>";		
+				var t=$("#picGal").position().top+10;								// Gallery top
+				str+="<div style='position:absolute;top:"+t+"px;left:550px;width:232px;text-align:right;'>";
+//				str+="<div style='font-size:12px;padding:8px;display:inline-block'><b>"+photos[id].title+"</b><br></div>";		
+				str+="<span style='font-size:11px'><i>Choose size: </i> </span>";		
 				for (i=0;i<sizes.length;++i) {									// For each size
 					if (mapMode)												// If making for MapScholar
 						str+=sizes[i].label+"<input type='checkbox' id='fdx"+i+"'><br>";
