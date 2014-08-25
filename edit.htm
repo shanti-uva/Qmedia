@@ -126,7 +126,7 @@
 		else																	// Use other method
 			window.attachEvent("message",shivaEventHandler);					// Add handler
 
-		qmf=new QmediaFile();													// Alloc file system
+		qmf=new QmediaFile("//qmediaplayer.com/",0);							// Alloc file system
 		NewShow();																// Init show
 		
 		var url=window.location.search.substring(1);							// Get query string

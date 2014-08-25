@@ -3,10 +3,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 	
 	
-	function QmediaFile() 													// CONSTRUCTOR
+	function QmediaFile(host, version) 										// CONSTRUCTOR
 	{
 		qmf=this;																// Point to obj
-		this.host="//qmediaplayer.com/";										// Get host
+		this.host=host;															// Get host
+		this.version=version;													// Get version
 		this.email=this.GetCookie("email");										// Get email from cookie
 		this.curFile="";														// Current file
 		this.password=this.GetCookie("password");								// Password
@@ -94,6 +95,7 @@
 			dat["id"]=curShow;													// Add id
 			dat["email"]=_this.email;											// Add email
 			dat["password"]=_this.password;										// Add password
+			dat["ver"]=_this.version;											// Add version
 			dat["private"]=pri;													// Add private
 			dat["script"]="LoadShow("+JSON.stringify(curJson,null,'\t')+")";	// Add jsonp-wrapped script
 			if (curJson.title)													// If a title	
@@ -167,13 +169,12 @@
 		this.SetCookie("password",this.password,7);								// Save cookie
 		this.SetCookie("email",this.email,7);									// Save cookie
 		this.deleting=deleting;													// Deleting status
-		var url=this.host+"listshow.php";										// Base file
+		var url=this.host+"listshow.php?ver="+this.version;						// Base file
 		if (this.email)															// If email
-			url+="?email="+this.email+"&deleted=";								// Add email and deleted to query line
-		else																	// Just deleted
-			url+="?deleted=";													// Add to query line
-		
+			url+="&email="+this.email;											// Add email and deleted to query line
+		url+="&deleted=";														// Add to query line
 		url+=(deleting == "undelete") ? 1 : 0									// Add deleted status
+		trace(url)
 		$.ajax({ url:url, dataType:'jsonp', complete:function() { Sound('click'); } });	// Get data and pass qmfListFiles()
 	}
 	
