@@ -174,7 +174,6 @@
 			url+="&email="+this.email;											// Add email and deleted to query line
 		url+="&deleted=";														// Add to query line
 		url+=(deleting == "undelete") ? 1 : 0									// Add deleted status
-		trace(url)
 		$.ajax({ url:url, dataType:'jsonp', complete:function() { Sound('click'); } });	// Get data and pass qmfListFiles()
 	}
 	
