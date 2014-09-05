@@ -17,7 +17,7 @@ require_once('config.php');
 		print("<blockquote>");									// Indent
 		print(mysql_result($result,$i,"date")." | ");			// Date
 		print(mysql_result($result,$i,"email")." | ");			// Email
-		print(mysql_result($result,$i,"id")." | ");				// Id
+		print("<a href='//www.qmediaplayer.com/show.htm?".mysql_result($result,$i,"id")."'>".mysql_result($result,$i,"id")."</a> | ");	// Id
 		print(mysql_result($result,$i,"title"));				// Title
 		print("<br></blockquote>");								// BR
 		}
