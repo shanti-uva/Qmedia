@@ -305,6 +305,8 @@
 		$("body").append(str);														
 		var	width=500;
 		var x=$("#lightBoxDiv").width()/2-250;
+		if (this.version == 1) 
+			x=Math.max(x,950)
 		var y=$("#lightBoxDiv").height()/2-200;
 		
 		str="<div id='lightBoxIntDiv' class='unselectable' style='position:absolute;padding:16px;width:400px;font-size:12px";
@@ -415,6 +417,8 @@
 		str+="<div style='font-size:14px;margin:16px'>"+content+"</div>";
 		$("#alertBoxDiv").append(str);	
 		$("#alertBoxDiv").dialog({ width:400, buttons:{"OK": function() { $(this).remove(); }}});	
+		if (qmf.version == 1)	
+			$("#alertBoxDiv").dialog("option","position",{ my:"center", at:"right center", of:window });
 		$(".ui-dialog-titlebar").hide();
 		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
 		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
@@ -434,6 +438,8 @@
 					            	"Yes": function() { $(this).remove(); callback() },
 					            	"No":  function() { $(this).remove(); }
 									}});	
+		if (qmf.version == 1)	
+			$("#alertBoxDiv").dialog("option","position",{ my:"center", at:"right center", of:window });
 		$(".ui-dialog-titlebar").hide();
 		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
 		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
@@ -454,6 +460,8 @@
 					            	"OK": 		function() { callback($("#gtBoxTt").val()); $(this).remove(); },
 					            	"Cancel":  	function() { $(this).remove(); }
 									}});	
+		if (qmf.version == 1)	
+			$("#alertBoxDiv").dialog("option","position",{ my:"center", at:"right center", of:window });
 		$(".ui-dialog-titlebar").hide();
 		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
 		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
@@ -484,6 +492,8 @@
 		$("#alertBoxDiv").dialog({ width:800, buttons: {
 					            	"Done":  function() { $(this).remove(); }
 									}});	
+		if (qmf.version == 1)	
+			$("#alertBoxDiv").dialog("option","position",{ my:"center", at:"right center", of:window });
 		$(".ui-dialog-titlebar").hide();
 		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
 		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
@@ -524,6 +534,8 @@
 		$("#alertBoxDiv").dialog({ width:800, buttons: {
 					            	"Cancel":  function() { $(this).remove(); },
 									}});	
+		if (qmf.version == 1)	
+			$("#alertBoxDiv").dialog("option","position",{ my:"center", at:"right center", of:window });
 		$(".ui-dialog-titlebar").hide();
 		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
 		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
