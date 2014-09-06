@@ -100,6 +100,8 @@
 			dat["script"]="LoadShow("+JSON.stringify(curJson,null,'\t')+")";	// Add jsonp-wrapped script
 			if (curJson.title)													// If a title	
 				dat["title"]=AddEscapes(curJson.title);							// Add title
+			else if ((qmf.version == 1) && curJson[0])							// If ME
+				dat["title"]=AddEscapes(curJson[0].title);						// Add title
 			$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat,  // Post data
 				success:function(d) { 			
 					if (d == -1) 												// Error
