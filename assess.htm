@@ -11,41 +11,40 @@
 
 	<style type="text/css">
 		body { 			font-family:Verdana,Geneva,sans-serif; font-size:xx-small}
-		.rounded-corners { -moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;}
-		tr.odd { 		background-color:#e0e0e0; }
+	
 		.ui-autocomplete { max-height: 300px; overflow-y: auto; }
 	
  		.unselectable { -moz-user-select: none;     -khtml-user-select: none;
 		   			 	-webkit-user-select: none;  -ms-user-select: none;   user-select: none;
 		   				}
  		.mainSty { 		font-family:Verdana,Geneva,sans-serif; font-size:12px; 
-						padding:0px; margin:0px;border-radius:18px;
+						padding:0px; margin:0px;border-radius:1.5em;
 						-moz-user-select: none;     -khtml-user-select: none;
 		   			 	-webkit-user-select: none;  -ms-user-select: none;   user-select: none;
 						}
-		.titleSty { 	font-size:18px; font-weight:bold; text-align:center;padding-bottom:8px;
+		.titleSty { 	font-size:1.5em; font-weight:bold; text-align:center;padding-bottom:.6em;
 						color:#000099
 						} 
-		.textSty { 		padding-left:16px; padding-right:16px;
+		.textSty { 		padding-left:1.3em; padding-right:1.3em;
 						} 
- 		.promptSty { 	padding-left:40px;padding-right:40px;padding-top:4px;padding-bottom:14px;
-						margin:8px;
+ 		.promptSty { 	padding-left:3.3em;padding-right:3.3em;padding-top:.33em;padding-bottom:1.2em;
+						margin:.6em;
 						font-weight:bold;
 						border-bottom:1px solid #ccc;
 						} 
-		.optionsLSty { 	text-align:left;padding-top:4px;display:inline-block;
+		.optionsLSty { 	text-align:left;padding-top:.33em;display:inline-block;
 						} 
-		.optionsRSty { 	padding-top:4px;padding-left:16px;display:inline-block;
+		.optionsRSty { 	padding-top:.33em;padding-left:1.33em;display:inline-block;
 						vertical-align:top;float:center;
 						} 
- 		.nextbutSty {	border-radius:10px;color:#009900;
+ 		.nextbutSty {	border-radius:.83em;color:#009900;font-size:1em;
  						}
-  		#sortable li {  margin-bottom:7px; padding:1px; padding-left:12px;padding-right:12px;
+  		#sortable li {  margin-bottom:.6em; padding:1px; padding-left:.75em;padding-right:.75em;
   						border:1px solid #999;
-  						border-radius:10px;background-color:#ddd;cursor:pointer
+  						border-radius:.8em;background-color:#ddd;cursor:pointer
   						}
- 		.is {			border-radius:10px;padding-left:8px;padding-right:8px;padding-top:1px;
-						border:1px solid #999;font-size:12px;height;20px;width:200px;
+ 		.is {			border-radius:.8em;padding-left:.6em;padding-right:.6em;padding-top:1px;
+						border:1px solid #999;font-size:1em;height;1.66em;width:16.66em;
 						]
 	
  	</style>
@@ -80,6 +79,7 @@
 	var numTries=0;																// Number of tries at page
 	var curTime;																// Current player time
 	var qe=new QmediaEvents("QmediaAssess");									// Alloc events library
+	var fontSize=12;
 			
 	$(document).ready(function() {											// WHEN PAGE LOADED
 		qe.SendMessage("ready","");												// Send ready message
@@ -97,9 +97,11 @@
 		e.data+=',"numTries":3';
 		e.data+=',"text":"Sort these."';
 		e.data+=',\"prompt":"Drag then"';
+		e.data+=',\"whyRight":"Good!"';
 		e.data+=',"optionType":"match","options":["first:sex","second:drugs","third:rock","fourth:roll"]}';
 		e.data+="]}"
-//		QmediaEventHandler(e);													
+		
+		QmediaEventHandler(e);													
 		/////////////////////////////////////////////////////////////////	
 
 
@@ -127,9 +129,11 @@
 			numTries=0;															// Reset tries counter
 		curPage=num;															// Set curpage
 		var d=aData.pages[num];													// Point at page
+		if (d.fontSize)	fontSize=d.fontSize-0;									// Set fontsize
 		if (d.title) 	$("#titleDiv").html(d.title);							// Add title
 		if (d.text) 	$("#textDiv").html(d.text);								// Text body
 		if (d.prompt) 	$("#promptDiv").html(d.prompt);							// Prompt
+		$("#containerDiv").css("font-size",fontSize+"px");						// Set fontsize
 		if ((d.options) &&  (d.optionType == "radio" || d.optionType == "checkbox")) {	// Checkbox or radio												// Add options
 			for (i=0;i<d.options.length;++i) {									// For each option
 				if (showRight) {												// If showing correct answers
@@ -140,7 +144,7 @@
 				str+="<span style='color:"+col+"'>";							// Add color span
 			 	str+="&nbsp;&nbsp; <input type='"+d.optionType+"' name='opt' id='opt"+i+"' value='"+lab+"'>"+lab+"</span>";	// Add line
 				if (d.options[i].toLowerCase() == "*other")						// If an other option
-		 			str+="&nbsp <input class='is' style='width:70px;' type='text' id='otherOpt'><br></span>";	// Add line
+		 			str+="&nbsp <input class='is' style='width:6em;' type='text' id='otherOpt'><br></span>";	// Add line
 				else	str+="<br>";											// Add break
 				}
 			}
@@ -148,10 +152,10 @@
 			var s=d.text;
 			i=0;																// Reset counter
 			$("#textDiv").html("");												// No text
-			var imp="<input style='text-align:center;width:80px;border:none;border-bottom:1px solid;padding-left:4px;color:#000099' type='text' id='opt";
+			var imp="<input style='text-align:center;width:6.6em;border:none;border-bottom:1px solid;padding-left:.33em;color:#000099;font-size:1em' type='text' id='opt";
 			while (s.match(/__+/)) 												// While a blank
 				s=s.replace(/__+/,imp+(i++)+"'>");								// Replace with text box
-			str="<p style='margin-left:40px;margin-right:40px'>"+s+"</p>";		// Add cloze
+			str="<p style='margin-left:3.33em;margin-right:3.33em'>"+s+"</p>";	// Add cloze
 			}
 		if ((d.options) && ((d.optionType == "sort") || (d.optionType == "match"))) {	// Sort/match
 			v=[]
@@ -164,7 +168,7 @@
 			}
 		else if (d.optionType == "write") {										// Write option
 			str+="&nbsp;&nbsp;<textarea id='opt' rows=3 placeholder='Write your answer here...' ";		// Text 
-			str+="style='width:"+$("#optionsLDiv").parent().width()*.8+"px'></textarea><br></span>";	// area
+			str+="style='font-size:1em;width:"+$("#optionsLDiv").parent().width()*.8+"px'></textarea><br></span>";	// area
 			}	
 		else if (d.optionType == "notes") {										// Notes option
 			qe.SendMessage("notes","start");									// Send start message
@@ -176,7 +180,7 @@
 			}	
 		str+="<p style='text-align:center'><input id='nextBut' type='button' value='OK' class='nextbutSty'>"; 	// Add button
 		if (d.skip != "false")													// If allowing skip button
-			str+="<input id='skipBut' type='button' value='Skip' class='nextbutSty'>"; 	// Add button
+			str+=" <input id='skipBut' type='button' value='Skip' class='nextbutSty'>"; 	// Add button
 		str+="</p>";															// End tag
 		$("#optionsLDiv").html(str);											// Set div
  		$("#sortable" ).sortable({ axis:"y"} );									// Make sortable, if a sort
@@ -272,7 +276,7 @@
 			if ($("#otherOpt").val())											// If *other written in
 				ans=$("#otherOpt").val();										// Use its value
 			if (d.whyRight || d.whyWrong || d.whyPartial) {						// If feedback spec'd
-				str="<div style='margin-left:16px;margin-right:16px'><div style='font-size:18px;text-align:center;font-weight:bold;color:#";	// Title
+				str="<div style='margin-left:1.33em;margin-right:1.33em'><div style='font-size:1.5em;text-align:center;font-weight:bold;color:#";	// Title
 				if (ans == "right") {											// Right
 					str+="009900'>That's right!</div><p>";						// Heading
 					if (d.whyRight)	str+=d.whyRight;							// Show explanation

@@ -696,6 +696,7 @@
 		str+="<tr><td><b>If partial answer</b>&nbsp;</td><td><textarea class='is' id='whyPartial'>"+(o.whyPartial ? o.whyPartial :'')+"</textarea></td></tr>";	// Get setting
 		str+="<tr><td><b>Number of tries</b></td><td><input class='is' type='text' id='numTries' value='"+(o.numTries ? o.numTries :'')+"'></td></tr>";	// Get setting
 		str+="<tr><td><b>Allow skipping</b></td><td>"+MakeSelect("skip",false,["true","false"],o.skip)+"</td></tr>";	// Get setting
+		str+="<tr><td><b>Font size</b></td><td><input class='is' type='text' id='fontSize' value='"+(o.fontSize ? o.fontSize :'Default (12)')+"'></td></tr>";	// Get setting
 		str+="<tr><td colspan=2><hr></td></tr>";
 		str+="<tr><td><b>Options</b></td><td><dl id='optionsTable'>";
 		if (o.options) {
@@ -723,7 +724,7 @@
 		$("#whyRight").on("change", function() { o.whyRight=$(this).val(); });	// Extract value	
 		$("#whyWrong").on("change", function() { o.whyWrong=$(this).val(); });	// Extract value	
 		$("#whyPartial").on("change", function() { o.whyPartial=$(this).val()});// Extract value	
-		$("#numTries").on("change", function() { o.numTries=$(this).val(); });	// Extract value	
+		$("#fontSize").on("change", function() { o.fontSize=$(this).val(); });	// Extract value	
 		$("#skip").on("change", function() { o.skip=$(this).val(); });			// Extract value	
 		$("#optionsTable").on("sortstop", function(e, ui) {						// If sorted
 			var v=$("#optionsTable").sortable("toArray");						// Get new order
