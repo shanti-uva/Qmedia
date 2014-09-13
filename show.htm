@@ -556,6 +556,7 @@
 	{
 		var i,o,oo={},extra="scrolling='no'";
 		var n=showVectors[pane].length-1;										// Last vector
+		$("#playerDiv").css("pointer-events","auto");							// Enable player events
 		for (i=n;i>=0;i--) {													// For each vector
 			o=showVectors[pane][i];												// Point at slide
 			if (playerNow >= o.ps) {											// In this one
@@ -583,21 +584,27 @@
 						$("#overlayDiv").html(src);								// Populate overlay
 						}
 					else{														// An iframe
-						if (src.match(/assess=/)) {								// If an assessment
+						if (src.match(/assess=/i)) {							// If an assessment
 							RunPlayer("pause");									// Pause player
 							RunPlayer("pause");									// Pause player (twice for firefox mac)
-							curAssess=i;										// Get name
+							curAssess=(pane*100)+i;								// Get id to assessment
 							src="assess.htm";									// Point at assess module
-							if (o.r)											// If a ratio set
-								sd.playerSlideRatio=o.r;						// Use it
-							else												// Nothing set
-								sd.playerSlideRatio=Math.min(sd.playerSlideRatio,.5);	// Needs to be at least 1/2
+							if (o.r) { 											// If a ratio set
+								if (pane == 3)									// Info pane							
+									sd.transInfoRatio=o.r;						// Use it
+								else											// Slide/player
+									sd.playerSlideRatio=o.r;					// Use it
+								}
 							ResizePanes();										// Resize
 							}
 						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
 							$("#"+div+"IF").remove();							// Remove any existing iframes
-//							if ((o.d) && (o.c.match(/scroll/i))) 	extra="";	// Add scroll bars
 							$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' style='opacity:0' src='"+src+"'></iframe>");	// Load in iframe
+							if (src == "assess.htm") {							// If an assessment
+								$("#"+div+"IF").css("background-color","#fff");	// Put up a background
+								$("#playerDiv").css("pointer-events","none");	// Stop player events
+								$("#"+div+"IF").css("pointer-events","auto");	// Restore assess events
+								}
 							}
 						else													// Same image base
 							AnimateContent(div+"IF",o,pane);					// Animate iframe, if set
@@ -1107,10 +1114,11 @@
 		var v=e.data.split("|");												// Get data
 		if (v[0] == "QmediaAssess=done") {										// Done with assessment
 			searchMode=false;													// Allow other events
-			RunPlayer("play",showVectors[slidePane][curAssess].ps+.6);			// Roll player from where we left off
+			RunPlayer("play",showVectors[Math.floor(curAssess/100)][curAssess%100].ps+.6);		// Roll player from where we left off
+			$("#overlayDivIF").remove();										// Remove iframe from player, if there
 			}
 		else if (v[0] == "QmediaAssess=ready") {								// Ready
-			str=showVectors[slidePane][curAssess].cs.split("=")[1];				// Extract name of assessment to run
+			str=showVectors[Math.floor(curAssess/100)][curAssess%100].cs.split("=")[1];			// Extract name of assessment to run
 			for (i=0;i<sd.assessments.length;++i)								// For each possible assessment
 				if (sd.assessments[i].name == str) {							// The one I'm looking for
 					var str="ShivaAct=data|"+JSON.stringify(sd.assessments[i]);	// Get data
@@ -1132,7 +1140,7 @@
 			else if (v[3] == "draw") {											// If draw
 				v[3]="Draw data goes here";										// Save drawing to server
 				}
-			dat["event"]=new Date().toISOString()+"\tAssess\t"+showVectors[slidePane][curAssess].cs.split("=")[1]+"\t"+v[2]+"\t"+v[3]+"\n";		// Add event
+			dat["event"]=new Date().toISOString()+"\tAssess\t"+showVectors[Math.floor(curAssess/100)][curAssess%100].cs.split("=")[1]+"\t"+v[2]+"\t"+v[3]+"\n";		// Add event
 			if (sd.logIn == "true")															// If saving answers
 				$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat});  	// Post data
 			}
