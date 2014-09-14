@@ -866,7 +866,9 @@
 			if (conPtr != curJson.playerVectors) 								// Not in player
 				str+=MakeSelect("ida"+i,false,["No action","play","pause","seek","jump","load"],(""+o.p).split(":")[0]);	
 			str+=" <input id='idh"+i+"' type='text' style='text-align:center;width:30px;height:15px' class='is' value='Send'>";
-			str+="</td><td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteContent(this.id)'></td></tr><tr><td colspan='3'><hr></td></tr>";	// Add trashcan
+			str+="</td><td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteContent(this.id)'></td></tr>>";	// Add trashcan
+			if (i < n-1) 														// If not last
+				str+="<tr><td colspan='3'><hr></td></tr>";						// Add between line
 			$("#contentTable").append(str);										// Add row
 			
 			$("#idx"+i).on("click", function(e) {								// ON ROW CLICK
