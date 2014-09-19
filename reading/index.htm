@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<head>
+ 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>	
+	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+	<script src="//www.qmediaplayer.com/qfile.js"></script>
+	<title>Curry Word Study</title>
+	<meta charset="utf-8">
+	<link REL="SHORTCUT ICON" HREF="http://news.virginia.edu/sites/all/themes/uva_today/favicon.ico">
+	<style type="text/css">
+		body { font-family:Verdana,Geneva,sans-serif;font-size:12px;margin:24px }
+	 	.header { 		text-align:center;font-size:24px;white-space:nowrap;			
+	 					}
+	 	.menu { 		font-size:12px;background-color:#eee;border-radius:50px;
+	 					text-align:center;padding:6px;width:auto;		
+	 					}
+	 	.grid 	{ 		line-height:150%;font-size:16px;margin:auto;
+	 					}
+	 	.table 	{ 		border:1px solid #999;border-radius:20px;padding:12px;
+	 					box-shadow:4px 4px 16px #ccc;
+	 					}
+	 	.labels { 		text-align:center;line-height:100%;font-size:12px;width:60px;vertical-align:top;
+	 					white-space:normal;
+	 					}
+		.is {			border-radius:16px;padding-left:8px;padding-right:8px;padding-top:1px
+						border:1px solid #999;font-size:16px;;background-color:#fff;
+						}
+		.row:hover {	background-color:#dee7f1;
+						}
+	 	.editicon { 	opacity:0;
+	 					}
+	 	.scorebar { 	display:inline-block;width:5px;vertical-align:2px;
+	 					}
+
+
+
+	</style>
+</head>
+
+<body>
+	<div class='header'>
+		<img src="images/cws.jpg" width="300"><br><br>
+		<div class="menu" id="menuDiv"></div>
+		<p><div class="grid" id="gridDiv"></div></p>
+	</div>
+
+<script>	
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// INIT
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	var qmf=null;
+	var curClass=0;
+	var curRow=-1;
+	
+	var classes=[  	{ name:"Word study - 3",
+					teacher:"Mrs. Smith",
+					grade:2,
+					roster: [ "Jason", "Mary", "Frankie", "Sally" ],
+					order: [], 
+					items:[{ title:"First",
+							 date:"3/15/14",
+							 type:"PSI",
+							 scores:[] },
+						   { title:"Second",
+							 date:"9/20/14",
+							 type:"PSI",
+							 scores:[] }
+						  ]
+					}
+				]
+
+		$(document).ready(function() {											// WHEN LOADED
+		qmf=new QmediaFile("//qmediaplayer.com/",2);							// Alloc file system
+		Draw();																	// Draw inventory
+		});
+
+	function Draw() 														// DRAW IT
+	{
+		var i,j;
+		var c=[];
+		var o=classes[curClass];												// Point at class
+		for (i=0;i<classes.length;++i)											// For each class
+			c.push(classes[i].name)												// Add to select
+		c.push("   - - -");																// Add to select
+		c.push("Add new class");												// Add to select
+		var str="Class: &nbsp;"+MakeSelect("classSel",false,c,o.name);			// Add classes select
+		str+="&nbsp; &nbsp; &nbsp;<button class='is'>Add assessment</button>";
+		str+="&nbsp; &nbsp; &nbsp;<button class='is'>Groups</button>";
+		str+="&nbsp; &nbsp; &nbsp; <button class='is'>Views</button>";
+		$("#menuDiv").html(str);												// Add content
+		for (i=0;i<o.roster.length;++i)											// For each student
+			o.order[i]=i;														// Default order
+		DrawRoster();															// Draw class roster
+	}
+	
+	function DrawRoster(itemNum) 												// DRAW ROSTER
+	{
+		var i;
+		var o=classes[curClass];												// Point at class
+		var n=o.items.length;													// Number of columns
+		var str="<table cellspacing='0' class='table' align='center'>";			// Table
+		if (itemNum != undefined) 												// Looking at whole class item
+			str+="<tr><td style='padding-bottom:8px' colspan='"+n+1+"'>"+o.items[itemNum].title+" -<i> taken </i>"+o.items[itemNum].date+"<td></tr><tr>";	// Show title
+
+		
+		str+="<tr><td colspan='"+n+1+"'><div style='width:100%;height:4px;background-color:#ddd'></div><td></tr><tr>";
+		str+="<td class='labels' style='vertical-align:middle;text-align:left'>Name</td>";
+		if (itemNum != undefined) {												// Looking at whole class item
+			var fo=window[o.items[itemNum].type].features;						// Point at item features
+			n=fo.length;														// Columns now saize of features
+			for (i=0;i<n;++i) 													// For each item
+				str+="<td class='labels' style='width:70px'>"+fo[i]+"</td>";	// Draw label
+			}
+		else{
+			for (i=0;i<n;++i) 														// For each item
+				str+="<td onclick='DrawRoster("+i+")' class='labels'>"+o.items[i].title+"<br>"+o.items[i].date+"</td>";	// Draw label
+			}
+		str+="<tr><td colspan='"+n+1+"'><div style='width:100%;height:4px;background-color:#ddd'></div><td></tr>";
+		for (i=0;i<o.roster.length;++i) {										// For each student
+			str+="<tr id='row"+i+"' class='row'><td style='text-align:left'>"+o.roster[o.order[i]];		// Add name
+			str+=" <img class='editicon' id='editicon"+i+"-0' src='images/editdot.gif'></td>";	// Add edit icon
+			for (j=0;j<n;++j) 													// For each columns
+				str+="<td id='ri"+i+"-"+j+"' style='width:60px'></td>"			// Add column
+			str+="</tr>";														// End row
+			}
+		str+="<tr><td colspan='"+n+1+"'><div style='width:100%;height:4px;background-color:#ddd'></div><td></tr>";
+		if (itemNum != undefined) 
+			str+="<tr><td colspan='"+n+1+"' style='padding-top:8px'><button class='is' onclick='DrawRoster()'>Return to roster</button</td></tr>";	// Add new student 
+		else
+			str+="<tr><td colspan='"+n+1+"' style='padding-top:8px'><span style='font-size:12px;color:#009900'>ADD&nbsp; </span> <input type='text' class='is' style='width:110px' id='addStudent'></td></tr>";	// Add new student 
+		str+="</table>";														// End table
+		$("#gridDiv").html(str);												// Add content
+		DrawScores(itemNum);													// Draw scores
+
+		for (i=0;i<o.roster.length;++i) {										// For each student
+	
+			$("#row"+i).draggable({ helper:"clone", axis:"y" });				// Allow dragging
+	
+			$("#row"+i).droppable({ drop: function(event, ui) {					// On drop
+				var id=ui.draggable.attr("id").substr(3)-0;						// From			
+				var to=event.target.id.substr(3)-0;								// To			
+				o.order.splice(to,0,o.order.splice(id,1)[0]);					// Move		
+				Sound("click");													// Click
+				DrawRoster(itemNum);											// Draw Roster
+				}											
+			});				
+
+			$("#row"+i).on("mouseover", function() {							// ON MOUSE OVER ROW
+				curRow=this.id.substr(3);										// Row num
+				for (var j=0;j<=o.items.length;++j) 							// For each item
+					$("#editicon"+curRow+"-"+j).css("opacity",1)				// Show row						
+				});				
+	
+			$("#row"+i).on("mouseout", function() {								// ON MOUSE OUT ROW
+				if (curRow != -1)
+					for (var j=0;j<=o.items.length;++j) 						// For each item
+						$("#editicon"+curRow+"-"+j).css("opacity",0)			// Show row						
+				});				
+
+			$("#editicon"+i+"-0").on("click", function() {						// CLICK ON NAME EDIT
+				var r=curRow;													// Save row num
+				GetTextBox("Edit name", "Edit student's name",o.roster[o.order[r]],	// Editbox
+	 				function(name) {											// On entry
+						o.roster[o.order[r]]=name;								// Set name
+						DrawRoster(itemNum);									// Show
+						}); 
+				});				
+	
+			for (var j=1;j<=o.items.length;++j) {								// For each item
+				$("#editicon"+i+"-"+j).on("click", function() {					// CLICK ON ITEM EDIT
+					var s=this.id.split("-")[0].substr(8);						// Get student number
+					var i=this.id.split("-")[1]-1;								// Get item number
+					ScoreItem(curClass,o.order[s],i,classes);					// Score item
+					}); 
+				$("#scoreicon"+i+"-"+j).on("click", function() {				// CLICK ON SCORE ICON
+					var s=this.id.split("-")[0].substr(9);						// Get student number
+					var i=this.id.split("-")[1]-1;								// Get item number
+					ScoreItem(curClass,o.order[s],i,classes);					// Score item
+					});
+				}
+			}
+
+		$("#addStudent").on("change", function() {								// ON ADD STUDENT
+				var o=classes[curClass];										// Point at class
+				o.roster.push($(this).val());									// Add to roster
+				o.order[o.roster.length-1]=o.roster.length-1;					// Add order
+				DrawRoster();													// Reshow
+				$("#addStudent").focus();										// Restore focus to input
+				});				
+		}
+
+	function DrawScores(itemNum) 											// DRAW SCORES
+	{
+		var i,j,n,str,data,col;
+		var o=classes[curClass];												// Point at class
+		if (itemNum != undefined) 												// If class item view	
+			n=window[o.items[itemNum].type].features.length;					// Point at item assessment
+		for (i=0;i<o.roster.length;++i) {										// For each student
+			if (itemNum != undefined) {											// If class view of item
+				data=o.items[itemNum].scores[o.order[i]];						// Point at score data
+				if (!data)	continue;											// Skip if no data
+				data=data[data.length-1];										// Point at last row
+				for (j=0;j<n;++j) {												// For each feature
+					col="#990000";												// Bad
+					if (data[j] > 49)		col="#999";							// Better
+					if (data[j] > 74)		col="#009900";						// Best
+					str="<span style='color:"+col+"'>"+data[j]+"</span>";		// Show
+					$("#ri"+i+"-"+j).html(str);									// Add content
+					}
+				}
+			else{ 																// Small multiples of items
+				for (j=0;j<o.items.length;++j) {								// For each item
+					str="";														// Clear
+					data=o.items[j].scores[o.order[i]];							// Point at score
+					if (data) {													// If something there
+						str+="<div id='scoreicon"+i+"-"+(j+1)+"' ";				// Enclosing div
+						str+="style='background-color:#eee;height:16px;vertical-align:middle;"
+						str+="display:inline-block'>";
+						str+=MakeScoreIcon(data);								// Make score icon
+						str+="</div>";											// End div
+						}
+					else
+						str+="<img class='editicon' id='editicon"+i+"-"+(j+1)+"' src='images/editdot.gif'>";	// Add edit icon
+					$("#ri"+i+"-"+j).html(str);									// Add content
+					}
+				}
+			}	
+	}
+
+	function MakeScoreIcon(data) 											// MAKE SCORE ICON
+	{
+		var i,str="";
+		var o=data[data.length-1];												// Point at totals
+		var n=o.length-1;														// Number of features, less last
+		var col="#009900";														// Set color
+		for (i=0;i<n;++i) {														// For each feature
+			str+="<div class='scorebar' style='background-color:"+col;			// Draw
+			str+=";height:"+Math.round(o[i]*.16)+"px'></div>";					// Bar
+			}
+		return str;
+	}	
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ITEM SCORING
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	var thisItem={};														// Persistance
+	var numFeatures;														// Number of feature columns
+	
+	var PSI={
+		features: [ 
+		"Initial consonant", "Final consonant",	"Short<br>vowel","Digraph", "Blend",
+		"Long<br>vowel", "Other<br> vowel", "Inflected ending","Spelled correctly" ],
+		words:[ { word:"fan",   right:["f", "n", "a"					] },
+				{ word:"pet",   right:["p", "t", "e"					] }, 
+				{ word:"dig",   right:["d", "g", "i"					] },
+				{ word:"rob",   right:["r", "b", "o"					] },  
+				{ word:"hope",  right:["h", "p", "",  "",  "",  "o-e" 	] }, 
+				{ word:"wait",  right:["w", "i", "",  "",  "",  "ai"	] }, 
+				{ word:"gum",  	right:["g", "m", "u"					] }, 
+				{ word:"sled",  right:["",  "d",  "e", "",  "sl", "" 	] }, 
+				{ word:"stick", right:["",  "k", "i", "",  "st", "" 	] }, 
+				{ word:"shine", right:["",  "n", "", "sh", "",  "i-e" 	] }]
+		}
+	
+	function ScoreItem(classID, studentID, itemID, classPtr) 				// SCORE STUDENT ITEM
+	{
+		var i,j,m,val;
+		thisItem.classes=classPtr;
+		thisItem.classID=classID;												// Class ID
+		thisItem.studentID=studentID;											// Student ID
+		thisItem.itemID=itemID;													// Item ID
+		thisItem.itemType=classPtr[classID].items[itemID].type;					// Point at item type
+		thisItem.mat=[];														// Holds scores
+		thisItem.count=[];														// Holds counts
+		thisItem.assess=window[thisItem.itemType];								// Point at item assessment
+		
+		var o=classPtr[classID].items[itemID].scores[studentID];				// Point at scores
+		numFeatures=thisItem.assess.features.length;							// Get number of features
+		for (i=0;i<=thisItem.assess.words.length;++i) {							// For each word (+ 1 for totals) 
+			m=[];																// Word array
+			for (j=0;j<=numFeatures;++j) {										// For each feature
+				val=0;
+				if (o && (o[i] != undefined) && (o[i][j] != undefined))			// If one already
+					val=o[i][j];												// Set it
+				m.push(val)														// Add value
+				}
+			thisItem.mat.push(m);												// Add row
+			}	
+		for (i=0;i<numFeatures;++i) {											// For each feature
+			thisItem.count[i]=0;												// No counts
+			for (j=0;j<thisItem.assess.words.length;++j) 						// For each word
+				if (thisItem.assess.words[j].right[i])	++thisItem.count[i];	// Add to count
+			thisItem.count[numFeatures-1]=thisItem.assess.words.length;			// Word total
+			}
+		DrawScorer();															// Draw Scorer
+	}
+	
+	function DrawScorer() 													// DRAW SCORER
+	{
+		var o=thisItem.classes[thisItem.classID];								// Point at class data
+		var str="<table cellspacing='0' class='table' align='center'><tr><td id='info' style='text-align:left'>";	// Table
+		
+		str+="Name: <i>"+o.roster[thisItem.studentID]+"</i><br>Title: &nbsp; <i>"+o.items[thisItem.itemID].title+"</i><br>Grade: <i>"+o.grade+"</i><br>Date: &nbsp; <i>"+o.items[thisItem.itemID].date+"</i>";	// Add info
+		for (i=0;i<numFeatures;++i) {											// For each feature
+			str+="<td style='text-align:center;width:43px;padding-left:27px' id='fd"+i+"'></td>";
+			}
+		str+="<tr><td colspan='"+(numFeatures+1)+"'><div style='margin-top:4px;width:100%;height:4px;background-color:#ccc'></div><td></tr>";
+		str+="<tr><td></td>";
+		for (i=0;i<numFeatures;++i) 											// For each feature
+			str+="<td class='labels'>"+window[thisItem.itemType].features[i]+"</td>";	// Draw label
+		str+="</tr><tr><td colspan='"+(numFeatures+1)+"'><div style='margin-bottom:4px;width:100%;height:4px;background-color:#ccc'></div><td></tr>";
+		for (i=0;i<thisItem.assess.words.length;++i) {							// For each word
+			str+="<tr class='row'><td style='text-align:left'><input class='is' style='width:60px' type='text' id='wrd"+i+"'";
+			if (thisItem.mat[i][9])												// If student response defined 
+				str+=" value='"+thisItem.mat[i][9]+"'";							// Set value
+			str+="> &nbsp; "+thisItem.assess.words[i].word+"</td>"; 			// Show actual word
+			for (j=0;j<numFeatures;++j)											// For each feature
+				str+="<td id='a"+i+"-"+j+"'></td>"								// Add column
+			str+="</tr>";														// End row
+			}
+		str+="<tr><td colspan='"+(numFeatures+1)+"'><div style='margin-top:4px;width:100%;height:4px;background-color:#ccc'></div><td></tr>";
+		str+="<tr id='totals'></tr>";											// End row
+		str+="<tr><td colspan='"+numFeatures+1+"' style='padding-top:18px'><button class='is' style='color:#009900' id='saveScore'>Save</button>";
+		str+=" &nbsp; <button class='is'style='color:#990000' id='cancelScore'>Cancel</button></td></tr>";	
+		str+="</table>";														// End table
+		$("#gridDiv").html(str);												// Add content
+		for (i=0;i<thisItem.assess.words.length;++i) {							// For each word
+			if ($("#wrd"+i).val())												// If word set
+				ScoreWord(i);													// Show checks
+			$("#wrd"+i).on("keyup", function() {								// ON KEYUP
+					var id=this.id.substr(3);									// Get id
+					ScoreWord(id);
+					});	
+			
+			$("#wrd"+i).on("change", function() {								// ON CHANGE
+					var id=this.id.substr(3)-0+1;								// Get next id
+					$("#wrd"+id).focus();										// Go there
+					});	
+					
+			}			
+		DrawInfo();																// Draw the info pane
+
+		$("#saveScore").on("click", function() {								// SAVE
+			thisItem.classes[thisItem.classID].items[thisItem.itemID].scores[thisItem.studentID]=thisItem.mat;	// Save to main
+			// Store to DB
+			DrawRoster();														// Draw class roster
+			}); 
+
+		$("#cancelScore").on("click", function() {								// CANCEL
+			DrawRoster();														// Draw class roster
+			}); 
+	}
+	
+	function DrawInfo() 													// DRAW INFO
+	{
+		var i,j,h,str;
+		var h=$("#info").height();												// Set height
+		var tot="<td style='text-align:left'>Totals</td>";						// Total label
+		var n=thisItem.assess.words.length;										// Number of  words
+		
+		for (i=0;i<numFeatures;++i) {											// For each feature
+			h=0;
+			for (j=0;j<n;++j) 													// For each word
+				h+=thisItem.mat[j][i];											// Total column
+			tot+="<td>"+h+"/"+thisItem.count[i]+"</td>";						// Show total
+			if (thisItem.count[i])												// Avoid / 0
+				h=Math.round(h/thisItem.count[i]*100);							// Calc height
+			thisItem.mat[n][i]=h;												// Save total row
+			var str="<div><div style='height:"+(100-h)+"px;width:16px;background-color:#eee'></div>";
+			str+="<div style='height:"+h+"px;width:16px;background-color:#66c5ff'></div></div>";
+			$("#fd"+i).html(str);
+			}
+		$("#totals").html(tot);
+		}
+
+	function ScoreWord(num) 												// SCORE WORD
+	{
+		var i,pat;
+		var a=thisItem.assess.words[num].right;									// Feature answers
+		var m=thisItem.mat[num];												// Point a word row in may
+		var w=$("#wrd"+num).val().toLowerCase();								// Word
+		var yea="<span style='color:#009900'>&#10003</span>";					// Correct				
+		var nay="<span style='color:#990000'>x</span>";							// Wrong
+		if (a[0]) {																// First cons
+			if (w && (w.charAt(0) == a[0]))	$("#a"+num+"-0").html(yea),m[0]=1;					
+			else							$("#a"+num+"-0").html(nay),m[0]=0;			
+			}
+		if (a[1]) {																// Final cons
+			if (w && (w.charAt(w.length-1) == a[1]))		$("#a"+num+"-1").html(yea),m[1]=1;		
+			else if (w && (w.charAt(w.length-2) == a[1]))	$("#a"+num+"-1").html(yea),m[1]=1;		
+			else							$("#a"+num+"-1").html(nay),m[1]=0;			
+			}
+		if (a[2]) {																// Short vowel
+			var pat=new RegExp(".+"+a[2]+".+");									
+			if (w && (w.match(pat)))		$("#a"+num+"-2").html(yea),m[2]=1;
+			else							$("#a"+num+"-2").html(nay),m[2]=0;
+			}
+		if (a[3]) {																// Digraph
+			var pat=new RegExp(a[3]);
+			if (w && (w.match(pat)))		$("#a"+num+"-3").html(yea),m[3]=1;
+			else							$("#a"+num+"-3").html(nay),m[3]=0;
+			}
+		if (a[4]) {																// Blend
+			var pat=new RegExp(a[4]);
+			if (w && (w.match(pat)))		$("#a"+num+"-4").html(yea),m[4]=1;
+			else							$("#a"+num+"-4").html(nay),m[4]=0;
+			}
+		if (a[5]) {																// Long vowel
+			if (a[5].match('-'))												
+				pat=new RegExp(".+"+a[5].split("-")[0]+".+["+a[5].split("-")[1]+"]");
+			else																
+				pat=new RegExp("."+a[5]);									
+			if (w && (w.match(pat)))		$("#a"+num+"-5").html(yea),m[5]=1;
+			else							$("#a"+num+"-5").html(nay),m[5]=0;
+			}
+		if (a[6]) {																// Other vowel
+			var pat=new RegExp(".+"+a[6]+".+");
+			if (w && (w.match(pat)))		$("#a"+num+"-6").html(yea),m[6]=1;
+			else							$("#a"+num+"-6").html(nay),m[6]=0;
+			}
+		if (a[7]) {																// Inflicted
+			var pat=new RegExp(".+"+a[7]+".+");
+			if (w && (w.match(pat)))		$("#a"+num+"-7").html(yea),m[7]=1;
+			else							$("#a"+num+"-7").html(nay),m[7]=0;
+			}
+		if (w == thisItem.assess.words[num].word)	$("#a"+num+"-8").html(yea),m[8]=1;
+		else								$("#a"+num+"-8").html(nay),m[8]=0;
+		m[9]=w;																	// Store word
+		DrawInfo();																// Draw the info pane
+	}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// HELPERS
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	function MakeSelect(id, multi, items, sel, extra, values)				// CREATE SELECT WIDGET
+	{
+		var	str="<select class='is' id='"+id+"'";
+		if (multi)
+			str+="multiple='multiple' size='"+multi+"'";
+		if (extra)
+			str+=extra;
+		str+=">";
+		for (i=0;i<items.length;++i) {
+			str+="<option";
+			if (sel == items[i])
+				str+=" selected='selected'"
+			if (values && values[i])
+				str+=" value='"+values[i]+"'";
+			str+=">"+items[i]+"</option>";
+			}	
+		return str+"</select>"
+	}
+
+	
+</script>	
+</body>
+</html>
+
