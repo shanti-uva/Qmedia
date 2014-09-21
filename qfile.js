@@ -78,6 +78,8 @@
 		$("#saveBut").button().click(function() {								// SAVE BUTTON
 			var dat={};
 			_this.password=$("#password").val();								// Get current password
+			if (_this.password)													// If a password
+				_this.password=_this.password.replace(/#/g,"@");				// #'s are a no-no, replace with @'s	
 			_this.email=$("#email").val();										// Get current email
 			var pri= $("#private").prop("checked") ? 1 : 0						// Get private
 			
@@ -158,8 +160,10 @@
 
 	QmediaFile.prototype.ListFiles=function(deleting) 						//	LIST PROJECTS IN DB
 	{
-		this.password=$("#password").val();										// Get current password
 		this.email=$("#email").val();											// Get current email
+		this.password=$("#password").val();										// Get current password
+		if (this.password)														// If a password
+			this.password=this.password.replace(/#/g,"@");						// #'s are a no-no, replace with @'s	
 		if (deleting) {
 			if (!this.password && !this.email) 									// Missing both
 				 return this.LightBoxAlert("Need email and password");			// Quit with alert
@@ -187,6 +191,8 @@
 		else if (qmf.deleting == "undelete") trsty+="qmf.DeleteFile(this.id,0)'";	// Undelete
 		else								 trsty+="qmf.LoadFile(this.id)'";		// Load
 		qmf.password=$("#password").val();										// Get current password
+		if (qmf.password)														// If a password
+			qmf.password=qmf.password.replace(/#/g,"@");						// #'s are a no-no, replace with @'s	
 		qmf.SetCookie("password",qmf.password,7);								// Save cookie
 		qmf.email=$("#email").val();											// Get current email
 		qmf.SetCookie("email",qmf.email,7);										// Save cookie

@@ -568,7 +568,12 @@
 				if (showCurSource[pane] != o.cs) {								// A new item
 					var src=o.cs;												// Point at source
 					clearInterval(imageAnimationTimer[pane]);					// Kill image timer
-					if (src.match(/\.png|.gif|\.jpg|\.jpeg/i))	{				// An image
+					if (src.match(/\.png|.gif|\.jpg|\.jpeg|drive\.google/i)) {	// An image, or google drive image
+					if (src.match(/drive\.google/i))	{						// A google drive image
+						var id=src.match(/\/d\/(.*?)\//);						// Extract id
+						if (id)													// An id found
+							src="//drive.google.com/uc?export=view&id="+id[1];	// Construct 'direct' link
+						}
 						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0])  		// Bases are different
 							$("#"+div).html("<img id='"+div+"IM' style='opacity:0' width='100%' src='"+src+"'>"); 	// Load an image
 						else													// Same image base
