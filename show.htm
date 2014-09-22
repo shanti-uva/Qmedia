@@ -316,6 +316,10 @@
 
 	function LoadShow(show)													// LOAD SHOW CONTENT
 	{
+		if (show.qmfmsg == "private") {											// If private
+			$("#splashDiv").html("<h1>Sorry, this show is marked private.</h1>");// Show it's private
+			return;																// Quit
+			}	
 		searchMode=false;														// Allow other events
 		if ((show.curShow != undefined) && (!curShow))							// If a show spec'd
 			curShow=show.curShow;												// Make this current show

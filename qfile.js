@@ -415,7 +415,7 @@
 			snd.play();
 	}
 
-	function AlertBox(title, content)										// ALERT BOX
+	function AlertBox(title, content, callback)								// ALERT BOX
 	{
 		$("#alertBoxDiv").remove();												// Remove any old ones
 		Sound("delete");														// Delete sound
@@ -424,7 +424,7 @@
 		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>"+title+"</b></span></p>";
 		str+="<div style='font-size:14px;margin:16px'>"+content+"</div>";
 		$("#alertBoxDiv").append(str);	
-		$("#alertBoxDiv").dialog({ width:400, buttons:{"OK": function() { $(this).remove(); }}});	
+		$("#alertBoxDiv").dialog({ width:400, buttons:{"OK": function() { $(this).remove(); if (callback) callback(); }}});	
 		if (qmf.version == 1)	
 			$("#alertBoxDiv").dialog("option","position",{ my:"center", at:"right center", of:window });
 		$(".ui-dialog-titlebar").hide();
