@@ -11,8 +11,7 @@ require_once('config.php');
 	$result=mysql_query($query);								// Run query
 	if (mysql_numrows($result)) {								// If found,
 		$s=mysql_result($result,$i,"events");					// Get events field
-	//		print("LoadUserData({ \"qmfmsg\":\"\"})");
-		print($s);
+		print("LoadUserData({ \"data\":\".$s\"})");
 		}
 	mysql_close();												// Close
 	
