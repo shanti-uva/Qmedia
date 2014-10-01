@@ -107,7 +107,7 @@
 			$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat,  // Post data
 				success:function(d) { 			
 					if (d == -1) 												// Error
-				 		AlertBox("Error","Sorry, there was an error loading that project.(1)");		
+				 		AlertBox("Error","Sorry, there was an error saving that project.(1)");		
 					else if (d == -2) 											// Error
 				 		AlertBox("Error","Sorry, there was an error saving that project. (2)");		
 					else if (d == -3) 											// Error

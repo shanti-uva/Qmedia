@@ -1629,10 +1629,10 @@
 					});
 	}
 
-	function Login()														// LOG IN
+	function Login(callback)												// LOG IN
 	{
 		Sound("click");															// Click sound
-		$("#alertBoxDiv").remove();											// Remove any old ones
+		$("#alertBoxDiv").remove();												// Remove any old ones
 		$("body").append("<div class='qm-unselectable' id='alertBoxDiv'></div>");														
 		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
 		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>Login</b></span><p>";
@@ -1642,7 +1642,7 @@
 		str+="<tr><td>Password</td><td><input class='qm-is' type='password' id='gtBoxPw'></td></tr></table>";
 		$("#alertBoxDiv").append(str);	
 		$("#alertBoxDiv").dialog({ width:400, modal:true, buttons: {
-		            	"Cancel": function() { 	$(this).remove(); sd.logIn == "false"},
+		            	"Cancel": function() { 	$(this).remove(); sd.logIn == "false"; userName="";},
 		            	"OK": function() { 
 								var dat={};
 		            			userName=$("#gtBoxUn").val(); 					// Get username
@@ -1658,12 +1658,16 @@
 											AlertBox("Password","Sorry, that\'s not the password we have for you",Login);
 									 	else if (d.match(/data/i)) 					// Passwords don't match
 											AlertBox("Need username","We need your username or email",Login);
-										else									// Existing user
-											AlertBox("Welcome to Qmedia!","You are logged in as <b><i>"+userName+"</b></i>");
+										else {									// Existing user
+				            				if (callback) callback();			// Run callback if set
+											else								// Show message
+												AlertBox("Welcome to Qmedia!","You are logged in as <b><i>"+userName+"</b></i>");
+				            				}
 										},
 									error:function(xhr,status,error) {	AlertBox("Login error!",error); },	// Show error
 									});		
-		            			$(this).remove(); }
+		            			$(this).remove(); 								// Kill dialog
+		            			}
 						}});	
 		$(".ui-dialog-titlebar").hide();
 		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
@@ -1736,6 +1740,7 @@
 		if (1) {																// If notes enabled
 			str+="<div style='text-align:right;color:#666'><br>Pause video while typing?<input type='checkbox' id='notesPause' style='height:11px'>";
 			str+="<br/>Save notes: <img src='images/savedot.gif' id='notesSave' title='Save notes' width='15' style='vertical-align:bottom'>&nbsp;";
+			str+="<br/>Load notes: <img src='images/loaddot.gif' id='notesLoad' title='Load notes' width='15' style='vertical-align:bottom'>&nbsp;";
 			}
 		$('body').append(str+"</div>");											// Add to dom								
 	
@@ -1777,12 +1782,11 @@
 					});			
 			
 		$("#notesSave").on("click", function(e) {								// Handle save
-					var str="";
-					var n=$("#notesTbl tr").length;								// Number of rows
-					for (var i=0;i<n;++i) 										// For each row
-						if ($("#ntx-"+i).val())									// If something there
-							str+=$("#ntc-"+i).text()+"\t"+$("#ntx-"+i).val()+"\n";	// Add row
-		 			 	window.prompt ("To copy your Notes to the clipboard:\nType Ctrl+C or Cmd+C and click  OK button.",str);	// Copy to clipboard
+					Login(SaveVideoNotes);										// Login and save
+					});			
+
+		$("#notesLoad").on("click", function(e) {								// Handle save
+					return Login(LoadVideoNotes);								// Login and load
 					});			
 
 		$("#nCloser").on("click", function(e) {									// Handle close
@@ -1836,6 +1840,29 @@
 			});
 	};
 
+	function SaveVideoNotes()												// SAVE NOTES TO SERVER
+	{
+		var i,str="";
+		var n=$("#notesTbl tr").length;											// Number of rows
+		if (!n)																	// No notes
+			return;																// Quit
+		var dat={};
+		var url=host+"saveuserdata.php";										// Base file
+		dat["email"]=userName;													// Add email
+		dat["password"]=password;												// Add password
+		dat["show"]=curShow;													// Add shownum
+		dat["replace"]="true";													// Replace contents
+		for (i=0;i<n;++i) 														// For each row
+			if ($("#ntx-"+i).val())												// If something there
+				str+=$("#ntc-"+i).text()+"\t"+$("#ntx-"+i).val()+"\n";			// Add row
+		dat["event"]=str;														// Get notes
+		$.ajax({ url:url,dataType:'text',type:"POST",crossDomain:true,data:dat});  	// Post data
+		Sound("ding");															// Ding
+	}
+
+	function LoadVideoNotes()												// LOAD NOTES FROM SERVER
+	{
+	}
 	
 </script>
 </body></html>

@@ -48,7 +48,10 @@ require_once('config.php');
 			}
 		$id=mysql_result($result,0,"id");						// Get id
 		if ($id != "") {										// If valid
-			$query="UPDATE qusers SET events = CONCAT(events, '$event') WHERE id = '".$id."'";
+			if (isSet($_REQUEST['replace'])) 					// If replacing field
+				$query="UPDATE qusers SET events='".addEscapes($event)."' WHERE id = '".$id."'";
+			else 												// Adding to
+				$query="UPDATE qusers SET events = CONCAT(events, '$event') WHERE id = '".$id."'";
 			$result=mysql_query($query);						// Add to field
 			}
 		if ($result == false)									// Bad update
