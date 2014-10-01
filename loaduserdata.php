@@ -11,7 +11,11 @@ require_once('config.php');
 	$result=mysql_query($query);								// Run query
 	if (mysql_numrows($result)) {								// If found,
 		$s=mysql_result($result,$i,"events");					// Get events field
-		print("LoadUserData({ \"data\":\".$s\"})");
+		$s=str_replace("\r\n","\n",$s);							// No crlf
+		$s=str_replace("\n\r","\n",$s);							// No lfcr
+		$s=str_replace("\n","\\n",$s);							// Escape
+		$s=str_replace("\t","\\t",$s);							// Escape
+		print("LoadUserData({ \"data\":\"$s\"})");				// Send JSONP
 		}
 	mysql_close();												// Close
 	
