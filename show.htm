@@ -131,7 +131,7 @@
 	  	</div>
 		<div id="informationText" class="qm-infoText"></div>
 	</div>
-	<div id="transHgt" style="position:absolute;width:1000px;height:7px;cursor:row-resize;border-bottom:3px solid #ccc" class="qm-unselectable" title="Change transcript height">
+	<div id="transHgt" style="position:absolute;width:1000px;height:10px;cursor:row-resize" class="qm-unselectable" title="Change transcript height">
 			<p id="prompt" class="qm-prompt">The University of Virginia</p>
 			<div id="botMarkup"></div>
 	</div>
@@ -1730,11 +1730,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	function VideoNotes() 													//	ADD NOTES TO VIDEO
+	function VideoNotes(noReset) 												//	ADD NOTES TO VIDEO
 	{
 		var i,str,v;
 		if ($("#notesDiv").length) {											// If some notes there already
-			notesText="";														// Clear
+			if (!noReset)														// If not starting from scratch
+				notesText="";													// Clear
 			for (i=0;i<$("#notesTbl tr").length;++i) 							// For each row
 				if ($("#ntx-"+i).val())											// If something there
 					notesText+=$("#ntc-"+i).text()+$("#ntx-"+i).val()+"|"; 		// Add row
@@ -1759,7 +1760,8 @@
 		str+="</table>";														// End
 		if (1) {																// If notes enabled
 			str+="<div style='text-align:right;color:#666'><br>Pause video while typing?<input type='checkbox' id='notesPause' style='height:11px'>";
-			str+="<br/>Save notes: <img src='images/savedot.gif' id='notesSave' title='Save notes' width='15' style='vertical-align:bottom'>&nbsp;";
+			if (sd.logIn != "true")												// If not in assessment mode
+				str+="<br/>Save notes: <img src='images/savedot.gif' id='notesSave' title='Save notes' width='15' style='vertical-align:bottom'>&nbsp;";
 			str+="<br/>Load notes: <img src='images/loaddot.gif' id='notesLoad' title='Load notes' width='15' style='vertical-align:bottom'>&nbsp;";
 			}
 		$('body').append(str+"</div>");											// Add to dom								
@@ -1883,11 +1885,11 @@
 		Sound("ding");															// Ding
 	}
 
-	function LoadVideoNotes(userName)										// LOAD NOTES FROM SERVER
+	function LoadVideoNotes(name)										// LOAD NOTES FROM SERVER
 	{
 		var dat={};
 		var url=host+"loaduserdata.php";										// Base file
-		dat["email"]=userName;													// Add email
+		dat["email"]=name;														// Add email
 		dat["show"]=curShow;													// Add shownum
 		$.ajax({ url:url,dataType:'jsonp',data:dat});  							// Get data
 	}
@@ -1895,7 +1897,7 @@
 	function LoadUserData(notes)											// HANDLE INCOMING DATA LOAD
 	{
 		notesText=notes.data;													// Set notes
-		VideoNotes();															// Redraw
+		VideoNotes(true);														// Redraw
 	}
 	
 </script>
