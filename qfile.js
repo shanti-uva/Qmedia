@@ -540,7 +540,8 @@
 
 		$("#alertBoxDiv").append(str+"</div>");	
 		$("#alertBoxDiv").dialog({ width:800, buttons: {
-					            	"Cancel":  function() { $(this).remove(); },
+					            	"OK": 		function() { callback($("#ftbx").val()); $(this).remove(); },
+					            	"Cancel":  	function() { $(this).remove(); }
 									}});	
 		if (qmf.version == 1)	
 			$("#alertBoxDiv").dialog("option","position",{ my:"center", at:"right center", of:window });
