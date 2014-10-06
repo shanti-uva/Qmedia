@@ -1749,7 +1749,10 @@
 		if ((" "+sd.width).match("%"))											// If % in width
 			wid=$("body").width()*(sd.width.replace(/%/,"")/100);				// Get proper width											
 		str="<div class='qm-rounded-corners' id='notesDiv' style='position:absolute;padding:8px;overflow-y:auto;overflow-x:hidden;";	// Div
-		str+="width:"+wid/2+"px;height:"+($("#infoDiv").height()-16)+"px;";	// Set sizing
+		var h=Math.max(400,$("#infoDiv").height());								// Set height by info or at least 300	
+		h=Math.max(h,$("#transDiv").height());									// Set height by trans if bigger	
+		h=Math.min(h,400);														// Cap at 400
+		str+="width:"+wid/2+"px;height:"+(h-16)+"px;";							// Set sizing
 		str+="background-color:#f8f8f8;border:1px solid #ccc;box-shadow:4px 4px 8px #ccc;";	// Set coloring
 		str+="top:"+$("#infoDiv").offset().top+"px;left:"+wid/4+"px;'>";		// Set position
 		str+="<table id='notesTbl' width='100%'>";								// Table
