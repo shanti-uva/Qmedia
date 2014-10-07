@@ -475,7 +475,8 @@
 		h+=pt;																	// Point at top of control bar
 		var ct=h+$("#controlDiv").height()+14;									// Contents top
 		var trh=sd.transHgt;													// Copy trans hgt
-		if ((" "+sd.transHgt).match("%")) 										// If % in transhgt
+		if (!trh)	trh="100%";													// If not spec'd, use 100%
+		if ((" "+trh).match("%")) 												// If % in transhgt
 			trh=$(window).height()-ct-34;										// Get proper transhgt											
 		$("#contentDiv").css({ top:ct+"px",height:trh+"px"});					// Position/size contents
 		var cw=$("#contentDiv").width()-8;										// Get width of content panel
@@ -496,12 +497,6 @@
 			$("#transDiv").css("display","none");								// Hide transcript
 			}
 		$("#infoDiv").css({ left:(wid-w+8)+"px",width:Math.max(w,0)+"px",height:trh+"px",top:ct+"px"});
-		if (sd.transHgt && !isNaN(sd.transHgt)) {								// If a height NUMERICALLY set
-			ct+=(trh-0);														// Add it to top					
-			$("#transHgt").css("opacity",1);									// Show
-			}
-		else																	// No bottom
-			$("#transHgt").css("opacity",0);									// Hide
 		$("#transHgt").css({ top:ct-0+4+"px"});									// Set sizer top
 		$("#transSearchDiv").css("left",$("#transDiv").width()-104)+"px";		// Search div width
 		$("#infomap").css("opacity",0);											// Hide icon
@@ -1647,6 +1642,8 @@
 								var dat={};
 		            			userName=$("#gtBoxUn").val(); 					// Get username
 		            			password=$("#gtBoxPw").val(); 					// Get password
+								if (password)									// If a password
+									password=password.replace(/#/g,"@");		// #'s are a no-no, replace with @'s	
 								var url=host+"saveuserdata.php";				// Base file
 								dat["email"]=userName;							// Add email
 								dat["password"]=password;						// Add password
