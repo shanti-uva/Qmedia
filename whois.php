@@ -17,7 +17,10 @@ require_once('config.php');
 		print("<blockquote>");									// Indent
 		print(mysql_result($result,$i,"date")." | ");			// Date
 		print(mysql_result($result,$i,"email")." | ");			// Email
-		print("<a href='//www.qmediaplayer.com/show.htm?".mysql_result($result,$i,"id")."'>".mysql_result($result,$i,"id")."</a> | ");	// Id
+		if (mysql_result($result,$i,"version") == 1)			// If MapScholar
+			print("<a href='//www.viseyes.org/mapscholar/?".mysql_result($result,$i,"id")."'>".mysql_result($result,$i,"id")."</a> | ");	// Id
+		else 													// Qmedia
+			print("<a href='//www.qmediaplayer.com/show.htm?".mysql_result($result,$i,"id")."'>".mysql_result($result,$i,"id")."</a> | ");	// Id
 		print(mysql_result($result,$i,"title"));				// Title
 		print("<br></blockquote>");								// BR
 		}
