@@ -921,10 +921,10 @@
 			});
 		
 		$("#transcriptText").on("click", function (e) {							// HANDLE TRANSCRIPT CLICK
-	  		var s=window.getSelection();										// Get selection
  			var now=new Date().getTime();										// Get time
  			if (now-lastClickTime < 1000)										// A spurious hit
  				return;															// Quit
+	  		var s=window.getSelection();										// Get selection
  			var y=sd.transText.indexOf(s.focusNode.textContent);				// Char pos of paragraph
 	 		y=y+s.anchorOffset;													// Position in text
 			if (y > 1) {														// If a valid position
