@@ -178,6 +178,7 @@
 	var playerStarted=-1;														// Player started
 	var userName="",password="",curShow=0;										// Login info
 	var loopStart=loopEnd=0;													// Looping
+	var lastClickTime=0;														// Store last click time
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INIT
@@ -820,7 +821,7 @@
 			var str=tran.substring(0,start);									// Pre highlight
 			str+="<span class='qm-transHigh'";									// Add style
 			if (end == undefined)	str+=" style='background-color:#ffaaaa'",end=start-0+1;	// Highlighting one char
-			str+=">"+tran.substring(start,end);								// Highlight portion
+			str+=">"+tran.substring(start,end);									// Highlight portion
 			str+="</span>";														// End style
 			str+=tran.substring(end);											// Add end
 			tran=str;															// Copy
@@ -921,12 +922,16 @@
 		
 		$("#transcriptText").on("click", function (e) {							// HANDLE TRANSCRIPT CLICK
 	  		var s=window.getSelection();										// Get selection
+ 			var now=new Date().getTime();										// Get time
+ 			if (now-lastClickTime < 1000)										// A spurious hit
+ 				return;															// Quit
  			var y=sd.transText.indexOf(s.focusNode.textContent);				// Char pos of paragraph
 	 		y=y+s.anchorOffset;													// Position in text
 			if (y > 1) {														// If a valid position
  				SendShivaMessage("ShivaAct=transclick",y);						// Send that position 
 	 			RunPlayer("scrub",GetTimeFromCharPos(y),true);					// Show
 				}
+ 			lastClickTime=now;													// Set time of last click
  			});
 
 		$("#transHgt").hover(													// If over transcript height control
