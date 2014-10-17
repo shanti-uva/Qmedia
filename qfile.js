@@ -321,7 +321,7 @@
 			x=Math.max(x,950)
 		var y=$("#lightBoxDiv").height()/2-200;
 		if (this.xPos != undefined)
-			x=xPos;
+			x=this.xPos;
 		str="<div id='lightBoxIntDiv' class='unselectable' style='position:absolute;padding:16px;width:400px;font-size:12px";
 		str+=";border-radius:12px;z-index:2003;"
 		str+="border:1px solid; left:"+x+"px;top:"+y+"px;background-color:#f8f8f8'>";
@@ -412,7 +412,7 @@
 	function Sound(sound, mode)												// PLAY SOUND
 	{	
 		var snd=new Audio();
-`		if (!snd.canPlayType("audio/mpeg") || (snd.canPlayType("audio/mpeg") == "maybe")) 
+		if (!snd.canPlayType("audio/mpeg") || (snd.canPlayType("audio/mpeg") == "maybe")) 
 			snd=new Audio(sound+".ogg");
 		else	
 			snd=new Audio(sound+".mp3");
