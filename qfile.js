@@ -13,6 +13,7 @@
 		this.password=this.GetCookie("password");								// Password
 		this.butsty=" style='border-radius:10px;color#666;padding-left:6px;padding-right:6px' ";	// Button styling
 		this.deleting=false;													// Not deleting
+		this.xPos="";															// Not settting a pos
 	}
 	
 	QmediaFile.prototype.Load=function() 									//	LOAD FILE
@@ -309,7 +310,7 @@
 		return "";
 	}
 
-	QmediaFile.prototype.ShowLightBox=function(title, content, leftPos)				// LIGHTBOX
+	QmediaFile.prototype.ShowLightBox=function(title, content)				// LIGHTBOX
 	{
 		var str="<div id='lightBoxDiv' style='position:fixed;width:100%;height:100%;";	
 		str+="background:url(images/overlay.png) repeat;top:0px;left:0px';</div>";
@@ -319,8 +320,8 @@
 		if (this.version == 1) 
 			x=Math.max(x,950)
 		var y=$("#lightBoxDiv").height()/2-200;
-		if (leftPos != undefined)
-			x=leftPos;
+		if (this.xPos != undefined)
+			x=xPos;
 		str="<div id='lightBoxIntDiv' class='unselectable' style='position:absolute;padding:16px;width:400px;font-size:12px";
 		str+=";border-radius:12px;z-index:2003;"
 		str+="border:1px solid; left:"+x+"px;top:"+y+"px;background-color:#f8f8f8'>";
