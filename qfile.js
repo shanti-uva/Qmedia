@@ -410,7 +410,7 @@
 	function Sound(sound, mode)												// PLAY SOUND
 	{	
 		var snd=new Audio();
-		if (!snd.canPlayType("audio/mpeg"))
+`		if (!snd.canPlayType("audio/mpeg") || (snd.canPlayType("audio/mpeg") == "maybe")) 
 			snd=new Audio(sound+".ogg");
 		else	
 			snd=new Audio(sound+".mp3");
