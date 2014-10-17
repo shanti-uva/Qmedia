@@ -309,7 +309,7 @@
 		return "";
 	}
 
-	QmediaFile.prototype.ShowLightBox=function(title, content)				// LIGHTBOX
+	QmediaFile.prototype.ShowLightBox=function(title, content, leftPos)				// LIGHTBOX
 	{
 		var str="<div id='lightBoxDiv' style='position:fixed;width:100%;height:100%;";	
 		str+="background:url(images/overlay.png) repeat;top:0px;left:0px';</div>";
@@ -319,7 +319,8 @@
 		if (this.version == 1) 
 			x=Math.max(x,950)
 		var y=$("#lightBoxDiv").height()/2-200;
-		
+		if (leftPos != undefined)
+			x=leftPos;
 		str="<div id='lightBoxIntDiv' class='unselectable' style='position:absolute;padding:16px;width:400px;font-size:12px";
 		str+=";border-radius:12px;z-index:2003;"
 		str+="border:1px solid; left:"+x+"px;top:"+y+"px;background-color:#f8f8f8'>";
