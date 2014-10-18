@@ -13,7 +13,6 @@
 		this.password=this.GetCookie("password");								// Password
 		this.butsty=" style='border-radius:10px;color#666;padding-left:6px;padding-right:6px' ";	// Button styling
 		this.deleting=false;													// Not deleting
-		this.xPos="";															// Not settting a pos
 	}
 	
 	QmediaFile.prototype.Load=function() 									//	LOAD FILE
