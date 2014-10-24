@@ -339,7 +339,7 @@
 	
 	function MakeColorDot(title, name, color)								// MAKE COLORPICKER DOT
 	{
-			var str=title+"&nbsp;&nbsp;<div id='"+name+"' "; 
+		var str=title+"&nbsp;&nbsp;<div id='"+name+"' "; 
 		str+="style='vertical-align:-2px;display:inline-block;height:12px;width:12px;border-radius:12px;border:1px ";
 		if (!color || (color == -1)  || (color == "none")) 	
 			str+="dashed #000;background-color:#fff"; 	

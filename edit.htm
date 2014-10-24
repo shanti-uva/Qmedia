@@ -20,6 +20,9 @@
  		.unselectable { -moz-user-select: none;     -khtml-user-select: none;
 		   			 	-webkit-user-select: none;  -ms-user-select: none;   user-select: none;
 		   				}
+		.selectable { -moz-user-select: text;     -khtml-user-select: text;
+		   			 	-webkit-user-select: text;  -ms-user-select: text;   user-select: text;
+		   				}
  	 	.player { 		display:inline-block;margin:0px;border:none;padding:0px;
  	 					}
 	 	.pane 	{ 		background-color:#f0f0f0;font-size:12px
@@ -52,7 +55,10 @@
 						}
 		.is {			border-radius:10px;padding-left:8px;padding-right:8px;padding-top:1px;
 						border:1px solid #999;font-size:12px;height;20px;width:200px;
-						]
+						}
+		.anchorDot {	width:10px;height:10px;background-color:#009900;;border-radius:6px;
+						display:inline-block;cursor:pointer;
+						}
 
  	</style>
 	<script>
@@ -411,6 +417,122 @@
 
 	function TranscriptEditPane()											// TRANSCRIPT EDITOR
 	{
+		var i,o,c;
+		var w=($("#paneDiv").width()-140)/2;									// Width of halves
+		var h=window.innerHeight-300;											// Editor height
+		var str="<div id='transtdiv' style='padding:12px' class='selectable'><br>"	// Container div
+		str+="<div style='font-size:36px;color:#999'><b>Sync Transcript</b></div>"	// Title
+		str+="<br><br><div style='height:"+h+"px;overflow-y:auto;background-color:#f8f8f8;"
+		str+="padding:8px;border:1px solid #999;border-radius:8px;"
+		str+="font-family:Monospace;font-size:16px;padding:12px'>";				// Scrollable container
+		var txt=curJson.transText ? curJson.transText : "";						// Get transcript
+		if (txt) txt=txt.replace(/\n/g,"<br>");									// Turn into LFs to <br>
+		var n=curJson.transVectors.length;										// Number of anchors
+		for (i=0;i<n;++i) {														// For each anchor
+			o=curJson.transVectors[i];											// Point to anchor
+			a="<div id='qanc"+i+"' class='anchorDot' title='"+SecondsToTimecode(o.t)+"'/>";	// Anchor tag
+			txt=txt.substr(0,o.c)+a+txt.substr(o.c);							// Insert tag
+			}						
+
+		str+=txt+"</div><br>"; 		
+		str+="&nbsp;&nbsp;<button"+butsty+"id='preBut1'>Preview</button>";		// Preview button
+		str+="&nbsp;&nbsp;<button"+butsty+"id='pauseBut'>Pause</button>";		// Pause button
+		str+=" &nbsp; (Double-click on text to add new anchor)";				// Tip
+		$("#paneDiv").html(str+"</div>");										// Put editor up	
+
+		$("#preBut1").on("click",function() {									// ON PREVIEW
+			curJson.transText=$("#transText").text();							// Update transcript text
+// NEEDS TO SET TEXT PROPERLY
+
+			Preview(-1);														// Run preview
+			});
+		$("#pauseBut").on("click",function() {									// ON PAUSE
+			SendShivaMessage("Qmedia=pause");									// Pause
+			});
+		for (i=0;i<n;++i) {														// For each anchor
+			$("#qanc"+i).on("click",function(e) {								// ON ANCHOR CLICK
+				$("#alertBoxDiv").remove();										// Remove any old ones
+				var id=this.id.substr(4)-0;										// Get index
+				var o=curJson.transVectors[id];									// Point to anchor
+				SendShivaMessage("Qmedia=seek",""+o.t);							// Go to time
+				var str="<img src='images/rewbut.gif' id='nudgeBack'> "; 		// Back but
+				str+="<input style='color:#009900;width:80px;vertical-align:top;text-align:center;font-size:16px;font-family:monospace;border:none;' type='text' id='editTime' value='"+SecondsToTimecode(o.t)+"'>";	// TC
+				str+=" <img src='images/playbut.gif' id='nudgeForward'>"		// Forwad but
+				str+="<hr><p><img src='images/trashdot.gif' id='delAnc'><p>"; 	// Delete but
+				str+="<p><button class='bs' id='fromPlayer'>Get from player</button><p>";	// Preview button
+				str+="<hr><p><button class='bs' id='preBut2'>Preview</button> &nbsp; "		// Pause button
+				str+="<button class='bs' id='pauseBut2'>Pause</button></p>";	// Pause button
+	
+				str+="<hr><button"+butsty+"id='timeOK' >OK</button>"; 
+				$("body").append("<div class='unselectable' id='alertBoxDiv' style='text-align:center'></div>");														
+				$("#alertBoxDiv").html(str)
+				$("#alertBoxDiv").dialog({ width:90 });	
+  				$("#alertBoxDiv").dialog("option","position", { my:"left top+8", of: e, collision:"fit"});
+				$(".ui-dialog-titlebar").hide();
+				$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
+				$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
+	  			$(".ui-button").css({"border-radius":"30px","outline":"none"});
+
+		 		$("#nudgeBack").on("click",function() {							// BACK BUT
+					curTime=Math.max(0,curTime-.5);								// Move back and cap
+					$("#editTime").val(SecondsToTimecode(curTime));				// Set text
+					SendShivaMessage("Qmedia=seek",""+curTime);					// Go to time
+					});
+		 		$("#editTime").on("change",function() {							// EDIT TEXT
+					var t=TimecodeToSeconds($("#editTime").val());				// Get time
+					SendShivaMessage("Qmedia=seek",""+t);						// Go to time
+					});
+		 		$("#nudgeForward").on("click",function() {						// FORWARD BUT
+					$("#editTime").val(SecondsToTimecode(curTime-0+.5));		// Set text
+					SendShivaMessage("Qmedia=seek",""+curTime-0+.5);			// Go to time
+					});
+		 		$("#delAnc").on("click",function() {							// DELETE ANCHOR
+					curJson.transVectors.splice(id,1);							// Remove from json
+					Sound("delete");											// Delete sound
+					$("#alertBoxDiv").remove();									// Remove dialog
+					TranscriptEditPane();										// Redraw
+					});
+		 		$("#fromPlayer").on("click",function() {						// GET TIME FROM PLAYER
+					$("#editTime").val(SecondsToTimecode(curTime));				// Set text
+					});
+		 		$("#timeOK").on("click",function() {							// GET TIME FROM PLAYER
+					o.t=TimecodeToSeconds($("#editTime").val());				// Set time
+					$("#alertBoxDiv").remove();									// Remove dialog
+					Sound("click");												// Click sound
+					});
+ 				$("#preBut2").on("click",function() {							// ON PREVIEW
+					curJson.transText=$("#transText").text();					// Update transcript text
+// NEEDS TO SET TEXT PROPERLY
+
+					Preview(-1);												// Run preview
+					});
+				$("#pauseBut2").on("click",function() {							// ON PAUSE
+					SendShivaMessage("Qmedia=pause");							// Pause
+					});
+
+ 				
+ 				
+ 				});
+			}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	function TranscriptEditPaneOld()											// TRANSCRIPT EDITOR
+	{
 		curEdit=-1;																// Clear
 		var w=($("#paneDiv").width()-140)/2;									// Width of halves
 		var str="<div style='padding:12px'><br>"								// Container div
@@ -453,7 +575,6 @@
 			else																// Adding to existing
 				curJson.transVectors.push({t:curTime,c:""})						// Add to json
 			curEdit=-1;															// Not editing anymore
-			MakeTransTable();													// Remake table
 			Sound("click");														// Click
 			});
 
@@ -488,7 +609,6 @@
 				curJson.transVectors[i].t=TimecodeToSeconds($("#idt"+i).val());	// Get text
 				});				
 			}
-		
 		if (curEdit != -1) 	onClickTrans("idx"+curEdit);						// Highlight it
 		if (n && curJson.transText)												// If a transcript
 			curJson.transVectors[n-1].c=curJson.transText.length;				// Make last one end of text
