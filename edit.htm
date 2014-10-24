@@ -420,7 +420,7 @@
 		var i,o,c;
 		var w=($("#paneDiv").width()-140)/2;									// Width of halves
 		var h=window.innerHeight-300;											// Editor height
-		var str="<div id='transtdiv' style='padding:12px' class='selectable'><br>"	// Container div
+		var str="<div id='transText' style='padding:12px' class='selectable'><br>"	// Container div
 		str+="<div style='font-size:36px;color:#999'><b>Sync Transcript</b></div>"	// Title
 		str+="<br><br><div style='height:"+h+"px;overflow-y:auto;background-color:#f8f8f8;"
 		str+="padding:8px;border:1px solid #999;border-radius:8px;"
@@ -441,14 +441,16 @@
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 
 		$("#preBut1").on("click",function() {									// ON PREVIEW
-			curJson.transText=$("#transText").text();							// Update transcript text
-// NEEDS TO SET TEXT PROPERLY
-
+			var str=$("#transText").text();										// Get text
+			str=str.replace(/<br>/g,"\n");										// Turn <br>s to LFs 
+			curJson.transText=str;												// Update transcript text
 			Preview(-1);														// Run preview
 			});
+		
 		$("#pauseBut").on("click",function() {									// ON PAUSE
 			SendShivaMessage("Qmedia=pause");									// Pause
 			});
+		
 		for (i=0;i<n;++i) {														// For each anchor
 			$("#qanc"+i).on("click",function(e) {								// ON ANCHOR CLICK
 				$("#alertBoxDiv").remove();										// Remove any old ones
@@ -478,40 +480,44 @@
 					$("#editTime").val(SecondsToTimecode(curTime));				// Set text
 					SendShivaMessage("Qmedia=seek",""+curTime);					// Go to time
 					});
+		 		
 		 		$("#editTime").on("change",function() {							// EDIT TEXT
 					var t=TimecodeToSeconds($("#editTime").val());				// Get time
 					SendShivaMessage("Qmedia=seek",""+t);						// Go to time
 					});
+		 		
 		 		$("#nudgeForward").on("click",function() {						// FORWARD BUT
 					$("#editTime").val(SecondsToTimecode(curTime-0+.5));		// Set text
 					SendShivaMessage("Qmedia=seek",""+curTime-0+.5);			// Go to time
 					});
+		 		
 		 		$("#delAnc").on("click",function() {							// DELETE ANCHOR
 					curJson.transVectors.splice(id,1);							// Remove from json
 					Sound("delete");											// Delete sound
 					$("#alertBoxDiv").remove();									// Remove dialog
 					TranscriptEditPane();										// Redraw
 					});
+		 		
 		 		$("#fromPlayer").on("click",function() {						// GET TIME FROM PLAYER
 					$("#editTime").val(SecondsToTimecode(curTime));				// Set text
 					});
+		 		
 		 		$("#timeOK").on("click",function() {							// GET TIME FROM PLAYER
 					o.t=TimecodeToSeconds($("#editTime").val());				// Set time
 					$("#alertBoxDiv").remove();									// Remove dialog
 					Sound("click");												// Click sound
 					});
+ 				
  				$("#preBut2").on("click",function() {							// ON PREVIEW
-					curJson.transText=$("#transText").text();					// Update transcript text
-// NEEDS TO SET TEXT PROPERLY
-
+					var str=$("#transText").text();								// Get text
+					str=str.replace(/<br>/g,"\n");								// Turn <br>s to LFs 
+					curJson.transText=str;										// Update transcript text
 					Preview(-1);												// Run preview
 					});
 				$("#pauseBut2").on("click",function() {							// ON PAUSE
 					SendShivaMessage("Qmedia=pause");							// Pause
 					});
-
- 				
- 				
+				
  				});
 			}
 	}
