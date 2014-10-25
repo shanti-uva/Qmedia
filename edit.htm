@@ -414,7 +414,7 @@
 
 ///////////// TRANSCRIPT ////////////////
 
-
+/*
 	function TranscriptEditPane()											// TRANSCRIPT EDITOR
 	{
 		var i,o,c;
@@ -522,22 +522,8 @@
 			}
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	function TranscriptEditPaneOld()											// TRANSCRIPT EDITOR
+*/
+	function TranscriptEditPane()											// TRANSCRIPT EDITOR
 	{
 		curEdit=-1;																// Clear
 		var w=($("#paneDiv").width()-140)/2;									// Width of halves
@@ -545,21 +531,23 @@
 		str+="<div style='font-size:36px;color:#999'><b>Sync Transcript</b></div>"	// Title
 		str+="<br><br><div style='max-height:300px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
 		str+="<table id='transTable' style='table-layout:fixed;font-size:13px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
-		str+="<tr><td width='50'><b>Time</b></td><td></td><td   width='"+(w+15)+"'><b>Anchor</b></td><td width='20'></td></tr>";	// Add header
+		str+="<tr><td width='50'><b>Time</b></td><td style='text-align:right;border-right:2px solid '><b>&ltrif; before &nbsp;&nbsp; </td><td width='"+(w+15)+"'><b> &nbsp;&nbsp; after &rtrif;</b></td><td width='20'></td></tr>";	// Add header
 		str+="<tr><td colspan='4'><hr></td></tr>";								// Add rule
 		str+="</table></div><div style='font-size:12px'<br><br>";				// End table
 		str+="<button"+butsty+"id='addAncBut'>Add anchor</button>";				// Add button
 		str+="&nbsp;&nbsp;<button"+butsty+"id='preBut1'>Preview</button>";		// Preview button
-		str+="&nbsp;&nbsp;<button"+butsty+"id='pauseBut'>Pause</button>";		// Pause button
+		str+="&nbsp;&nbsp;<button"+butsty+"id='pauseBut'>Pause</button>&nbsp; &nbsp;";				// Pause button
+		str+="<div id='timeControls' style='display:none;border:1px solid #999;padding:4px;border-radius:8px'>";	// Div to hold time controls
+		str+="<img src='images/rewbut.gif' id='nudgeBack' style='vertical-align:bottom'>"			// Back but
+		str+="&nbsp;&nbsp;<button"+butsty+"id='fromPlayer'>Get time from player</button>";				// Get from player button
+		str+="&nbsp;&nbsp;<img src='images/playbut.gif' id='nudgeForward' style='vertical-align:bottom'></div>";// Forward but
 		str+="<br><br><p><b>Transcript:</b></p><textarea id='transText' style='width:100%;border:1px solid #999;border-radius:8px;color:#999;font-size:12px'>"
 		str+=curJson.transText ? curJson.transText : "" +"</textarea>";
-		
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 		MakeTransTable();														// Make table
 	
 		$("#preBut1").on("click",function() {									// ON PREVIEW
 			curJson.transText=$("#transText").val();							// Update transcript text
-			curEdit=-1;															// Not editing anymore
 			MakeTransTable();													// Remake table
 			Preview(-1);														// Run preview
 			});
@@ -567,7 +555,13 @@
 		$("#transText").on("change",function() {								// ON TEXT CHANGE
 			curJson.transText=$("#transText").val();							// Update transcript text
 			curEdit=-1;															// Not editing anymore
+			$("#timeControls").css("display","none");							// Turn off control bar
 			MakeTransTable();													// Remake table
+			});
+
+		$("#transText").on("click",function() {									// ON TEXT CLICK
+			onClickTrans();														// Deselect
+			$("#timeControls").css("display","none");							// Turn off control bar
 			});
 
 		$("#addAncBut").on("click",function() {									// ON ADD
@@ -581,14 +575,41 @@
 			else																// Adding to existing
 				curJson.transVectors.push({t:curTime,c:""})						// Add to json
 			curEdit=-1;															// Not editing anymore
+			$("#timeControls").css("display","none");							// Turn off control bar
+			MakeTransTable();													// Remake table
 			Sound("click");														// Click
 			});
 
 		$("#pauseBut").on("click",function() {									// ON PAUSE
 			SendShivaMessage("Qmedia=pause");									// Pause
 			});
+ 		
+ 		$("#nudgeBack").on("click",function() {									// BACK BUT
+			curTime=Math.max(0,curTime-.5);										// Move back and cap
+			$("#idc"+curEdit).val(SecondsToTimecode(curTime));					// Set text
+			curJson.transVectors[curEdit].t=curTime;							// Set time
+			SendShivaMessage("Qmedia=seek",""+curTime);							// Go to time
+			Sound("click");														// Click
+			});
+ 
+ 		$("#fromPlayer").on("click",function() {								// GET TIME FROM PLAYER
+			$("#idc"+curEdit).val(SecondsToTimecode(curTime));					// Set text
+			curJson.transVectors[curEdit].t=curTime;							// Set time
+			});
 
-	}
+ 		$("#nudgeForward").on("click",function() {								// FORWARD BUT
+			$("#idc"+curEdit).val(SecondsToTimecode(curTime-0+.5));				// Set text
+			curJson.transVectors[curEdit].t=curTime;							// Set time
+			SendShivaMessage("Qmedia=seek",""+curTime-0+.5);					// Go to time
+			Sound("click");														// Click
+			});
+		
+		$("#editTime").on("change",function() {									// EDIT TEXT
+			var t=TimecodeToSeconds($("#idc"+curEdit).val());					// Get time
+			SendShivaMessage("Qmedia=seek",""+t);								// Go to time
+			Sound("click");														// Click
+			});
+ 	}
 
 	function MakeTransTable() 												// MAKE TABLE AND SORT BY TIME
 	{	
@@ -604,15 +625,15 @@
 		for (i=0;i<n;++i) {														// For each index
 			str="<tr id='idx"+i+"' "+trsty+">";									// Row
 			s=curJson.transVectors[i].c;										// Start of line								
-			str+="<td> <input style='color:#009900;width:60px;font-family:monospace;border:none;background-color:transparent;font-weight:bold' type='text' id='idt"+i+"' value='"+SecondsToTimecode(curJson.transVectors[i].t)+"'></td>"; 	// Add index
-			str+="<td id='idl"+i+"' style='color:#999;overflow:hidden;white-space:nowrap;text-align:right'>"+curJson.transText.substring(s,s-nc)+"&nbsp;</td>"; 		// Add line
-			str+="<td id='idr"+i+"' style='color:#000;overflow:hidden;white-space:nowrap'>"+curJson.transText.substring(s,s-0+80)+"</td>"; 	// Add line
+			str+="<td> <input style='color:#009900;width:60px;font-family:monospace;border:none;background-color:transparent;font-weight:bold' type='text' id='idc"+i+"' value='"+SecondsToTimecode(curJson.transVectors[i].t)+"'></td>"; 	// Add index
+			str+="<td id='idl"+i+"' style='color:#999;overflow:hidden;white-space:nowrap;text-align:right;border-right:1px solid #999'>"+curJson.transText.substring(s,s-nc)+" &nbsp; </td>"; 		// Add line
+			str+="<td id='idr"+i+"' style='color:#000;overflow:hidden;white-space:nowrap'> &nbsp; "+curJson.transText.substring(s,s-0+80)+"</td>"; 	// Add line
 			str+="<td  align='right'><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteTrans(this.id)'></td></tr>";	// Add trashcan
 			$("#transTable").append(str);										// Add row
 			
-			$("#idt"+i).on("blur", function() {									// ON BLUR OF TIME
+			$("#idc"+i).on("blur", function() {									// ON BLUR OF TIME
 				var i=this.id.substr(3);										// Get id
-				curJson.transVectors[i].t=TimecodeToSeconds($("#idt"+i).val());	// Get text
+				curJson.transVectors[i].t=TimecodeToSeconds($("#idc"+i).val());	// Get text
 				});				
 			}
 		if (curEdit != -1) 	onClickTrans("idx"+curEdit);						// Highlight it
@@ -633,17 +654,19 @@
 		SendShivaMessage("Qmedia=pause");										// Pause
 		SendShivaMessage("Qmedia=pause");										// Pause
 		for (var i=0;i<curJson.transVectors.length;++i) {						// For each row
-			$("#idt"+i).css({"color":"#009900"});								// Restore
+			$("#idc"+i).css({"color":"#009900"});								// Restore
 			$("#idl"+i).css({"color":"#999"});									// Restore
 			$("#idr"+i).css({"color":"#000"});									// Restore
 			$("#idd"+i).css({"visibility":"hidden"});							// Restore
 			}	
+		$("#timeControls").css("display","none");								// Turn off control bar
 		curEdit=-1;																// No selected edit
 		if (id == undefined)													// If deselecting
 			return;																// Quit
+		$("#timeControls").css("display","inline-block");						// Turn on control bar
 		curEdit=id.substr(3);													// Strip off prefix
 		SendShivaMessage("Qmedia=seek",""+curJson.transVectors[curEdit].t);		// Go to time
-		$("#idt"+curEdit).css({"color":"#990000"});								// Highlight
+		$("#idc"+curEdit).css({"color":"#990000"});								// Highlight
 		$("#idl"+curEdit).css({"color":"#990000"});								// Highlight
 		$("#idr"+curEdit).css({"color":"#990000"});								// Highlight
 		$("#idd"+curEdit).css({"visibility":"visible"});						// Show trashcan
