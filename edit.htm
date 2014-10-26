@@ -546,7 +546,7 @@
 		str+="&nbsp;&nbsp;<img src='images/playbut.gif' id='nudgeForward' style='vertical-align:bottom'></div>";// Forward but
 		str+="<br><br><p><b>Transcript:</b></p><textarea id='transText' style='width:100%;border:1px solid #999;border-radius:8px;color:#999;font-size:12px'>"
 		str+=curJson.transText ? curJson.transText : "" +"</textarea>";
-		$("#paneDiv").html(str+"</div>");										// Put editor up	
+		$("#paneDiv").html(str);												// Put editor up	
 		MakeTransTable();														// Make table
 	
 		$("#preBut1").on("click",function() {									// ON PREVIEW
@@ -681,11 +681,24 @@
 		var str="<div style='padding:12px'><br>"								// Container div
 		str+="<div style='font-size:36px;color:#999'><b>Import Transcript</b></div>";	// Title
 		str+="<br><br><div style='overflow-y:auto;background-color:#f8f8f8;padding:8px;padding-right:14px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
-		str+="<p><b>Paste transcript here:</b></p><textarea id='transText' style='height:600px;width:100%;border:1px solid #999;border-radius:8px;color:#999;font-size:12px'></textarea>"
+		str+="<p><b>Paste transcript here:</b></p><textarea id='transText' style='height:600px;width:95%;border:1px solid #999;border-radius:8px;color:#999;font-size:12px;padding:12px'></textarea>"
 		str+="<br><br><button"+butsty+"id='doneBut'>Convert and save</button><br><br>";	// Done button
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 
 		$("#doneBut").on("click",function() {									// DONE
+			var m,o;
+			curJson.transVectors=[];											// Start from fresh
+			var txt=$("#transText").val();										// Get text to import
+			while (m=txt.match(/\[(.+)\]/)) {									// Get next time stamp
+				o={};															// New obj
+				o.t=TimecodeToSeconds(m[1]);									// Add time as seconds
+				o.c=m.index-0;													// Add pos
+				if (!curJson.transVectors.length)								// If first one
+					o.d=defTransDur;											// Add duration
+				curJson.transVectors.push(o);									// Add to json
+				txt=txt.replace (/\[(.+)\]/,"");								// Remove time stamp
+				}
+			curJson.transText=txt;												// Copy to json
 			ChangePane("transcript");											// Go to transcript pane
 			Sound("ding");														// Click
 			});
@@ -1517,8 +1530,8 @@
 				$("#gtBoxTt").val(Math.round(e.data.split("|")[2]*100));		// Set text box
 		else if (e.data.match(/ShivaAct=transwid/)) 							// If a transcript slider change
 				$("#gtBoxTt").val(Math.round(e.data.split("|")[2]*100));		// Set text box
-		else
-			trace(e.data);
+//		else
+//			trace(e.data);
 	}	
 
 	function SendShivaMessage(cmd, msg) 									// SEND SHIVA MESSAGE 
