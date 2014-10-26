@@ -789,7 +789,7 @@
 		for (i=n;i>=0;i--) {													// For each vector
 			o=showVectors[transPane][i];										// Point at vector
 			if (t >= o.ps) {													// In this one
-				if ((sd.transMode == "Closed-Caption") || (sd.transMode == "Chunked")) {		// If in closd caption or chuncked mode
+				if ((sd.transMode == "Closed-Caption") || (sd.transMode == "Chunked")) { // If in closd caption or chuncked mode
 					cp.pos=o.cs;												// Point at start
 					cp.pos2=showVectors[transPane][i+1].cs;						// End is start of next block
 					}
