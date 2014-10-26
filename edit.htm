@@ -680,9 +680,9 @@
 		curEdit=-1;																// Clear
 		var str="<div style='padding:12px'><br>"								// Container div
 		str+="<div style='font-size:36px;color:#999'><b>Import Transcript</b></div>";	// Title
-		str+="<br><br><div style='overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
+		str+="<br><br><div style='overflow-y:auto;background-color:#f8f8f8;padding:8px;padding-right:14px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
 		str+="<p><b>Paste transcript here:</b></p><textarea id='transText' style='height:600px;width:100%;border:1px solid #999;border-radius:8px;color:#999;font-size:12px'></textarea>"
-		str+="<br><button"+butsty+"id='doneBut'>Done</button>";					// Done button
+		str+="<br><br><button"+butsty+"id='doneBut'>Convert and save</button><br><br>";	// Done button
 		$("#paneDiv").html(str+"</div>");										// Put editor up	
 
 		$("#doneBut").on("click",function() {									// DONE
