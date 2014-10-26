@@ -789,8 +789,14 @@
 		for (i=n;i>=0;i--) {													// For each vector
 			o=showVectors[transPane][i];										// Point at vector
 			if (t >= o.ps) {													// In this one
-				cp.pos=(t-o.ps)/o.pd*o.cd+o.cs;									// Get char pos
-				cp.pos2=cp.pos+o.d;												// End
+				if ((sd.transMode == "Closed-Caption") || (sd.transMode == "Chunked")) {		// If in closd caption or chuncked mode
+					cp.pos=o.cs;												// Point at start
+					cp.pos2=showVectors[transPane][i+1].cs;						// End is start of next block
+					}
+				else{															// Continoous mode
+					cp.pos=(t-o.ps)/o.pd*o.cd+o.cs;								// Get interpolates char pos
+					cp.pos2=cp.pos+o.d;											// End
+					}
 				cp.pct=cp.pos/sd.transText.length;								// Percentage
 				return cp;														// Return pos
 				}																// Ratio into				

@@ -1422,9 +1422,10 @@
 		str+="<tr><td></td><td>Auto start</td><td>"+MakeSelect("playerAuto",false,["true","false"],curJson.playerAuto)+"</td></tr>";	// Get setting
 		str+="<tr><td></td><td>Show native controls</td><td>"+MakeSelect("playerControls",false,["true","false"],curJson.playerControls)+"</td></tr>";	// Get setting
 		str+="<tr><td></td><td>Quality</td><td>"+MakeSelect("playerQuality",false,["Default","Good","Better","Best"],curJson.playerQuality)+"</td></tr>";	// Get setting
-		str+="<tr><td colspan=3><b><br>Transcript<b></td></tr>";					// Heading
+		str+="<tr><td colspan=3><b><br>Transcript<b></td></tr>";				// Heading
 		str+="<tr><td colspan=3><hr></td></tr>";								// Rule
 		str+="<tr><td></td><td>Initial width % (0-100)</td><td><input class='bs' type='text' id='transInfoRatio' value='"+(curJson.transInfoRatio != undefined ? Math.floor(curJson.transInfoRatio*100) : '')+"'></td></tr>";	// Get setting
+		str+="<tr><td></td><td>Display</td><td>"+MakeSelect("transMode",false,["Default","Chunked","Closed-Caption"],curJson.transMode)+"</td></tr>";	// Get setting
 		str+="<tr><td></td><td>Initial language</td><td><input class='bs' type='text' id='transLanguage' value='"+(curJson.transLanguage ? curJson.transLanguage : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Languages</td><td><input class='bs' type='text' id='transLangs' value='"+(curJson.transLangs ? curJson.transLangs : '')+"'></td></tr>";	// Get setting
 		str+="</table></div><br>";												// End table
@@ -1452,6 +1453,7 @@
 		$("#playerQuality").on("change", function() { curJson.playerQuality=$(this).val(); });	// Extract value	
 		$("#transInfoRatio").on("change", function() { curJson.transInfoRatio=$(this).val()/100; });// Extract value	
 		$("#transHgt").on("change", function() { curJson.transHgt=$(this).val(); });			// Extract value	
+		$("#transMode").on("change", function() { curJson.transMode=$(this).val(); });			// Extract value	
 		$("#transLanguage").on("change", function() { curJson.transLanguage=$(this).val(); });	// Extract value	
 		$("#transLangs").on("change", function() { curJson.transLangs=$(this).val(); });		// Extract value	
 }
