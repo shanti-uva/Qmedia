@@ -1531,7 +1531,7 @@
 		else if (e.data.match(/ShivaAct=transwid/)) 							// If a transcript slider change
 				$("#gtBoxTt").val(Math.round(e.data.split("|")[2]*100));		// Set text box
 //		else
-//			trace(e.data);
+			trace(e.data);
 	}	
 
 	function SendShivaMessage(cmd, msg) 									// SEND SHIVA MESSAGE 
@@ -1569,6 +1569,8 @@
 		var h=0,m=0;
 		var v=(""+timecode).split(":");											// Split by colons
 		var s=v[0]																// Add them
+	 	if (v.length == 3)														// If hours
+	 		v.shift();															// Remove it
 	 	if (v.length == 2)														// Just minutes, seconds
 			s=v[1],m=v[0];														// Add them
 		else if (v.length == 3)													// Hours, minutes, seconds
