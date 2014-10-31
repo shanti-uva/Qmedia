@@ -139,7 +139,7 @@
 		var url=window.location.search.substring(1);							// Get query string
 		if (url && !isNaN(url)) 												// If a number
 			curShow=url;														// Save show number											
-//		else																	// No query
+		else																	// No query
 			curShow=1;															// Load default show
 		
 		sessionStorage.clear();													// Reset undos
@@ -689,8 +689,25 @@
 			var m,o;
 			curJson.transVectors=[];											// Start from fresh
 			var txt=$("#transText").val();										// Get text to import
-			while (m=txt.match(/\[(.+)\]/)) {									// Get next time stamp
-				o={};															// New obj
+			if (txt.match(/\<scene/)) {											// THL coded XML
+ 				var parser=new DOMParser();										// Make parser
+			  	xml=parser.parseFromString(txt,"text/xml");						// Convert to XML
+				txt="";															// Fresh
+				$(xml).find("scene").each( function() {							// For each scene
+					o={};														// New obj
+					o.t=TimecodeToSeconds($(this).attr("in"));					// Add time as seconds
+					if ((o.t != 0) && (!curJson.transVectors.length))			// If not starting at 0
+						curJson.transVectors.push( { t:0, d:0, c:0 } );			// Add slug
+					o.d=defTransDur;											// Set duration
+					o.c=txt.length;												// Add pos
+						txt+=$(this).attr("speaker")+"\n";						// Add to text
+					if ($(this).text())											// If text defined
+						txt+=$(this).text()+"\n\n";								// Add to text
+					curJson.transVectors.push(o);								// Add to json
+					});
+				}
+			else while (m=txt.match(/\[(.+)\]/)) {								// Get next time stamp
+				o={};															// Nw obj
 				o.t=TimecodeToSeconds(m[1]);									// Add time as seconds
 				o.c=m.index-0;													// Add pos
 				if (!curJson.transVectors.length)								// If first one
