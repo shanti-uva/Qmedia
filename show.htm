@@ -179,6 +179,7 @@
 	var userName="",password="",curShow=0;										// Login info
 	var loopStart=loopEnd=0;													// Looping
 	var lastClickTime=0;														// Store last click time
+	var drupalMan=false;														// Flag for drupal manager	
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INIT
@@ -194,6 +195,8 @@
 		
 		isMobile=navigator.userAgent.match(/(ipad|iphone|ipod|android)/i) ? true : false; // Set mobile flag
 		var url=window.location.search.substring(1);							// Get query string
+		drupalMan=(""+url).match(/pr=d/);										// If called from Drupal manager
+		if (drupalMan)	url="";													// If drupal, kill url
 		if (url && !isNaN(url)) {												// If a number
 			curShow=url;														// Save show number											
 			url="//qmediaplayer.com/loadshow.php?id="+url;						// Get from db
@@ -312,7 +315,8 @@
 
 			});																	// End settings
 		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
-
+		if (drupalMan) 															// If called from Drupal manager
+			window.parent.postMessage("ShivaReady=true","*");					// Send message to parent wind		
 	});
 
 	function LoadShow(show)													// LOAD SHOW CONTENT
@@ -1219,6 +1223,9 @@
 		else if (v[0] == "Qmedia=data") {										// Data
 			str=e.data.replace(/Qmedia=data\|QmediaEditor\|/,"");				// Strip off header
 			LoadShow($.parseJSON(str));											// Convert to obj and load
+			}
+		else if (v[0].match(/PutJSON/)) {										// Incoming JSON data
+			LoadShow($.parseJSON(v[0].substr(8)));								// Convert to obj and load
 			}
 		else if (v[0] == "Qmedia=resize") {										// Resize
 			if (v[2] == "top")													// If top

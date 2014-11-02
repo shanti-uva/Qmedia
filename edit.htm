@@ -125,7 +125,8 @@
 	var butsty=" style='border-radius:10px;color#666;padding-left:12px;padding-right:12px;color:#222;background-color:#ccc;font-size:12px;' ";	// Button styling
 	var keyFlag="";																// Holds key flags												
 	var defTransDur=60;															// Default trancript line duration
-	var playerZoom=1;
+	var drupalMan=false;														// Flag for drupal manager	
+	var playerZoom=1;															// Plyer zoom level
 	
 	$(document).ready(function() {											// WHEN PAGE LOADED
 		if (window.addEventListener) 											// If supported this way
@@ -133,6 +134,7 @@
 		else																	// Use other method
 			window.attachEvent("message",shivaEventHandler);					// Add handler
 
+		drupalMan=(""+window.location).match(/pr=d/);							// If called from Drupal manager
 		qmf=new QmediaFile("//qmediaplayer.com/",0);							// Alloc file system
 		NewShow();																// Init show
 		
@@ -171,6 +173,8 @@
 		$(window).resize(function(e) { if (!e.target.id) Draw();	 } );		// Redraw on window resize		
 		setInterval(function() { SendShivaMessage("Qmedia=time",curTime) },500); // Set timer 1-fps
 		qmf.LoadFile("qmf"+curShow);											// Load project
+		if (drupalMan) 															// If called from Drupal manager
+			window.parent.postMessage("ShivaReady=true","*");					// Send message to parent wind		
 		$("#editDiv").show();													// Show editor
 
 		$("#playerSiz").draggable({												// DRAG PLAYER WIDTH HANDLER
@@ -1547,6 +1551,10 @@
 				$("#gtBoxTt").val(Math.round(e.data.split("|")[2]*100));		// Set text box
 		else if (e.data.match(/ShivaAct=transwid/)) 							// If a transcript slider change
 				$("#gtBoxTt").val(Math.round(e.data.split("|")[2]*100));		// Set text box
+		else if (e.data.match(/PutJSON/))										// Incoming JSON data
+			LoadShow($.parseJSON(e.data.substr(8)));							// Convert to obj and load
+		else if (e.data.match(/GetJSON/))										// Get JSON data
+			window.parent.postMessage("Qmedia=GetJSON|"+JSON.stringify(curJson),"*"); // Send JSON in message to parent wind		
 //		else
 			trace(e.data);
 	}	
