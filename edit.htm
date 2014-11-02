@@ -1551,10 +1551,10 @@
 				$("#gtBoxTt").val(Math.round(e.data.split("|")[2]*100));		// Set text box
 		else if (e.data.match(/ShivaAct=transwid/)) 							// If a transcript slider change
 				$("#gtBoxTt").val(Math.round(e.data.split("|")[2]*100));		// Set text box
-		else if (e.data.match(/PutJSON/))										// Incoming JSON data
+		else if (e.data.match(/PutJSON/))										// Incoming JSON data from Drupal manager
 			LoadShow($.parseJSON(e.data.substr(8)));							// Convert to obj and load
-		else if (e.data.match(/GetJSON/))										// Get JSON data
-			window.parent.postMessage("Qmedia=GetJSON|"+JSON.stringify(curJson),"*"); // Send JSON in message to parent wind		
+		else if (e.data.match(/GetJSON/))										// Outgoing JSON data to Drupal manager
+			window.parent.postMessage("GetJSON="+JSON.stringify(curJson),"*"); 	// Stringify and send		
 //		else
 			trace(e.data);
 	}	
