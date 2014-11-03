@@ -78,6 +78,9 @@
 		.qm-bs {		border-radius:10px;padding-left:8px;padding-right:8px;padding-top:1px;
 						border:1px solid #999;font-size:12px;height;20px;color:#666;
 						}
+		.qm-ccaption { 	position:absolute;top:75%;text-align:center;color:yellow;
+						font-size:16px;text-shadow:2px 2px 0px #000;margin:16px;
+						}
 
  	</style>
 
@@ -837,6 +840,16 @@
 			tran=str;															// Copy
 			}
 		$("#transcriptText").html(tran.replace(/\n/g,"<br>"));					// Set text
+		if (sd.transMode == "Closed-Caption") {									// If closed-caption
+			if (!$("#closedCaptionDiv").length)									// If not there yet
+				$("#overlayDiv").append("<div id='closedCaptionDiv' class='qm-ccaption'></div>");	// Add to overlay		
+			if (sd.playerSlideRatio)											// If player visible		
+				$("#closedCaptionDiv").text(sd.transText.substring(start,end));	// Show caption
+			else																// Player hidden
+				$("#closedCaptionDiv").text("");								// Clear caption
+			var d=$("#overlayDiv").height()-$("#closedCaptionDiv").height();	// New top
+			$("#closedCaptionDiv").css("top",d-32+"px");						// Reposition at bottom
+			}
 	}
 
 	function MakeIndex(toc)													// MAKE INDEX
@@ -1348,8 +1361,8 @@
 			if (!param)															// If not inhibiting scroll
 				RunInfo("show");												// Show Info
 			ShowContent(playerPane,"overlayDiv", param);						// Show content
-			HighlightText(cp.pos,cp.pos2);										// Highlight area
 			RunSlide("show",param);												// Show slide, with param to/not resize
+			HighlightText(cp.pos,cp.pos2);										// Highlight area
 			}
 		else if (what == "quality") {											// Quality
 		if (!player)	return;													// If no player yet, quit
