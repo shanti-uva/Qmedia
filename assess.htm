@@ -8,6 +8,7 @@
 	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 	<script src="jquery.ui.touch-punch.min.js"></script>
+	<script type="text/javascript" src="http://latex.codecogs.com/js/eq_editor-lite-15.js" ></script>
 
 	<style type="text/css">
 		body { 			font-family:Verdana,Geneva,sans-serif; font-size:xx-small}
@@ -98,10 +99,10 @@
 		e.data+=',"text":"Sort these."';
 		e.data+=',\"prompt":"Drag then"';
 		e.data+=',\"whyRight":"Good!"';
-		e.data+=',"optionType":"match","options":["first:sex","second:drugs","third:rock","fourth:roll"]}';
+		e.data+=',"optionType":"sort","options":["first:sex","second:drugs","third:rock","fourth:roll"]}';
 		e.data+="]}"
 		
-		QmediaEventHandler(e);													
+//		QmediaEventHandler(e);													
 		/////////////////////////////////////////////////////////////////	
 
 
@@ -167,8 +168,12 @@
 			str+="</ol>";														// End tag
 			}
 		else if (d.optionType == "write") {										// Write option
+			if (d.options && d.options[0] && d.options[0].match(/eq/i))			// If including equations
+				str+="<button id='loadeqneditor' style='vertical-align:top' class='nextbutSty'>Fx</button>";	// Add button		
 			str+="&nbsp;&nbsp;<textarea id='opt' rows=3 placeholder='Write your answer here...' ";		// Text 
 			str+="style='font-size:1em;width:"+$("#optionsLDiv").parent().width()*.8+"px'></textarea><br></span>";	// area
+			if (d.options && d.options[0] && d.options[0].match(/eq/i))			// If including equations
+				str+="<img id='equation1'/><div id='qneditor'></div>";			// Add image/div for Codecogs editor	
 			}	
 		else if (d.optionType == "notes") {										// Notes option
 			qe.SendMessage("notes","start");									// Send start message
@@ -322,6 +327,25 @@
 			Draw(curPage+1);													// Move on
 			});
 		
+		$('#loadeqneditor').click(function() {									// EQUATION BUTTON CLICKED
+			var http = ('https:' == document.location.protocol ? 'https://' : 'http://');
+		  	var host='latex.codecogs.com';
+			EQUATION_ENGINE = http+host;
+			FAVORITE_ENGINE = http+host+'/json';
+			EDITOR_SRC      = http+host;
+			EMBED_ENGINE    = http+host+'/editor_embedded_json.php';
+			EDIT_ENGINE     = http+'www.codecogs.com/eqnedit.php';
+			EDITOR_SW_FLASH = http+'download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0';
+			EDITOR_SW_PLAYER= http+'www.macromedia.com/go/getflashplayer';
+		    var css=$("<link rel='stylesheet' type='text/css' href='http://latex.codecogs.com/css/equation-embed.css'>");
+     		$("head").append(css); 												// Add css
+			$.ajax({ url: "http://latex.codecogs.com/js/eq_editor-lite-15.js",	// Load js
+     				 dataType: "script", cache: true							// Cached JS 
+					}).done(function() {										// When loaded	
+			 			EqEditor.embed('qneditor','things','mini','en-us');		// Embed editor
+						EqEditor.add(new EqTextArea('equation1','opt'),false);	// Display final equation
+				 		});
+			});	
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
