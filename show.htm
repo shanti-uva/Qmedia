@@ -139,7 +139,7 @@
 			<div id="botMarkup"></div>
 	</div>
 	<div id="transSiz" style="position:absolute;width:8px;cursor:col-resize;opacity:inherit" class="qm-unselectable" title="Resize transcript">
-		<div style="position:absolute;width:40px;height:100%;top:32px;left:-4px" class="qm-unselectable"></div>
+		<div style="position:absolute;width:40px;height:100%;top:32px;left:-12px" class="qm-unselectable"></div>
 	</div>
 	<div id="cache0" style="display:none"></div><div id="cache1" style="display:none"></div><div id="cache2" style="display:none"></div><div id="cache3" style="display:none"></div>
 </div>
@@ -829,6 +829,11 @@
 	{
 		if (!sd.transText)														// No transcript
 			return;																// Quit
+		if (sd.transText.match(/\.pdf/i) && (sd.transText.length < 300)) {		// A pdf file spec'd
+			if (sd.lastPdfPage != start)										// If not same
+				$("#transDiv").html("<iframe src='"+sd.transText+"#page="+start+"' width='100%' height='100%' frameborder='0'/>")	
+			sd.lastPdfPage=start;												// Now is then
+			}
 		var tran=sd.transText;													// Copy original
 		if (start != end) {														// If something to highlight
 			var str=tran.substring(0,start);									// Pre highlight
@@ -936,6 +941,8 @@
 			words[i]={ label:words[i],pos:p };									// Make into label index object
 			p+=l+1;																// Start of next word
 			}
+		if (sd.transText.match(/\.pdf/i) && (sd.transText.length < 300)) 		// A pdf file spec'd
+			$("#transDiv").html("<iframe src='"+sd.transText+"' width='100%' height='100%' frameborder='0'/>")	
 		
 		$("#transSearch").autocomplete({ source: words, 						// AUTOCOMPLETE HANDLER
 			select: function(event, ui) {										// On select
@@ -1355,7 +1362,9 @@
 			$("#slider").slider("value",playerNow);								// Set slider
 			if (searchMode)														// If just searching																			
 				return;															// Quit
-			var max=$("#transcriptText")[0].scrollHeight;						// Max
+			var max=1;
+			if ($("#transcriptText")[0])										// If a text field
+				max=$("#transcriptText")[0].scrollHeight;						// Max
 			var cp=GetCharPosTimeFrom(playerNow);								// Get char pos in transcript
 			$("#transcriptText").scrollTop(cp.pct*max-$("#transcriptText").height()/4);	// Set scroll
 			if (!param)															// If not inhibiting scroll
