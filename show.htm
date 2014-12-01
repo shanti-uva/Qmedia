@@ -941,9 +941,10 @@
 			words[i]={ label:words[i],pos:p };									// Make into label index object
 			p+=l+1;																// Start of next word
 			}
-		if (sd.transText.match(/\.pdf/i) && (sd.transText.length < 300)) 		// A pdf file spec'd
+		if (sd.transText.match(/\.pdf/i) && (sd.transText.length < 300)) {		// A pdf file spec'd
 			$("#transcriptText").html("<iframe src='"+sd.transText+"' width='100%' height='99%' frameborder='0'/>")	
-		
+			$("#transSearchDiv").css({ display:"none",cursor:"auto"});			// Hide search / gear
+			}
 		$("#transSearch").autocomplete({ source: words, 						// AUTOCOMPLETE HANDLER
 			select: function(event, ui) {										// On select
 				RunPlayer("scrub",GetTimeFromCharPos(ui.item.pos));				// Show
