@@ -830,8 +830,9 @@
 			return;																// Quit
 		if (sd.transText.match(/\.pdf/i) && (sd.transText.length < 300)) {		// A pdf file spec'd
 			if (sd.lastPdfPage != start)										// If not same
-				$("#transDiv").html("<iframe src='"+sd.transText+"#page="+start+"' width='100%' height='100%' frameborder='0'/>")	
+				$("transcriptText").html("<iframe src='"+sd.transText+"#page="+start+"' width='100%' height='99%' frameborder='0'/>")	
 			sd.lastPdfPage=start;												// Now is then
+			return;																// Don't highlight
 			}
 		var tran=sd.transText;													// Copy original
 		if (start != end) {														// If something to highlight
@@ -941,7 +942,7 @@
 			p+=l+1;																// Start of next word
 			}
 		if (sd.transText.match(/\.pdf/i) && (sd.transText.length < 300)) 		// A pdf file spec'd
-			$("#transDiv").html("<iframe src='"+sd.transText+"' width='100%' height='100%' frameborder='0'/>")	
+			$("#transcriptText").html("<iframe src='"+sd.transText+"' width='100%' height='99%' frameborder='0'/>")	
 		
 		$("#transSearch").autocomplete({ source: words, 						// AUTOCOMPLETE HANDLER
 			select: function(event, ui) {										// On select
