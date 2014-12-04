@@ -307,7 +307,7 @@
 		str+="<div style='font-size:36px;color:#999'><b>Edit Index</b></div>"	// Title
 		str+="<br><br><div style='max-height:300px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
 		str+="<table id='indexTable' style='font-size:12px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
-		str+="<tr><td><b>Time</b></td><td><b>Index</b></td><td><b>Style</b></td><td><b>Indent</b></td><td></td></tr>";	// Add header
+		str+="<tr><td><b>Time</b></td><td><b>Index</b></td><td><b>Style&nbsp;</b></td><td><b>Indent&nbsp;</b></td><td><b>Expand</b></td><td></td></tr>";	// Add header
 		str+="<tr><td colspan='5'><hr></td></tr>";								// Add rule
 		if (!curJson.indexVectors)												// No index yet
 			curJson.indexVectors=[];											// Alloc it
@@ -335,7 +335,7 @@
 	
 	function MakeIndexTable() 												// MAKE TABLE AND SORT BY TIME
 	{	
-		var i,n=0,l,s;
+		var i,n=0,l,s,e;
 		var trsty=" style='height:20px;cursor:pointer;background-color:#f8f8f8' onMouseOver='this.style.backgroundColor=\"#dee7f1\"' ";
 		trsty+="onMouseOut='this.style.backgroundColor=\"#f8f8f8\"'";
 		curJson.indexVectors.sort(function(a,b) { return a.t-b.t });			// Sort by time
@@ -343,14 +343,16 @@
 			n=curJson.indexVectors.length;										// Get length
 		$("#indexTable tr:gt(1)").remove();										// Remove all rows
 		for (i=0;i<n;++i) {														// For each index
-			l=s="-";															// Null indicator
+			e=l=s="-";															// Null indicator
 			if (curJson.indexVectors[i].l-0)	l=curJson.indexVectors[i].l;				// If an indent set
 			if (curJson.indexVectors[i].s)		s=curJson.indexVectors[i].s.toUpperCase();	// If style set
-			str="<tr id='idx"+i+"' "+trsty+">";													// Row
+			if (curJson.indexVectors[i].e)		e=curJson.indexVectors[i].e;				// If an expand set
+			str="<tr id='idx"+i+"' "+trsty+">";									// Row
 			str+="<td> <input style='color:#009900;width:60px;font-family:monospace;border:none;background-color:transparent;font-weight:bold' type='text' id='idt"+i+"' value='"+SecondsToTimecode(curJson.indexVectors[i].t)+"'></td>"; 	// Add index
 			str+="<td> <input style='width:95%;border:none;background-color:transparent' type='text' id='idc"+i+"' value='"+curJson.indexVectors[i].c+"'></td>"; 	// Add index
 			str+="<td id='ids"+i+"' onclick='onClickIndexStyle(this.id)'>"+s+"</td>";			// Add style
 			str+="<td id='idi"+i+"' onclick='onClickIndexIndent(this.id)'>"+l+"</td>"			// Add indent
+			str+="<td id='ide"+i+"' onclick='onClickIndexExpand(this.id)'>"+e+"</td>";			// Add expand
 			str+="<td><img style='visibility:hidden' id='idd"+i+"' src='images/trashdot.gif' onclick='onDeleteIndex(this.id)'></td></tr>";	// Add trashcan
 			$("#indexTable").append(str);										// Add row
 			
@@ -418,6 +420,19 @@
 		$("#idi"+id).text(s == "0" ? "-" : s);									// Set row
 		curJson.indexVectors[id].l=s;											// Set level
 	}
+
+	function onClickIndexExpand(id) 											// ON CLICK INDEX EXPAND
+	{	
+		id=id.substr(3);														// Strip off prefix
+		var s=curJson.indexVectors[id].e;										// Get mode
+		if (!s || (s == "-"))	s="Open";										// Move up
+		else if (s == "Open")	s="Closed";						
+		else if (s == "Closed")	s="-";
+		$("#ide"+id).text(s == "0" ? "-" : s);									// Set row
+		curJson.indexVectors[id].e=s;											// Set expand 
+	}
+
+
 
 ///////////// TRANSCRIPT ////////////////
 

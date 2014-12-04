@@ -873,7 +873,12 @@
 			str+="title='"+SecondsToTimecode(toc[i].t)+"'>";					// Add timecode tooltip
 			for (j=0;j<toc[i].l;++j) 											// Tab in based on level					
 				str+="&nbsp;&nbsp;&nbsp;"										// Add spaces
-			if (!(toc[i].l-0))													// Top level
+			
+			if (toc[i].e == "Open")												// If open button
+				str+="<img id='toe"+i+"' src='images/collapse.gif'>";			// Add button
+			else if (toc[i].e == "Closed")										// If closed button
+				str+="<img id='toe"+i+"' src='images/expand.gif'>";				// Add button
+			else if (!(toc[i].l-0))												// Top level
 				str+="<span style='color:#aaa'><b>&bull; </b></span>"; 			// Add bullet
 			else 																// Sub-level
 				str+="<span style='color:#aaa'><b>- </b></span>"; 				// Add d
@@ -888,7 +893,18 @@
 			}
 		$("#contentsText").html(str+"</div>");									// Set div contents
 		
-		for (i=0;i<toc.length;++i) 												// For each index
+		for (i=0;i<toc.length;++i) {											// For each index
+			
+			$("#toe"+i).on("click", function(e) {								// Add hander
+				var id=this.id.substr(3)-0;										// Get id
+				Sound("click");													// Click
+				if (toc[id].e == "Open")										// If open
+					toc[id].e="Closed";											// Close it
+				else if (toc[id].e == "Closed")									// If closed
+					toc[id].e="Open";											// Open it
+				MakeIndex(toc);													// Redraw
+				});
+			
 			$("#toc"+i).on("click", function(e) {								// Add hander
 				loopStart=loopEnd=0;											// Not looping
 				var id=this.id.substr(3)-0;										// Get id
@@ -915,6 +931,8 @@
 						}
 					}
 			});
+
+		}
 			
 	}
 
