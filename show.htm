@@ -859,7 +859,7 @@
 
 	function MakeIndex(toc)													// MAKE INDEX
 	{
-		var i,j;
+		var i,j,hide=99;
 		if (!toc) {																// No toc
 			$("#contentDiv").css("display","none");								// Hide it
 			$("#contentDiv").width(0);											// Squeeze
@@ -869,11 +869,16 @@
 		$("#contentDiv").width("auto");											// Auto size
 		var str="<div style='cursor:pointer;padding-left:12px'>"				// Set up
 		for (i=0;i<toc.length;++i) {											// For each title
+			if (toc[i].l > hide)												// If this is hidden
+				continue;														// Skip
+			if (toc[i].e == "Closed") 											// If closed
+				hide=(toc[i].l == undefined) ? 0 : toc[i].l;					// Set level
+			else																// Open or unset
+				hide=99;														// Don't hide
 			str+="<div id='toc"+i+"' ";											// Add handler						
 			str+="title='"+SecondsToTimecode(toc[i].t)+"'>";					// Add timecode tooltip
 			for (j=0;j<toc[i].l;++j) 											// Tab in based on level					
 				str+="&nbsp;&nbsp;&nbsp;"										// Add spaces
-			
 			if (toc[i].e == "Open")												// If open button
 				str+="<img id='toe"+i+"' src='images/collapse.gif'>";			// Add button
 			else if (toc[i].e == "Closed")										// If closed button
