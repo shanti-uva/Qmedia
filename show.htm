@@ -836,7 +836,7 @@
 					src="//drive.google.com/uc?export=view&qmf=.pdf&id="+id[1];	// Construct 'direct' link
 				}
 			if (sd.lastPdfPage != start)										// If not same
-				$("transcriptText").html("<iframe src='"+src+"#page="+start+"' width='100%' height='99%' frameborder='0'/>"),	
+				$("#transcriptText").html("<iframe src='"+src+"#page="+start+"' width='100%' height='99%' frameborder='0'/>");	
 			sd.lastPdfPage=start;												// Now is then
 			return;																// Don't highlight
 			}
