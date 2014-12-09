@@ -959,6 +959,8 @@
 				}
 			else if (o.c && o.c.match(/assess=/i)) 								// An assessment
 				pic="images/testthumb.jpg";										// Point at icon
+			else if (o.c && o.c.match(/video\.htm\?src=/i)) 					// A video
+				pic="images/videothumb.jpg";										// Point at icon
 			else if (o.c && o.c.match(/vex\.htm/i)) 							// Music
 				pic="images/musicthumb.jpg";									// Point at icon
 			str+="<td style='width:115px'><img style='border:1px solid #999' height='60' width='100' src='"+pic+"'></td>";	// Add thumbnail
@@ -967,13 +969,14 @@
 				str+="<textarea rows='1' style='border:none;background-color:transparent;width:210px;vertical-align:bottom' type='text' id='idc"+i+"'>"+(o.c ? o.c : '')+"</textarea>";
 			else
 				str+="<input style='border:none;background-color:transparent;width:210px' type='text' id='idc"+i+"' value='"+(o.c ? o.c : '')+"'>";
-			if (o.c && o.c.match(/<svg/i))				pic="SVG";
-			else if (o.c && o.c.match(/qhtml/i))		pic="HTML";
-			else if (o.c && o.c.match(/flickr/i))		pic="Flickr";
-			else if (o.c && o.c.match(/qtitle/i))		pic="Title";
-			else if (o.c && o.c.match(/qgraph/i))		pic="Graphics";
-			else										pic="Link";
-			str+="&nbsp; "+MakeSelect("idu"+i,false,["Link","Title","Flickr","SVG","HTML"],pic);	
+			if (o.c && o.c.match(/<svg/i))					pic="SVG";
+			else if (o.c && o.c.match(/qhtml/i))			pic="HTML";
+			else if (o.c && o.c.match(/flickr/i))			pic="Flickr";
+			else if (o.c && o.c.match(/qtitle/i))			pic="Title";
+			else if (o.c && o.c.match(/video.htm\?src/i))	pic="Video";
+			else if (o.c && o.c.match(/qgraph/i))			pic="Graphics";
+			else											pic="Link";
+			str+="&nbsp; "+MakeSelect("idu"+i,false,["Link","Title","Flickr","SVG","Video","HTML"],pic);	
 			str+="<br><div style='height:18px;display:inline-block;width:65px;color:#777'><b>Prompt:</b></div><input style='border:none;background-color:transparent;width:300px' type='text' id='idm"+i+"' value='"+(o.m ? o.m : '')+"'><br>";
 			str+="<div style='height:18px;display:inline-block;width:65px;color:#777'><b>Settings:</b></div>";
 			if (conPtr != curJson.playerVectors) { 								// Not in player
@@ -1111,6 +1114,11 @@
 			SendShivaMessage("Qmedia=annotate");								// Put up annotation
 		if (type == "Flickr")													// If Flickr
 			GetFlickrImage(function(s) { callback(s); } );						// Get url
+		if (type == "Video") {													// If Video
+			val=val.replace(/video\.htm\?src=/,"");								// Remove path
+			GetTextBox("Media Source", "Type in media source id or URL",val,	// Get text
+	 			function(h) { callback("video.htm?src="+h); } );				// Set 							
+			}
 		if (type != "Title")													// If not title
 			return;																// Quit
 		var titleText="";
