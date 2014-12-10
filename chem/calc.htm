@@ -42,7 +42,7 @@
 </br>
 <input type="button" value="cos" name="cos" class="button-blue" title="The cosine for x radians" onclick="insertAtCursor(document.opn.input, 'cos(')"></input>
 <input type="button" value="arccos" name="acos" class="button-blue" title="The arccosine for x, result in radians" onclick="insertAtCursor(document.opn.input, 'arccos(')"></input>
-<input type="button" value="lg" name="lg" class="button-blue" title="The base 10 logarithm of x" onclick="insertAtCursor(document.opn.input, 'lg(')"></input>
+<input type="button" value="log" name="log" class="button-blue" title="The base 10 logarithm of x" onclick="insertAtCursor(document.opn.input, 'log(')"></input>
 <input type="button" value=" 4 " name="four" class="button-standard" style="background-color:LightGrey;border-color:LightGrey;" onclick="insertAtCursor(document.opn.input, '4')"></input>
 <input type="button" value=" 5 " name="five" class="button-standard" style="background-color:LightGrey;border-color:LightGrey;" onclick="insertAtCursor(document.opn.input, '5')"></input>
 <input type="button" value=" 6 " name="six" class="button-standard" style="background-color:LightGrey;border-color:LightGrey;" onclick="insertAtCursor(document.opn.input, '6')"></input>
@@ -223,7 +223,7 @@ function calculate(){
          argument = par1 + "," + par2;
          document.opn.input.value = document.opn.input.value.slice(0,start + 1 - par1.length) + "Math.pow(" + argument + ")" + document.opn.input.value.slice(start + 2 + par2.length);   
       }
-      document.opn.input.value = document.opn.input.value.replace(/lg/g, "1/Math.log(10)*Math.log"); 
+      document.opn.input.value = document.opn.input.value.replace(/log/g, "1/Math.log(10)*Math.log"); 
 
       //Trigonometry values by definition
       while (document.opn.input.value.lastIndexOf("Math.tan") >= 0) { 
