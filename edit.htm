@@ -127,6 +127,7 @@
 	var defTransDur=60;															// Default trancript line duration
 	var drupalMan=false;														// Flag for drupal manager	
 	var playerZoom=1;															// Plyer zoom level
+	var conPtr=null;															// Content type selector
 	
 	$(document).ready(function() {											// WHEN PAGE LOADED
 		if (window.addEventListener) 											// If supported this way
@@ -884,11 +885,12 @@
 
 ///////////// CONTENT ////////////////
 
-	var conPtr=curJson.slideVectors;
 
 	function ContentEditPane()												// CONTENT EDITOR
 	{
 		curEdit=-1;																// Clear
+		if (!conPtr)															// First time
+			conPtr=curJson.slideVectors;										// Use slide
 		if (!curJson.slideVectors)												// If not alloc'd  yet
 			curJson.slideVectors=[];											// Alloc array
 		if (!curJson.infoVectors)												// If not alloc'd  yet
