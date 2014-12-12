@@ -1314,6 +1314,8 @@
 	{
 		var i,str;
 		if ((what == "play") || (what == "jump")) {								// Play/jump
+			if (sd.noPlay)														// If no playing
+				return;															// Quit
 			if ((playerMode == "empty") && isMobile)							// Mobiles need user to initiate touch before controlled play
 				return;															// Quit
 			if ($("#playBut").attr("src") == "images/playbut.gif")	{			// If in pause
