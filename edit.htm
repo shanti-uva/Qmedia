@@ -1119,7 +1119,12 @@
 		if (type == "Video") {													// If Video
 			val=val.replace(/video\.htm\?src=/,"");								// Remove path
 			GetTextBox("Media Source", "Type in media source id or URL",val,	// Get text
-	 			function(h) { callback("video.htm?src="+h); } );				// Set 							
+	 			function(h) { 													// Callback
+					var re=/id="kaltura_player_([^"]+)"/;						// See if Kaltura embed code
+					re=re.exec(h);												// Run regex					
+					if (re)														// If found
+						h="//www.kaltura.com/p/2003471/sp/0/playManifest/entryId/"+re[1]+"/format/url/flavorParamId/301971/video.mp4"	
+	 				callback("video.htm?src="+h); } );							// Set 							
 			}
 		if (type != "Title")													// If not title
 			return;																// Quit
@@ -1411,7 +1416,14 @@
 		$("#transLab").on("change", function() { curJson.transLab=$(this).val(); });			// Extract value	
 		$("#contentsPlayOnClick").on("change", function() { curJson.contentsPlayOnClick=$(this).val(); });	// Extract value	
 		$("#logIn").on("change", function() { curJson.logIn=$(this).val(); });					// Extract value	
-		$("#playerSource").on("change", function() { curJson.playerSource=$(this).val(); });	// Extract value	
+		$("#playerSource").on("change", function() { 											// On source change	
+				var v=$(this).val();															// Get value
+				var re=/id="kaltura_player_([^"]+)"/;											// See if Kaltura embed code
+				var re=re.exec(v);																// Run regex					
+				if (re)																			// If found
+					v="//www.kaltura.com/p/2003471/sp/0/playManifest/entryId/"+re[1]+"/format/url/flavorParamId/301971/video.mp4"	
+				curJson.playerSource=v;															// Set value	
+		 	});
 		$("#playerStart").on("change", function() { curJson.playerStart=$(this).val(); });		// Extract value	
 		$("#playerStop").on("change", function() { curJson.playerStop=$(this).val(); });		// Extract value	
 		$("#playerAspect").on("change", function() { curJson.playerAspect=$(this).val(); });	// Extract value	
