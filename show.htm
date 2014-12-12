@@ -139,7 +139,7 @@
 			<div id="botMarkup"></div>
 	</div>
 	<div id="transSiz" style="position:absolute;width:8px;cursor:col-resize;opacity:inherit" class="qm-unselectable" title="Resize transcript">
-		<div id="transSiz1" style="position:absolute;width:40px;height:100%;top:32px;left:0px" class="qm-unselectable"></div>
+		<div id="transSiz1" style="position:absolute;width:20px;height:100%;top:32px;left:0px" class="qm-unselectable"></div>
 	</div>
 	<div id="cache0" style="display:none"></div><div id="cache1" style="display:none"></div><div id="cache2" style="display:none"></div><div id="cache3" style="display:none"></div>
 </div>
@@ -1014,7 +1014,7 @@
 			cursorAt:{left:0},													// Cursor offext
 			cursor: "col-resize", axis:"x",										// X-only
 			stop: function(event, ui) {											// When done
-				$("#transSiz1").css({ width:"30px", left:"0px" });				// Contract hiding div
+				$("#transSiz1").css({ width:"20px", left:"0px" });				// Contract hiding div
 				SendShivaMessage("ShivaAct=transwid",sd.transInfoRatio);		// Send that position has changed
 				ResizePanes();													// Resize panes when done
 				},
