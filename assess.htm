@@ -204,13 +204,10 @@
 	/////////////////////////////////////////////////////////////////////////////////////////
 	
 		$("#nextBut").on("click",function() {									// NEXT BUTTON HANDLER
+			var ans
 			++numTries;															// Increment tries
 			if (d.optionType == "write") {										// Draw style
 				ans=$("#opt").val();											// Get answer
-				qe.SendMessage("answer",d.title+"|"+ans);						// Send answer message
-				if (!d.numTries || ans)											// If requiring an answer
-					Draw(curPage+1);											// Move on
-				return;															// Quit
 				}	
 			else if (d.optionType == "notes") {									// Notes style
 				qe.SendMessage("answer",d.title+"|personalNotes");				// Send answer message
@@ -224,12 +221,15 @@
 				return;															// Quit
 				}	
 			var i,correct=0,wrong=0,requiredCorrect=0;
-			var ans="*"+$("input[name='opt']:checked").val();					// Chosen answer
-			for (i=0;i<d.options.length;++i) {									// For each option
-				if (d.options[i].match(/^\*/))	requiredCorrect++				// Add to required count
-				if (ans == d.options[i])										// If correct
-					correct++;													// Add to count
-					}
+			
+			if (d.optionType != "write")										// Anything but write
+				ans="*"+$("input[name='opt']:checked").val();					// Chosen answer
+			if (d.options)														// If options
+				for (i=0;i<d.options.length;++i) {								// For each option
+					if (d.options[i].match(/^\*/))	requiredCorrect++			// Add to required count
+					if (ans == d.options[i])									// If correct
+						correct++;												// Add to count
+						}
 			if (d.optionType == "radio")	ans=correct ? "right" : "wrong"		// Radio
 			else if (d.optionType == "cloze") {									// Cloze
 				for (i=0;i<d.options.length;++i) {								// For each option
@@ -266,7 +266,7 @@
 						ans="right";											// Right
 					}
 				}
-			else{
+			else if (d.optionType != "write") {									// All else but write
 				correct=0;														// Restart
 				for (i=0;i<d.options.length;++i) {								// For each option
 					if ($("#opt"+i).prop("checked"))							// If checked
@@ -299,6 +299,10 @@
 				 	if (numTries < d.numTries)									// If more tries ahead
 				 		str+="<div style='text-align:center'><b>Please try again</b> ("+numTries+"/"+d.numTries+")</div>";	// Show progress
 					}
+				else{															// Anything else
+					str+="009900'>Answer</div><p>";								// Heading
+					if (d.whyRight)	str+=d.whyRight;							// Show explanation
+					}				
 				str+="</p><div style='text-align:center'>";						// Center
 				str+="<input id='contBut' type='button' value='Continue' class='nextbutSty'></div></div>"; 	// Add button
 				$("#optionsLDiv").html(str);									// Set div
