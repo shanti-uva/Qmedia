@@ -773,7 +773,7 @@
 		$("#pageTable dt:gt(1)").remove();										// Remove all rows
 		for (i=0;i<n;++i) {														// For each index
 			str="<dt id='idp"+i+"' "+trsty+">";									// Row
-			str+="<div id='idy"+i+"' style='display:inline-block;overflow:hidden;white-space:nowrap'>"+curJson.assessments[curEdit].pages[i].title+"</div>"; 	// Add assessment name
+			str+="<div id='idy"+i+"' style='display:inline-block;overflow:hidden;white-space:nowrap'>"+curJson.assessments[curEdit].pages[i].title.replace(/<.+>/g,"")+"</div>"; 	// Add assessment name
 			$("#pageTable").append(str);										// Add row
 			}
 		if (curPage != -1) 	onClickPage("idp"+curPage);							// Highlight it
@@ -789,7 +789,7 @@
 		if (id == undefined)													// If deselecting
 			return;																// Quit
 		curPage=id.substr(3);													// Strip off prefix
-		$("#idy"+curPage).html(curJson.assessments[curEdit].pages[curPage].title); // Reshow title, in case it was changed
+		$("#idy"+curPage).html(curJson.assessments[curEdit].pages[curPage].title.replace(/<.+>/g,"") ); // Reshow title, in case it was changed
 		$("#idy"+curPage).css({"color":"#990000","font-weight":"bold"});		// Highlight
 		$("#idx"+curPage).css({"visibility":"visible"});						// Show trashcan
 		EditPage();																// Edit page

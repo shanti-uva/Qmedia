@@ -345,6 +345,8 @@
 		if (show.extCSS) 														// If an external CSS file declared
 		    $("head").append($("<link rel='stylesheet' type='text/css' href='"+show.extCSS+"'>"));
  		sd=show;
+		if (sd.noPlay)															// If no playing
+			$("#playBut").css("opacity",0);										// Hide button
 		for (i=0;i<4;++i) {														// For each show pane
 			showVectors[i]=[];													// Create timing vector arrays 
 			showCurSource[i]="";												// No source yet
