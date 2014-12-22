@@ -801,6 +801,8 @@
 					cp.pos=o.cs;												// Point at start
 					cp.pos2=showVectors[transPane][i+1].cs;						// End is start of next block
 					}
+				else if (sd.transMode == "None")  								// No chunking
+				cp.pos=cp.pos2=o.cs;											// Point at start
 				else{															// Continoous mode
 					cp.pos=(t-o.ps)/o.pd*o.cd+o.cs;								// Get interpolates char pos
 					cp.pos2=cp.pos+o.d;											// End
