@@ -368,9 +368,13 @@
 			$("#slideControlsDiv").css("display","none");						// Hide controls
 		var tag=document.createElement('script');								// Create script
 		if (!show.playerSource) {												// No scrubbable media
+			sd.noPlay=true;														// No playing
 			playerType="noplayer";												// No player
 			player=1;															// Put something there
 			RunPlayer("ready");													// Init show
+			if (sd.noPlay)														// If no playing
+				$("#playBut").css("opacity",0);									// Hide button
+			$("#playerDiv").html("");											// Clear old player
 			}
 		else if (show.playerSource.match(/\/\//i)) {							// If HTML5
 			if (player && (playerType == "html5")) {							// Player not active loaded
