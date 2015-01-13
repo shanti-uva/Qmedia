@@ -9,6 +9,8 @@
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
 	<script src="jquery.ui.touch-punch.min.js"></script>
 	<script src="qfile.js"></script>
+	<script src="//viseyes.org/mapscholar/ckeditor/ckeditor.js"></script>
+
 	<style type="text/css">
 		body { 			font-family:Verdana,Geneva,sans-serif; font-size:10px;}
 		.rounded-corners { -moz-border-radius:8px;-webkit-border-radius:8px;-khtml-border-radius:8px;border-radius:8px;}
@@ -972,7 +974,6 @@
 			else
 				str+="<input style='border:none;background-color:transparent;width:210px' type='text' id='idc"+i+"' value='"+(o.c ? o.c : '')+"'>";
 			if (o.c && o.c.match(/<svg/i))					pic="SVG";
-			else if (o.c && o.c.match(/qhtml/i))			pic="HTML";
 			else if (o.c && o.c.match(/flickr/i))			pic="Flickr";
 			else if (o.c && o.c.match(/qtitle/i))			pic="Title";
 			else if (o.c && o.c.match(/video.htm\?src/i))	pic="Video";
@@ -1114,9 +1115,11 @@
 	{
 		if (type == "Graphics")													// If graphics
 			SendShivaMessage("Qmedia=annotate");								// Put up annotation
-		if (type == "Flickr")													// If Flickr
+		else if (type == "Flickr")												// If Flickr
 			GetFlickrImage(function(s) { callback(s); } );						// Get url
-		if (type == "Video") {													// If Video
+		else if (type == "HTML")												// If HTML
+			GetHTMLEditor(val,function(s) { callback("<html>"+s+"</html>"); } );	// Get code
+		else if (type == "Video") {												// If Video
 			val=val.replace(/video\.htm\?src=/,"");								// Remove path
 			GetTextBox("Media Source", "Type in media source id or URL",val,	// Get text
 	 			function(h) { 													// Callback

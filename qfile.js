@@ -480,6 +480,33 @@
  		$(".ui-button").css({"border-radius":"30px","outline":"none"});
  	}
 
+	function GetHTMLEditor(val, callback)									// CALL HTML EDITOR
+	{
+		$("#alertBoxDiv").remove();												// Remove any old ones
+		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
+		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
+		str+="<span style='font-size:18px;text-shadow:1px 1px #ccc;color:#000099'><b>HTML editor</b></span><p>";
+		str+="<div style='font-size:14px;margin:14px'>";
+		str+="<textarea id='htbx' style='width:100%'>";
+		if (val)
+			str+=val;
+		str+="</textarea>";
+		$("#alertBoxDiv").append(str+"</div>");	
+		CKEDITOR.replace("htbx");
+ 		$("#alertBoxDiv").dialog({ width:550, buttons: {
+	    	"OK": 		function() { 
+	    					var s=CKEDITOR.instances.htbx.getData().replace(/[\n|\r]/g,"").replace(/"/g,"&quot;");
+	    					callback(s);										// Send to callback	
+		    				$(this).remove();									// Remove dialog
+		    				},
+			"Cancel":  	function() { $(this).remove(); }
+							}
+			});	
+		$(".ui-dialog-titlebar").hide();
+		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
+		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
+ 		$(".ui-button").css({"border-radius":"30px","outline":"none"});
+	}
 
 	function GetFlickrImage(callback)										// GET FLICKR IMAGE
 	{

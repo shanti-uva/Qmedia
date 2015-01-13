@@ -374,7 +374,7 @@
 			RunPlayer("ready");													// Init show
 			if (sd.noPlay)														// If no playing
 				$("#playBut").css("opacity",0);									// Hide button
-			$("#playerDiv").html("");											// Clear old player
+			$("#playerDiv").html("");											// Clear player
 			}
 		else if (show.playerSource.match(/\/\//i)) {							// If HTML5
 			if (player && (playerType == "html5")) {							// Player not active loaded
@@ -598,6 +598,8 @@
 						ResizePanes();											// Force to proper size
 						if (src.match(/qtitle/i))								// If a title
 							src=RenderGraphics(src);							// Render it in SVG
+						else													// HTML
+							src=src.replace(/&quot;/g,"\"");					// Replace quotes
 						$("#overlayDiv").html(src);								// Populate overlay
 						}
 					else{														// An iframe
@@ -643,7 +645,7 @@
 					showCurSource[pane]=o.cs;									// Then is now
 					if (pane == infoPane) {										// Info pane
 						if (o.m)		$("#infoLab").html(o.m);				// Set new label
-						else					$("#infoLab").html(sd.infoLab);	// Set def label
+						else			$("#infoLab").html(sd.infoLab);			// Set def label
 						}
 					else if (pane == playerPane) {								// Player pane
 						if (o.m)		$("#titleDiv").html(o.m);				// Set new label
