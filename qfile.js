@@ -265,7 +265,7 @@
 			o.id=i;																// Add id
 			undos.push(o);														// dd to array
 			}	
-		undos.sort(function(a,b) { return b.date-a.date });						// Sort by time, latest first
+		undos.sort(function(a,b) { return b.date > a.date });					// Sort by time, latest first
 		for (i=0;i<undos.length;++i) 											// For each undo
 			str+="<tr id='und"+undos[i].id+"' "+trsty+"><td>"+undos[i].date+"</td><td>"+undos[i].name+"</td></tr>";
 		str+="</table></div><div style='font-size:12px;text-align:right'><br>";	// End table
