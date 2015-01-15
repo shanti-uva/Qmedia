@@ -594,7 +594,7 @@
 							AnimateContent(this.id,o,pane);						// Animate image, if set
 							})
 						}
-					else if (src.match(/</) || src.match(/qtitle/i)) {			// Markup, graphics, or title
+					else if ((pane == 0) && (src.match(/</) || src.match(/qtitle/i))) {	// Markup, graphics, or title over player pane
 						ResizePanes();											// Force to proper size
 						if (src.match(/qtitle/i))								// If a title
 							src=RenderGraphics(src);							// Render it in SVG
@@ -616,10 +616,12 @@
 								}
 							ResizePanes();										// Resize
 							}
-						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
+						if (src.match(/</))										// If markup
+							$("#"+div).html(src.replace(/&quot;/g,"\""));		// Set it
+						else if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0]) { // Bases are different
 							$("#"+div+"IF").remove();							// Remove any existing iframes
 							$("#"+div).html("<iframe id='"+div+"IF' frameborder='0' height='"+$("#"+div).height()+"' "+extra+" width='100%' style='opacity:0' src='"+src+"'></iframe>");	// Load in iframe
-							if (src == "assess.htm") {							// If an assessment
+						if (src == "assess.htm") {							// If an assessment
 								$("#"+div+"IF").css("background-color","#fff");	// Put up a background
 								$("#playerDiv").css("pointer-events","none");	// Stop player events
 								$("#"+div+"IF").css("pointer-events","auto");	// Restore assess events
@@ -807,8 +809,8 @@
 					cp.pos=o.cs;												// Point at start
 					cp.pos2=showVectors[transPane][i+1].cs;						// End is start of next block
 					}
-				else if (sd.transMode == "None")  								// No chunking
-				cp.pos=cp.pos2=o.cs;											// Point at start
+				else if (sd.transMode == "None")  								// No highlighting
+					cp.pos=cp.pos2=o.cs;										// Point at start
 				else{															// Continoous mode
 					cp.pos=(t-o.ps)/o.pd*o.cd+o.cs;								// Get interpolates char pos
 					cp.pos2=cp.pos+o.d;											// End
@@ -1452,7 +1454,7 @@
 		else if (what == "resize") {											// Resize
 			if (!player)	return;												// If no player yet, quit
 			var w=$("#playerDiv").width();										// Get width
-			if (playerType == "youtube") 										// If initted YouTube
+			if (player && (playerType == "youtube")) 							// If initted YouTube
 				player.setSize(w,w*sd.playerAspect);							// Resize
 			else if ((playerType == "vimeo") || (playerType == "html5")) {		// If Vimeo or HTML5
 				$("#vplayer").width(w);											// Set width

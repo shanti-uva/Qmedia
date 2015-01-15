@@ -259,10 +259,15 @@
 		str+="<table style='font-size:12px;width:100%;padding:0px;border-collapse:collapse;'>";	// Table start
 		str+="<tr><td><b>Date</b></td><td><b>Name</b></tr>";					// Header
 		str+="<tr><td colspan='2'><hr></td></tr>";								// Line
-		for (i=sessionStorage.length-1;i>=0;--i) {								// For each undo
-			var o=$.parseJSON(sessionStorage.getItem(sessionStorage.key(i)));	// Get undo from local storage
-			str+="<tr id='und"+i+"' "+trsty+"><td>"+o.date+"</td><td>"+o.name+"</td></tr>";
-			}
+		var undos=[];
+		for (i=0;i<sessionStorage.length;++i) {									// For each undo saved
+			o=$.parseJSON(sessionStorage.getItem(sessionStorage.key(i)));		// Get undo from local storage
+			o.id=i;																// Add id
+			undos.push(o);														// dd to array
+			}	
+		undos.sort(function(a,b) { return b.date-a.date });						// Sort by time, latest first
+		for (i=0;i<undos.length;++i) 											// For each undo
+			str+="<tr id='und"+undos[i].id+"' "+trsty+"><td>"+undos[i].date+"</td><td>"+undos[i].name+"</td></tr>";
 		str+="</table></div><div style='font-size:12px;text-align:right'><br>";	// End table
 		str+=" <button"+qmf.butsty+"id='cancelBut'>Cancel</button></div>";		// Add button
 		qmf.ShowLightBox("Load an undo",str);									// Show lightbox
@@ -474,6 +479,26 @@
 									}});	
 		if (qmf.version == 1)	
 			$("#alertBoxDiv").dialog("option","position",{ my:"center", at:"right center", of:window });
+		$(".ui-dialog-titlebar").hide();
+		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
+		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
+ 		$(".ui-button").css({"border-radius":"30px","outline":"none"});
+ 	}
+
+	function GetSelectBox(title, content, def, options, callback)		// GET OPTION FROM SELECT MENU
+	{
+		Sound("click");														// Ding sound
+		$("#alertBoxDiv").remove();											// Remove any old ones
+		$("body").append("<div class='unselectable' id='alertBoxDiv'></div>");														
+		var str="<p><img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
+		str+="<span id='gtBoxTi'style='font-size:18px;text-shadow:1px 1px #ccc;color:#990000'><b>"+title+"</b></span><p>";
+		str+="<div style='font-size:14px;margin:14px'>"+content;
+		str+="<p>"+MakeSelect('gtBoxTt',false,options,def)+"</p></div>";
+		$("#alertBoxDiv").append(str);	
+		$("#alertBoxDiv").dialog({ width:300, buttons: {
+					            	"OK": 		function() { callback($("#gtBoxTt").val()); $(this).remove(); },
+					            	"Cancel":  	function() { $(this).remove(); }
+									}});	
 		$(".ui-dialog-titlebar").hide();
 		$(".ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix").css("border","none");
 		$(".ui-dialog").css({"border-radius":"14px", "box-shadow":"4px 4px 8px #ccc"});
