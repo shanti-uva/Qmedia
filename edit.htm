@@ -253,9 +253,13 @@
 	{	
 		if (curPane == "json") {												// If current pane is JSON editor
 			var str=$("#jsonEditor").val();										// Get script
-			curJson=$.parseJSON(str);											// Get editor contents
+			try {																// Try this
+				curJson=$.parseJSON(str);  										// Get editor contents
+				}
+			catch(err) {														// On error	
+				AlertBox("JSON syntax error", "There is some error in this JSON. Any edits made will be ignored.");	
+				}
 			}
-			
 		curPane=newPane;														// Set current pane
 		Draw();																	// Redraw
 	}
@@ -1524,7 +1528,7 @@
 		str+=n;																	// Add to tc
 		var f=secs-Math.floor(secs);											// Get fractional part
 		if (f) 																	// If a fraction	
-			str+="."+Math.round(f*10);											// Single digit
+			str+="."+Math.round(f*100);											// 2 digits
 		return str;																// Return timecode			
 	}
 		
