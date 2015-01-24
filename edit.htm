@@ -374,7 +374,11 @@
 				});				
 		
 			$("#idx"+i).on("click", function(e) {								// ON ROW CLICK
-				var id=e.target.id.substr(3);									// Extract id
+				var id;
+				if (e.target.id)												// If an id there
+					id=e.target.id.substr(3);									// Extract id from target
+				else
+					id=e.currentTarget.id.substr(3);							// Extract id from currentTarget
 				if (e.target.id.match(/idt/))									// If on time col				
 					curEdit=id;													// Get time id
 				else															// Anywhere else
@@ -1527,8 +1531,10 @@
 		if (n < 10) str+="0";													// Add leading 0
 		str+=n;																	// Add to tc
 		var f=secs-Math.floor(secs);											// Get fractional part
-		if (f) 																	// If a fraction	
+		if (f) {																// If a fraction	
 			str+="."+Math.round(f*100);											// 2 digits
+			str=str.replace(/0$/,"");											// Remove trailing 0
+			}
 		return str;																// Return timecode			
 	}
 		
