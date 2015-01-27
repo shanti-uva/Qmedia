@@ -1205,7 +1205,15 @@
 		var v=e.data.split("|");												// Get data
 		if (v[0] == "QmediaAssess=done") {										// Done with assessment
 			searchMode=false;													// Allow other events
-			RunPlayer("play",showVectors[Math.floor(curAssess/100)][curAssess%100].ps+.6);		// Roll player from where we left off
+			var t=showVectors[Math.floor(curAssess/100)][curAssess%100].ps+.6;	// Roll player from where we left off
+			if (v[2] && v[2].match(/goto=#/)) {									// If a valid goto to load show
+				RunPlayer("pause");												// Pause
+				var url="//qmediaplayer.com/loadshow.php?id="+v[2].substr(6);	// Get from db
+				$.ajax({ url: url, dataType:'jsonp' });							// Get jsonp and call LoadShow() from it
+				}
+			if (v[2] && v[2].match(/goto=/) && !v[2].match(/goto=Def/i)) 		// If a valid goto spec's
+				t=TimecodeToSeconds(v[2].substr(5))-0;							// Get time
+			RunPlayer("play",t);												// Roll player	
 			$("#overlayDivIF").remove();										// Remove iframe from player, if there
 			}
 		else if (v[0] == "QmediaAssess=ready") {								// Ready
