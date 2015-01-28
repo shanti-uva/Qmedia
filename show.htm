@@ -1213,6 +1213,7 @@
 				}
 			if (v[2] && v[2].match(/goto=/) && !v[2].match(/goto=Def/i)) 		// If a valid goto spec's
 				t=TimecodeToSeconds(v[2].substr(5))-0;							// Get time
+			RunPlayer("scrub",t);												// Roll player	
 			RunPlayer("play",t);												// Roll player	
 			$("#overlayDivIF").remove();										// Remove iframe from player, if there
 			}
