@@ -842,8 +842,6 @@
 		str+="<tr><td><b>Number of tries</b></td><td><input class='is' type='text' id='numTries' value='"+(o.numTries ? o.numTries :'')+"'></td></tr>";	// Get setting
 		str+="<tr><td><b>Allow skipping</b></td><td>"+MakeSelect("skip",false,["true","false"],o.skip)+"</td></tr>";	// Get setting
 		str+="<tr><td><b>Font size</b></td><td><input class='is' type='text' id='fontSize' value='"+(o.fontSize ? o.fontSize :'Default (12)')+"'></td></tr>";	// Get setting
-		str+="<tr><td><b>Go when wrong</b></td><td><input class='is' type='text' id='goOnWrong' value='"+(o.goOnWrong ? o.goOnWrong :'Default')+"'></td></tr>";	// Get setting
-		str+="<tr><td><b>Go when done</b></td><td><input class='is' type='text' id='goOnDone' value='"+(o.goOnDone ? o.goOnDone :'Default')+"'></td></tr>";	// Get setting
 		str+="<tr><td colspan=2><hr></td></tr>";
 		str+="<tr><td><b>Options</b></td><td><dl id='optionsTable'>";
 		if (o.options) {
@@ -872,8 +870,6 @@
 		$("#whyWrong").on("change", function() { o.whyWrong=$(this).val(); });	// Extract value	
 		$("#whyPartial").on("change", function() { o.whyPartial=$(this).val()});// Extract value	
 		$("#fontSize").on("change", function() { o.fontSize=$(this).val(); });	// Extract value	
-		$("#goOnDone").on("change", function() { o.goOnDone=$(this).val(); });	// Extract value	
-		$("#goOnWrong").on("change", function() { o.goOnWrong=$(this).val(); });	// Extract value	
 		$("#skip").on("change", function() { o.skip=$(this).val(); });			// Extract value	
 		$("#optionsTable").on("sortstop", function(e, ui) {						// If sorted
 			var v=$("#optionsTable").sortable("toArray");						// Get new order

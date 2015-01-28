@@ -1287,6 +1287,8 @@
 			}
 		else if (v[0] == "QmediaAssess=time") 									// Get time
 			e.source.postMessage("ShivaAct=time|"+playerNow+"|"+keyFlag,"*");	// Send data to assessment iframe
+		else if (v[0] == "QmediaAssess=play") 									// Play video
+			RunPlayer("play",v[2]);												// Roll player	
 		}
 	else if (e.data && e.data.match(/Qmedia/)) {								// An assessment message
 		var v=e.data.split("|");												// Get data

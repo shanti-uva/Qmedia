@@ -123,10 +123,7 @@
 	{
 		var i,lab,str="",col="#000";												
 		if (num >= aData.pages.length) {										// Past last page
-			var m="";
-			if (aData.pages[aData.pages.length-1].goOnDone != undefined)		// If a goOnDone
-				m="goto="+aData.pages[aData.pages.length-1].goOnDone;			// Add to message
-			qe.SendMessage("done",m);											// Send done message
+			qe.SendMessage("done");												// Send done message
 			return;																// Quit
 			}
 		if (curPage != num)														// If a new page
@@ -293,22 +290,22 @@
 					str+="ff9900'>Sorry, you only got some right..</div><p>";	// Heading		
 					if (d.whyPartial)		str+=d.whyPartial;					// Show partial explanation
 					else if (d.whyWrong)	str+=d.whyWrong;					// Show wrong explanation
+				 	if (str.match(/here\(/i)) {									// A here() tag
+				 		i=str.match(/here\((.+)\)/i)[1];						// Get time
+				 		str=str.replace(/here\(.+\)/i,"<a href='javascript:qe.SendMessage(\"play\",\""+i+"\")'>here</a>");
+				 		}
 				 	if (numTries < d.numTries)									// If more tries ahead
 				 		str+="<div style='text-align:center'><b>Please try again</b> ("+numTries+"/"+d.numTries+")</div>";	// Show progress
-					else if (d.goOnWrong != undefined)	{						// If a goOnWrong
-						qe.SendMessage("done","goto="+d.goOnWrong);				// Send done message and skip
-						return;													// Quit
-						}
 					}
 				else if (ans == "wrong") { 										// Wrong
 					str+="000099'>Sorry, that's not the right answer</div><p>";	// Heading	
 					if (d.whyWrong)	str+=d.whyWrong;							// Show wrong explanation
+				 	if (str.match(/here\(/i)) {									// A here() tag
+				 		i=str.match(/here\((.+)\)/i)[1];						// Get time
+				 		str=str.replace(/here\(.+\)/i,"<a href='javascript:qe.SendMessage(\"play\",\""+i+"\")'>here</a>");
+				 		}
 				 	if (numTries < d.numTries)									// If more tries ahead
 				 		str+="<div style='text-align:center'><b>Please try again</b> ("+numTries+"/"+d.numTries+")</div>";	// Show progress
-					else if (d.goOnWrong != undefined)	{						// If a goOnWrong
-						qe.SendMessage("done","goto="+d.goOnWrong);				// Send done message and skip
-						return;													// Quit
-						}
 					}
 				else{															// Anything else
 					str+="009900'>Answer</div><p>";								// Heading
