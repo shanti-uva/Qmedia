@@ -209,6 +209,9 @@
 		curJson.playerAspect=.5625;
 		curJson.infoLab="";
 		curShow=qmf.curFile="";													// Clear curshow
+		curJson.playerVectors=[];										
+		curJson.slideVectors=[];										
+		curJson.infoVectors=[];										
 		curEdit=-1;																// Not editing anything
 		Preview();																// Preview
 		Draw();																	// Show curshow number as vlanml
@@ -456,7 +459,7 @@
 		str+="<br><br><div style='max-height:300px;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
 		str+="<table id='transTable' style='table-layout:fixed;font-size:13px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
 		str+="<tr><td width='50'><b>Time</b></td>";
-		if (curJson.transText.match(/\.pdf|drive\.google/i) && (curJson.transText.length < 300)) 	// If a PDF source
+		if (curJson.transText && curJson.transText.match(/\.pdf|drive\.google/i) && (curJson.transText.length < 300)) 	// If a PDF source
 			str+="<td></td><td</td><td><b>Page</b></td></tr>";					// Add header
 		else
 			str+="<td style='text-align:right;border-right:2px solid '><b>&ltrif; before &nbsp;&nbsp; </td><td width='"+(w+15)+"'><b> &nbsp;&nbsp; after &rtrif;</b></td><td width='20'></td></tr>";	// Add header
@@ -592,6 +595,8 @@
 	{	
 		SendShivaMessage("Qmedia=pause");										// Pause
 		SendShivaMessage("Qmedia=pause");										// Pause
+		if (!curJson.transVectors)												// No anchors
+			return;																// Quit
 		for (var i=0;i<curJson.transVectors.length;++i) {						// For each row
 			$("#idc"+i).css({"color":"#009900"});								// Restore
 			$("#idl"+i).css({"color":"#999"});									// Restore
