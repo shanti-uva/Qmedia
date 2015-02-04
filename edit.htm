@@ -174,7 +174,7 @@
 		
 		Draw();
 		$(window).resize(function(e) { if (!e.target.id) Draw();	 } );		// Redraw on window resize		
-		setInterval(function() { SendShivaMessage("Qmedia=time",curTime) },500); // Set timer 1-fps
+		setInterval(function() { SendShivaMessage("Qmedia=time",""+curTime) },500); // Set timer 1-fps
 		qmf.LoadFile("qmf"+curShow);											// Load project
 		if (drupalMan) 															// If called from Drupal manager
 			window.parent.postMessage("ShivaReady=true","*");					// Send message to parent wind		
@@ -1496,11 +1496,11 @@
 			if (curPane == "transcript")	o=curJson.transVectors;				// Point at transcript
 			if (curPane == "content")		o=conPtr;							// Point at player/info/slides		
 			if (o && (curEdit != -1)) {											// Editing time
-				if (!isNaN(curTime)) {											// If a valid time
-					var i,d=o[curEdit].t-curTime;								// Shift amount
+				if (!isNaN(curTime) ) {											// If a valid time
 					o[curEdit].t=curTime;										// Set it
 					$("#idt"+curEdit).val(SecondsToTimecode(curTime));			// Update text
 					if (e.data.split("|")[2].match(/s/i)) {						// If shift key pressed
+						var i,d=o[curEdit].t-curTime;							// Shift amount
 						for (i=curEdit-0+1;i<o.length;++i) {					// For each subsequent row
 							o[i].t-=d;											// Shift
 							$("#idt"+i).val(SecondsToTimecode(o[i].t));			// Update text

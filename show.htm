@@ -1290,7 +1290,7 @@
 		else if (v[0] == "QmediaAssess=play") 									// Play video
 			RunPlayer("play",v[2]);												// Roll player	
 		}
-	else if (e.data && e.data.match(/Qmedia/)) {								// An assessment message
+	else if (e.data && e.data.match(/Qmedia/)) {								// An message
 		var v=e.data.split("|");												// Get data
 		if (v[0] == "Qmedia=time") {											// Get time
 			if (v[2] != playerNow)												// If not there already
