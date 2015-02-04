@@ -1473,6 +1473,7 @@
 			}
 		else if (what == "load") {												// Load a new show
 			RunPlayer("pause");													// Pause
+			RunPlayer("scrub",0);												// Got0 to 0
 			var url="//qmediaplayer.com/loadshow.php?id="+param;				// Get from db
 			$.ajax({ url: url, dataType:'jsonp' });								// Get jsonp and call LoadShow() from it
 			}
