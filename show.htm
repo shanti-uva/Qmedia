@@ -1296,8 +1296,11 @@
 			if (v[2] != playerNow)												// If not there already
 				e.source.postMessage("ShivaAct=time|"+playerNow+"|"+keyFlag,"*"); // Send time
 			}
-		else if (v[0] == "Qmedia=seek") 										// Seek
+		else if (v[0] == "Qmedia=seek") {										// Seek
 			RunPlayer("scrub",v[2]);											// Cue player to time
+			if (v[3] == "skipAssess")											// If skipping assess
+				searchMode=false;												// Allow other events
+			}
 		else if (v[0] == "Qmedia=play") 										// Seek
 			RunPlayer("play",v[2]);												// Play player to time
 		else if (v[0] == "Qmedia=pause") 										// Pause

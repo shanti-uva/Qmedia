@@ -392,7 +392,7 @@
 					$("#idc"+i).css({"color":"#000000"});						// Restore
 					$("#idd"+i).css({"visibility":"hidden"});					// Restore
 					}	
-				SendShivaMessage("Qmedia=seek",""+curJson.indexVectors[id].t);	// Go to time
+				SendShivaMessage("Qmedia=seek",""+curJson.indexVectors[id].t+"|skipAssess");	// Go to time
 				
 				if (e.target.id.match(/idt/))									// Click on time								
 					$("#idt"+id).css({"color":"#990000"});						// Highlight time
@@ -610,7 +610,7 @@
 			return;																// Quit
 		$("#timeControls").css("display","inline-block");						// Turn on control bar
 		curEdit=id.substr(3);													// Strip off prefix
-		SendShivaMessage("Qmedia=seek",""+curJson.transVectors[curEdit].t);		// Go to time
+		SendShivaMessage("Qmedia=seek",""+curJson.transVectors[curEdit].t+"|skipAssess");		// Go to time
 		$("#idc"+curEdit).css({"color":"#990000"});								// Highlight
 		$("#idl"+curEdit).css({"color":"#990000"});								// Highlight
 		$("#idr"+curEdit).css({"color":"#990000"});								// Highlight
@@ -922,6 +922,7 @@
 	function ContentEditPane()												// CONTENT EDITOR
 	{
 		curEdit=-1;																// Clear
+		var conType="Slide pane";
 		if (!conPtr)															// First time
 			conPtr=curJson.slideVectors;										// Use slide
 		if (!curJson.slideVectors)												// If not alloc'd  yet
@@ -930,11 +931,13 @@
 			curJson.infoVectors=[];												// Alloc array
 		if (!curJson.playerVectors)												// If not alloc'd  yet
 			curJson.playerVectors=[];											// Alloc array
+		if (conPtr == curJson.infoVectors)			conType="Information pane";	// Set proper type for pulldown
+		else if (conPtr == curJson.playerVectors)	conType="Player pane";		// Set proper type for pulldown
 		var h=$("#paneDiv").height()-220;										// Max height
 		var str="<div style='padding:12px'><br>"								// Container div
 		str+="<div style='display:inline-block;font-size:36px;color:#999'><b>Edit Content";
 		str+="<span style='font-size:12px'>&nbsp;&nbsp;in the&nbsp;<span></b></div>"// Title
-		str+=MakeSelect("contentType",false,["Slide pane","Information pane","Player pane"]);		// Get setting
+		str+=MakeSelect("contentType",false,["Slide pane","Information pane","Player pane"],conType);		// Get setting
 		str+="<br><br><div style='max-height:"+h+"px;overflow-x:hidden;overflow-y:auto;background-color:#f8f8f8;padding:8px;border:1px solid #999;border-radius:8px'>";		// Scrollable container
 		str+="<table id='contentTable' style='font-size:12px;width:100%;padding:0px;border-collapse:collapse;'>";	// Add table
 		str+="</table></div><div style='font-size:12px'<br><br>";				// End table
@@ -1048,7 +1051,7 @@
 				if (e.target.id.match(/idt/))									// Clicked on time
 					curEdit=id;													// Set time editing
 				Sound("click");													// Click
-				SendShivaMessage("Qmedia=seek",""+conPtr[id].t);				// Go to time
+				SendShivaMessage("Qmedia=seek",""+conPtr[id].t+"|skipAssess");	// Go to time
 				if (e.target.id.match(/idt/))									// If on time col				
 					$("#idt"+id).css({"color":"#990000","font-weight":"bold"});	// Highlight	
 				else if (e.target.id.match(/idm/))								// If on prompt col				
@@ -1425,7 +1428,7 @@
 		str+="<tr><td></td><td>Transcript pane label</td><td><input class='bs' type='text' id='transLab' value='"+(curJson.transLab ? curJson.transLab : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Information pane label</td><td><input class='bs' type='text' id='infoLab' value='"+(curJson.infoLab ? curJson.infoLab : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Index pane label</td><td><input class='bs' type='text' id='contentsLab' value='"+(curJson.contentsLab ? curJson.contentsLab : '' )+"'></td></tr>";	// Get setting
-		str+="<tr><td></td><td>Play when index clicked?</td><td>"+MakeSelect("contentsPlayOnClick",false,["true","false"],curJson.contentsPlayOnClick)+"</td></tr>";	// Get setting
+		str+="<tr><td></td><td>Play when index clicked?</td><td>"+MakeSelect("contentsPlayOnClick",false,["false","true"],curJson.contentsPlayOnClick)+"</td></tr>";	// Get setting
 		str+="<tr><td></td><td>Require user login?</td><td>"+MakeSelect("logIn",false,["true","false"],curJson.logIn ? curJson.logIn : 'false' )+"</td></tr>";	// Get setting
 		str+="<tr><td></td><td>Lower panel height</td><td><input class='bs' type='text' id='transHgt' value='"+(curJson.transHgt ? curJson.transHgt : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td colspan=3><b><br>Player<b></td></tr>";					// Heading
@@ -1436,8 +1439,8 @@
 		str+="<tr><td></td><td>Media aspect ratio (0-1)</td><td><input class='bs' type='text' id='playerAspect' value='"+(curJson.playerAspect ? curJson.playerAspect : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Initial width % (0-100)</td><td><input class='bs' type='text' id='playerSlideRatio' value='"+(curJson.playerSlideRatio != undefined ? Math.floor(curJson.playerSlideRatio*100) : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Initial volume (0-100)</td><td><input class='bs' type='text' id='playerVolume' value='"+(curJson.playerVolume != undefined ? curJson.playerVolume : "")+"'></td></tr>";	// Get setting
-		str+="<tr><td></td><td>Auto start</td><td>"+MakeSelect("playerAuto",false,["true","false"],curJson.playerAuto)+"</td></tr>";	// Get setting
-		str+="<tr><td></td><td>Show native controls</td><td>"+MakeSelect("playerControls",false,["true","false"],curJson.playerControls)+"</td></tr>";	// Get setting
+		str+="<tr><td></td><td>Auto start</td><td>"+MakeSelect("playerAuto",false,["false","true"],curJson.playerAuto)+"</td></tr>";	// Get setting
+		str+="<tr><td></td><td>Show native controls</td><td>"+MakeSelect("playerControls",false,["false","true"],curJson.playerControls)+"</td></tr>";	// Get setting
 		str+="<tr><td></td><td>Quality</td><td>"+MakeSelect("playerQuality",false,["Default","Good","Better","Best"],curJson.playerQuality)+"</td></tr>";	// Get setting
 		str+="<tr><td colspan=3><b><br>Transcript<b></td></tr>";				// Heading
 		str+="<tr><td colspan=3><hr></td></tr>";								// Rule
@@ -1513,7 +1516,7 @@
 			if (curPane == "transcript")	o=curJson.transVectors;				// Point at transcript
 			if (o && (curEdit != -1)) {											// Editing time
 				o[curEdit].c=e.data.split("|")[2]-0;							// Set it
-				SendShivaMessage("Qmedia=seek",""+o[curEdit].t);				// Go to time
+				SendShivaMessage("Qmedia=seek",""+o[curEdit].t+"|skipAssess");	// Go to time
 				MakeTransTable();												// Show new context
 				}											
 			}	

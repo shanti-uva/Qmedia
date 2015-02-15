@@ -520,7 +520,7 @@
 		CKEDITOR.replace("htbx");
  		$("#alertBoxDiv").dialog({ width:550, buttons: {
 	    	"OK": 		function() { 
-	    					var s=CKEDITOR.instances.htbx.getData().replace(/[\n|\r]/g,"").replace(/"/g,"&quot;");
+	    					var s=CKEDITOR.instances.htbx.getData().replace(/[\n|\r]/g,"").replace(/"/g,"&quot;").replace(/&quot;/g,"\"");
 	    					callback(s);										// Send to callback	
 		    				$(this).remove();									// Remove dialog
 		    				},
