@@ -810,7 +810,11 @@
 					}
 				else if (sd.transMode == "None")  								// No highlighting
 					cp.pos=cp.pos2=o.cs;										// Point at start
-				else{															// Continoous mode
+				else if (sd.transMode == "First") { 							// First letter
+					cp.pos=o.cs;												// Point at start
+					cp.pos2=o.cs+1;												// Add one								
+					}
+				else{															// Continuous mode
 					cp.pos=(t-o.ps)/o.pd*o.cd+o.cs;								// Get interpolates char pos
 					cp.pos2=cp.pos+o.d;											// End
 					}

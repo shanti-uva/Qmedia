@@ -1445,7 +1445,7 @@
 		str+="<tr><td colspan=3><b><br>Transcript<b></td></tr>";				// Heading
 		str+="<tr><td colspan=3><hr></td></tr>";								// Rule
 		str+="<tr><td></td><td>Initial width % (0-100)</td><td><input class='bs' type='text' id='transInfoRatio' value='"+(curJson.transInfoRatio != undefined ? Math.floor(curJson.transInfoRatio*100) : '')+"'></td></tr>";	// Get setting
-		str+="<tr><td></td><td>Display</td><td>"+MakeSelect("transMode",false,["Default","Chunked","Closed-Caption","None"],curJson.transMode)+"</td></tr>";	// Get setting
+		str+="<tr><td></td><td>Display</td><td>"+MakeSelect("transMode",false,["Default","Chunked","Closed-Caption","First","None"],curJson.transMode)+"</td></tr>";	// Get setting
 		str+="<tr><td></td><td>Initial language</td><td><input class='bs' type='text' id='transLanguage' value='"+(curJson.transLanguage ? curJson.transLanguage : '')+"'></td></tr>";	// Get setting
 		str+="<tr><td></td><td>Languages</td><td><input class='bs' type='text' id='transLangs' value='"+(curJson.transLangs ? curJson.transLangs : '')+"'></td></tr>";	// Get setting
 		str+="</table></div><br>";												// End table
