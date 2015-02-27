@@ -31,7 +31,8 @@ require_once('config.php');
 		$deleted=$_REQUEST['deleted'];							// Get it
 	if (isSet($_REQUEST['ver'])) 								// If set
 		$ver=$_REQUEST['ver'];									// Get it
-								
+		
+	$id=addEscapes($id);										// Escape id
 	$query="SELECT * FROM qshow WHERE id = '".$id."'"; 			// Look existing one	
 	$result=mysql_query($query);								// Query
 	if ($result == false) {										// Bad query
@@ -70,6 +71,7 @@ require_once('config.php');
 			$deleted=mysql_result($result,0,"deleted");			// Get from POST
 		
 		$id=mysql_result($result,0,"id");						// Get id
+		$id=addEscapes($id);									// Escape id
 		if ($id != "") {										// If valid
 			$query="UPDATE qshow SET title='".addEscapes($title)."' WHERE id = '".$id."'";
 			$result=mysql_query($query);
