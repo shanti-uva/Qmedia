@@ -214,6 +214,7 @@
 		curJson.infoVectors=[];										
 		curEdit=-1;																// Not editing anything
 		Preview();																// Preview
+		conPtr=null;															// Clean out content data
 		Draw();																	// Show curshow number as vlanml
 	}
 
@@ -231,6 +232,7 @@
    		if (qmf.curFile)														// If a good file
    			curShow=qmf.curFile;												// Set curshow
   		Preview(); 																// Preview show
+		conPtr=null;															// Clean out content data
    		Draw();																	// Redraw 
    		Sound('ding'); 															// Ding
     	}
