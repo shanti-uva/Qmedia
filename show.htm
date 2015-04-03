@@ -179,7 +179,7 @@
 	var host="//qmediaplayer.com/";												// Set host
 	var playerStarted=-1;														// Player started
 	var userName="",password="",curShow=0;										// Login info
-	var loopStart=loopEnd=0;													// Looping
+	var loopStart=loopEnd=0,loopLast=-1;										// Looping
 	var lastClickTime=0;														// Store last click time
 	var drupalMan=false;														// Flag for drupal manager	
 
@@ -1129,8 +1129,12 @@
 		if (playerCurTime >= sd.playerStop)										// Past end
 			RunPlayer("pause");													// Pause
 		playerNow=Math.min(playerCurTime,sd.playerStop);						// Get capped time
-		if (loopEnd && (playerNow >= loopEnd))									// If looping and past end of loop
-			RunPlayer("play",playerNow=loopStart);								// Go there
+		if (loopEnd && (playerNow >= loopEnd))	{								// If looping and past end of loop
+			if (playerNow != loopLast) {										// If not still at last trigger point (Safari bug)
+				loopLast=playerNow;												// Save last trigger point
+				RunPlayer("play",playerNow=loopStart);							// Go there
+				}
+			}
 		RunPlayer("show");														// Show status
 		$("#slider ui-slider-handle").focus();									// Focus on slider
 	}
