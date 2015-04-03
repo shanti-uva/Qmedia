@@ -198,6 +198,8 @@
 		isMobile=navigator.userAgent.match(/(ipad|iphone|ipod|android)/i) ? true : false; // Set mobile flag
 		var url=window.location.search.substring(1);							// Get query string
 		drupalMan=(""+url).match(/pr=d/);										// If called from Drupal manager
+		if (!url)																// Nothing on command line
+			url=1;																// Use default
 		if (drupalMan)	url="";													// If drupal, kill url
 		if (url && !isNaN(url)) {												// If a number
 			curShow=url;														// Save show number											
@@ -205,8 +207,6 @@
 			}	
 		else if ((url) && (!url.match(/\./)))									// No file extension
 			url+=".json";														// Add txt
-		if (!url)																// Nothing on command line
-			url="defaultshow.json";												// Use default
 		$.ajax({ url: url, dataType:'jsonp' });									// Get jsonp and call LoadShow() from it
 
 		$("#slider").slider({													// Init slider
