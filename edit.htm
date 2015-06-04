@@ -137,16 +137,16 @@
 		else																	// Use other method
 			window.attachEvent("message",shivaEventHandler);					// Add handler
 
-		drupalMan=(""+window.location).match(/pr=d/);							// If called from Drupal manager
 		qmf=new QmediaFile("//qmediaplayer.com/",0);							// Alloc file system
 		NewShow();																// Init show
-		
 		var url=window.location.search.substring(1);							// Get query string
+		drupalMan=(""+url).match(/pr=d/);										// If called from Drupal manager
+		if (!url)																// Nothing on command line
+			url=1;																// Use default
 		if (url && !isNaN(url)) 												// If a number
 			curShow=url;														// Save show number											
 		else																	// No query
 			curShow=1;															// Load default show
-		
 		sessionStorage.clear();													// Reset undos
 		$("#menu" ).menu({ position:{my:"left top", at: "left top+40" }});		// Set menu
 		$("#menu").on("menuselect", function(event,ui) { 						// On menu select
@@ -172,18 +172,23 @@
 					}
 			 	});
 		
-		Draw();
 		$(window).resize(function(e) { if (!e.target.id) Draw();	 } );		// Redraw on window resize		
 		setInterval(function() { SendShivaMessage("Qmedia=time",""+curTime) },500); // Set timer 1-fps
-		qmf.LoadFile("qmf"+curShow);											// Load project
-		if (drupalMan) 															// If called from Drupal manager
+		if (drupalMan) {														// If called from Drupal manager
+			curShow="";															// Don't load default show
+			$("#m12").remove(); $("#m13").remove();								// Remove unneeded menu items
+			$("#m14").remove(); $("#m15").remove(); $("#m16").remove();
 			window.parent.postMessage("ShivaReady=true","*");					// Send message to parent wind		
+			}
+		Draw();																	// Draw screens
+		if (curShow)															// If a show spec'd													
+			qmf.LoadFile("qmf"+curShow);										// Load project
+	
 		$("#editDiv").show();													// Show editor
 
 		$("#playerSiz").draggable({												// DRAG PLAYER WIDTH HANDLER
 			cursorAt:{left:-8},iframeFix:true,									// Cursor offset
 			cursor: "col-resize", axis:"x",										// X-only
-//			containment:[0,0,wid,0],
 			drag: function(event, ui) {											// On drag
 				var wid=curJson.width;											// Copy width
 				if ((" "+curJson.width).match("%"))								// If % in width
@@ -247,6 +252,10 @@
 		SendShivaMessage("Qmedia=data",JSON.stringify(curJson));				// Send to show player	   		
   		if (time) 																// If a rolling preview
 			SendShivaMessage("Qmedia=play",Math.max(curTime-0+time,0));			// Roll player	   		
+   		if (drupalMan)															// If drupal manager
+			window.parent.postMessage("DataChanged=true","*");					// Send data changed message
+
+   
    	}
    	
    	
@@ -282,7 +291,10 @@
 		$("#editDiv").css({width:w+"px",left:wid*playerZoom+16+"px",height:h+"px"}); // Overall div
 		$("#getHelp").css({left:w-24+"px"});									// Help dot to right
 	
-		$("#showName").html("&nbsp; Current show: <b>"+curShow+"</b>");			// Show name
+		if (drupalMan)															// If under drupal manager
+			$("#showName").html("&nbsp; Qmedia Show Editor");							// Hide show
+		else
+			$("#showName").html("&nbsp; Current show: <b>"+curShow+"</b>");		// Show name
 		if (curPane == "json") {												// Editing pane
 			str="<textarea id='jsonEditor' style='width:"+(w-32)+"px;height:"+(h-55)+"px;border:none;font-size:13px;padding:16px;background-color:#f8f8f8'>"+JSON.stringify(curJson,null,'\t')+"</textarea></div>";
 			$("#paneDiv").html(str);											// Put editor up	

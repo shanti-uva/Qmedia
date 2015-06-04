@@ -55,6 +55,8 @@
 						}
 		.qm-slide { 	overflow:hidden;
 						}
+		.qm-player { 	overflow:hidden;
+						}
 		.qm-info { 		font-family:Verdana,Geneva,sans-serif; font-size:13px;
 						margin:0px; padding:0px;background-color:#fff;border-top:8px solid #fff;
 						overflow:hidden;
@@ -98,7 +100,7 @@
 <div id="splashDiv" class="qm-splash"><img src="qlogo.png"></div>
 <div id="showDiv" style="padding:0px;margin:0px;opacity:0;" class="qm-base">
 	<div id="titleDiv" style="position:absolute;opacity:inherit" class="qm-title qm-unselectable"></div>
-	<div id="playerDiv" style="position:absolute;opacity:inherit" class="qm-unselectable"></div>
+	<div id="playerDiv" style="position:absolute;opacity:inherit" class="qm-player qm-unselectable"></div>
 	<div id="slideDiv" style="position:absolute;opacity:inherit" class="qm-slide qm-unselectable"></div>
 	<div id="controlDiv" style="position:absolute;opacity:inherit" class="qm-control qm-unselectable">
 		<div style="width:100%;height:6px;background-color:#fff;position:absolute;top:-6px;"></div>
@@ -143,7 +145,7 @@
 	</div>
 	<div id="cache0" style="display:none"></div><div id="cache1" style="display:none"></div><div id="cache2" style="display:none"></div><div id="cache3" style="display:none"></div>
 </div>
-<div id="overlayDiv" style="position:absolute;left:0px;pointer-events:none"></div>
+<div id="overlayDiv" style="position:absolute;left:0px;pointer-events:none;overflow:hidden;"></div>
 <script>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1564,7 +1566,8 @@
 					};
 								
 				myVid.oncanplay=function() {									// When ready
-     				sd.playerAspect=player.videoHeight/player.videoWidth;		// Set aspect 				
+      				if (player.videoHeight && player.videoWidth) 				// A video file
+   	    				sd.playerAspect=player.videoHeight/player.videoWidth;	// Set aspect 				
  					RunPlayer("ready");											// Set up player		
 					};
 
