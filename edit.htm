@@ -178,7 +178,6 @@
 			curShow="";															// Don't load default show
 			$("#m12").remove(); $("#m13").remove();								// Remove unneeded menu items
 			$("#m14").remove(); $("#m15").remove(); $("#m16").remove();
-			window.parent.postMessage("ShivaReady=true","*");					// Send message to parent wind		
 			}
 		Draw();																	// Draw screens
 		if (curShow)															// If a show spec'd													
@@ -210,7 +209,9 @@
 		curJson.title="Title goes here";										// Set defaults
 		curJson.playerStop=600;
 		curJson.width=1000;
-		curJson.playerSource="3_T9Un5hWAg";
+		curJson.playerSource="";
+		if (!drupalMan) 														// If called from Drupal manager
+			curJson.playerSource="3_T9Un5hWAg";
 		curJson.playerAspect=.5625;
 		curJson.infoLab="";
 		curShow=qmf.curFile="";													// Clear curshow
@@ -254,8 +255,6 @@
 			SendShivaMessage("Qmedia=play",Math.max(curTime-0+time,0));			// Roll player	   		
    		if (drupalMan)															// If drupal manager
 			window.parent.postMessage("DataChanged=true","*");					// Send data changed message
-
-   
    	}
    	
    	
@@ -1542,6 +1541,8 @@
 			LoadShow($.parseJSON(e.data.substr(8)));							// Convert to obj and load
 		else if (e.data.match(/GetJSON/))										// Outgoing JSON data to Drupal manager
 			window.parent.postMessage("GetJSON="+JSON.stringify(curJson),"*"); 	// Stringify and send		
+		else if (e.data.match(/ShowReady=true/))								// Show iframe loaded
+			window.parent.postMessage("ShivaReady=true","*");					// Send message to parent wind		
 //		else
 			trace(e.data);
 	}	

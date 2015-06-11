@@ -319,8 +319,7 @@
 
 			});																	// End settings
 		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
-		if (drupalMan) 															// If called from Drupal manager
-			window.parent.postMessage("ShivaReady=true","*");					// Send message to parent wind		
+		window.parent.postMessage("ShowReady=true","*");						// Send message to parent wind		
 	});
 
 	function LoadShow(show)													// LOAD SHOW CONTENT
@@ -1300,6 +1299,8 @@
 		else if (v[0] == "QmediaAssess=play") 									// Play video
 			RunPlayer("play",v[2]);												// Roll player	
 		}
+	else if (e.data.match(/PutJSON/)) 											// Incoming JSON data
+		LoadShow($.parseJSON(e.data.substr(8)));								// Convert to obj and load
 	else if (e.data && e.data.match(/Qmedia/)) {								// An message
 		var v=e.data.split("|");												// Get data
 		if (v[0] == "Qmedia=time") {											// Get time
@@ -1318,9 +1319,6 @@
 		else if (v[0] == "Qmedia=data") {										// Data
 			str=e.data.replace(/Qmedia=data\|QmediaEditor\|/,"");				// Strip off header
 			LoadShow($.parseJSON(str));											// Convert to obj and load
-			}
-		else if (v[0].match(/PutJSON/)) {										// Incoming JSON data
-			LoadShow($.parseJSON(v[0].substr(8)));								// Convert to obj and load
 			}
 		else if (v[0] == "Qmedia=resize") {										// Resize
 			if (v[2] == "top")													// If top
