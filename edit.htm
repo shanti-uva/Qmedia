@@ -1173,8 +1173,13 @@
 	 			function(h) { 													// Callback
 					var re=/id="kaltura_player_([^"]+)"/;						// See if Kaltura embed code
 					re=re.exec(h);												// Run regex					
+					var flv=301971;												// Video flavor
+					var pid=2003471;											// Partner id
+					if (h.match(/partner_id\/(\d+)/i)) {						// If a partner id
+						pid=h.match(/partner_id\/(\d+)/i)[1];					// Set it										
+						}
 					if (re)														// If found
-						h="//www.kaltura.com/p/2003471/sp/0/playManifest/entryId/"+re[1]+"/format/url/flavorParamId/301971/video.mp4"	
+						h="//www.kaltura.com/p/"+pid+"/sp/0/playManifest/entryId/"+re[1]+"/format/url/flavorParamId/"+pid+"/video.mp4"	
 	 				callback("video.htm?src="+h); } );							// Set 							
 			}
 		else if (type == "Assess") {											// If Assess
@@ -1479,9 +1484,22 @@
 				var v=$(this).val();															// Get value
 				var re=/id="kaltura_player_([^"]+)"/;											// See if Kaltura embed code
 				var re=re.exec(v);																// Run regex					
-				if (re)																			// If found
-					v="//www.kaltura.com/p/2003471/sp/0/playManifest/entryId/"+re[1]+"/format/url/flavorParamId/301971/video.mp4"	
+				var flv=301971;																	// Collab ideo flavor
+				var pid=2003471;																// Collab partner id
+				var kid=re[1];																	// Get Collab mediaid
+				if (v.match(/partner_id\/(\d+)/i)) {											// If a partner id
+					pid=v.match(/partner_id\/(\d+)/i)[1];										// Set it										
+					var kid=v.match(/entry_id=([^&]+)/)[1];										// Get id
+					if (pid == 381832)															// Media base
+						v="//cfvod.kaltura.com/pd/p/"+pid+"/sp/"+pid+"00/serveFlavor/entryId/"+kid+"/v/1/flavorId/1_uq8hm9q7/name/a.mp4";
+					}
+				else if (re)																	// Collab 
+					v="//www.kaltura.com/p/"+pid+"/sp/0/playManifest/entryId/"+kid+"/format/url/flavorParamId/"+pid+"/video.mp4"	
 				curJson.playerSource=v;															// Set value	
+
+//cfvod.kaltura.com/pd/p/381832/sp/38183200/serveFlavor/entryId/1_g2ey0bq2/v/1/flavorId/1_uq8hm9q7/name/a.mp4
+//cfvod.kaltura.com/pd/p/381832/sp/38183200/serveFlavor/entryId/1_fdqympee/v/1/flavorId/1_uq8hm9q7/name/a.mp4
+
 		 	});
 		$("#playerStart").on("change", function() { curJson.playerStart=$(this).val(); });		// Extract value	
 		$("#playerStop").on("change", function() { curJson.playerStop=$(this).val(); });		// Extract value	
