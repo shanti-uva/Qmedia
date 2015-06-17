@@ -319,7 +319,6 @@
 
 			});																	// End settings
 		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
-		window.parent.postMessage("ShowReady=true","*");						// Send message to parent wind		
 	});
 
 	function LoadShow(show)													// LOAD SHOW CONTENT
@@ -440,6 +439,7 @@
 		$("#overlayDiv").html("");												// Clear player
 		RunPlayer("show");
 		playerTimer=setInterval(OnPlayerTimer,200);								// Set timer ~5ps
+		window.parent.postMessage("ShowReady=true","*");						// Send message to parent window	
 		}
 
 
