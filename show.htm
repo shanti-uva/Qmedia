@@ -1160,6 +1160,7 @@
 
 	function shivaEventHandler(e)											// ON SHIVA EVENT
 	{
+		trace(e.data)
 		var str,i;
 		if (e.origin.match(/vimeo/i)) {											// From vimeo
     		var ev=$.parseJSON(e.data);											// Parse json
