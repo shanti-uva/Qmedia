@@ -370,6 +370,7 @@
 			sd.noPlay=true;														// No playing
 			playerType="noplayer";												// No player
 			player=1;															// Put something there
+			playerMode="pause";													// We're paused
 			RunPlayer("ready");													// Init show
 			if (sd.noPlay)														// If no playing
 				$("#playBut").css("opacity",0);									// Hide button
@@ -525,8 +526,6 @@
 	function AnimatePanes(end, dur, which)									// ANIMATE CHANGE OF PANE RATIO
 	{
 		var start;
-//		if (isMobile && (playerMode == "play") && (playerType == "youtube"))	// Playing on ipad 
-//			return;																// Don't resize
 		if (which == slidePane) 	 	start=sd.playerSlideRatio;				// Get current player ratio
 		else if (which == infoPane)  	start=sd.transInfoRatio;				// Get current transcript ratio
 		var dif=Math.abs(end-start);											// Difference
