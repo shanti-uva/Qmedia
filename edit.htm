@@ -492,6 +492,7 @@
 	
 		$("#preBut1").on("click",function() {									// ON PREVIEW
 			curJson.transText=$("#transText").val();							// Update transcript text
+			curEdit=-1;															// Not editing anymore
 			MakeTransTable();													// Remake table
 			Preview(-1);														// Run preview
 			});
@@ -517,7 +518,7 @@
 				curJson.transVectors.push({t:curJson.playerStop,c:curJson.transText ? curJson.transText.length : 0 });	// Add last			
 				}		
 			else																// Adding to existing
-				curJson.transVectors.push({t:curTime,c:""})						// Add to json
+				curJson.transVectors.push({t:curTime,c:0})						// Add to json
 			curEdit=-1;															// Not editing anymore
 			$("#timeControls").css("display","none");							// Turn off control bar
 			MakeTransTable();													// Remake table
