@@ -20,7 +20,6 @@
 		.ui-autocomplete { max-height: 300px; overflow-y: auto; }
 	
  		.unselectable { -moz-user-select: none;     -khtml-user-select: none;
-		   			 	-webkit-user-select: none;  -ms-user-select: none;   user-select: none;
 		   				}
 		.selectable { -moz-user-select: text;     -khtml-user-select: text;
 		   			 	-webkit-user-select: text;  -ms-user-select: text;   user-select: text;
@@ -1174,13 +1173,14 @@
 	 			function(h) { 													// Callback
 					var re=/id="kaltura_player_([^"]+)"/;						// See if Kaltura embed code
 					re=re.exec(h);												// Run regex					
-					var flv=301971;												// Video flavor
-					var pid=2003471;											// Partner id
-					if (h.match(/partner_id\/(\d+)/i)) {						// If a partner id
-						pid=h.match(/partner_id\/(\d+)/i)[1];					// Set it										
-						}
-					if (re)														// If found
+					if (re) {													// It's kaltura
+						var flv=301971;											// Video flavor
+						var pid=2003471;										// Partner id
+						if (h.match(/partner_id\/(\d+)/i)) {					// If a partner id
+							pid=h.match(/partner_id\/(\d+)/i)[1];				// Set it										
+							}
 						h="//www.kaltura.com/p/"+pid+"/sp/0/playManifest/entryId/"+re[1]+"/format/url/flavorParamId/"+pid+"/video.mp4"	
+	 					}
 	 				callback("video.htm?src="+h); } );							// Set 							
 			}
 		else if (type == "Assess") {											// If Assess
@@ -1483,19 +1483,22 @@
 		$("#logIn").on("change", function() { curJson.logIn=$(this).val(); });					// Extract value	
 		$("#playerSource").on("change", function() { 											// On source change	
 				var v=$(this).val();															// Get value
+				trace(v)
 				var re=/id="kaltura_player_([^"]+)"/;											// See if Kaltura embed code
 				var re=re.exec(v);																// Run regex					
-				var flv=301971;																	// Collab ideo flavor
-				var pid=2003471;																// Collab partner id
-				var kid=re[1];																	// Get Collab mediaid
-				if (v.match(/partner_id\/(\d+)/i)) {											// If a partner id
-					pid=v.match(/partner_id\/(\d+)/i)[1];										// Set it										
-					var kid=v.match(/entry_id=([^&]+)/)[1];										// Get id
-					if (pid == 381832)															// Media base
-						v="//cfvod.kaltura.com/pd/p/"+pid+"/sp/"+pid+"00/serveFlavor/entryId/"+kid+"/v/1/flavorId/1_uq8hm9q7/name/a.mp4";
+				if (re) {																		// It's kaltura
+					var flv=301971;																// Collab ideo flavor
+					var pid=2003471;															// Collab partner id
+					var kid=re[1];																// Get Collab mediaid
+					if (v.match(/partner_id\/(\d+)/i)) {										// If a partner id
+						pid=v.match(/partner_id\/(\d+)/i)[1];									// Set it										
+						var kid=v.match(/entry_id=([^&]+)/)[1];									// Get id
+						if (pid == 381832)														// Media base
+							v="//cfvod.kaltura.com/pd/p/"+pid+"/sp/"+pid+"00/serveFlavor/entryId/"+kid+"/v/1/flavorId/1_uq8hm9q7/name/a.mp4";
+						}
+					else if (re)																// Collab 
+						v="//www.kaltura.com/p/"+pid+"/sp/0/playManifest/entryId/"+kid+"/format/url/flavorParamId/"+pid+"/video.mp4"	
 					}
-				else if (re)																	// Collab 
-					v="//www.kaltura.com/p/"+pid+"/sp/0/playManifest/entryId/"+kid+"/format/url/flavorParamId/"+pid+"/video.mp4"	
 				curJson.playerSource=v;															// Set value	
 		 	});
 		$("#playerStart").on("change", function() { curJson.playerStart=$(this).val(); });		// Extract value	
