@@ -6,8 +6,8 @@ require_once('config.php');
 			
 	$query="SELECT * FROM qshow";								// Query start
 	if (isSet($_REQUEST['email'])) {		 					// If set
-		$email=addslashes($_REQUEST['email']);					// Get email
-		$query.=" WHERE email = '".$email."' ORDER by date DESC";	// WHERE email search
+		$email=strtolower(addslashes($_REQUEST['email']));					// Get email
+		$query.=" WHERE LOWER(email) = '".$email."' ORDER by date DESC";	// WHERE email search
 		}
 	else{
 		print("Sorry, there are no projects with this email\n");// Return error
