@@ -33,7 +33,7 @@
 	 					padding:0px;padding-top:4px;padding-bottom:4px;
 	 					display:inline-block;top:100%;width:100%;
 	 					}
-	 	.editor { 		border-radius:4px;border:1px solid #999;min-width:400px;
+	 	.editor { 		border-radius:4px;border:1px solid #999;
 	 					}
 		.butSty {		border-radius:10px;color:#333;cursor:pointer;
 						}
@@ -72,6 +72,7 @@
 	</script>
 </head>
 
+	<div id='baseDiv' style="height:100%;width:100%">
 	<div id='playerDiv' class='unselectable' >
 		<iframe class="player" id="playerIF" src="show.htm" height="100%" scrolling="no"></iframe>
 	</div>
@@ -108,7 +109,7 @@
 		</div>
 	</div>
 	<div id="playerSiz" style="position:absolute;top:0px;width:8px;cursor:col-resize;opacity:inherit;height:100%" class="unselectable" title="Resize player"></div>
-		
+	</div>		
 <body>
 <script>
 
@@ -280,15 +281,19 @@
 	{ 
 		var str;
 		var wid=curJson.width;													// Copy width
+		var cw=$("#baseDiv").width()-2;											// Container width
+		var ch=window.innerHeight-64;												// Container height
 		if ((" "+curJson.width).match("%"))										// If % in width
 			wid=$("body").width()*.66;											// Use 66%										
-		var w=window.innerWidth-(wid*playerZoom)-32;							// Editor width
-		var h=window.innerHeight-64;											// Editor height
+		var w=cw-(wid*playerZoom);												// Editor width
+		if (w < 380) {															// If too small a window
+			playerZoom=(cw-380)/window.innerWidth;								// Scale down
+			w=cw-(wid*playerZoom);												// Editor width
+			}	
 		$("#playerIF").prop("width",wid);										// Player wid
-		$("#playerIF").prop("height",(h+40)/playerZoom);						// Hgt
-		$("#editDiv").css({width:w+"px",left:wid*playerZoom+16+"px",height:h+"px"}); // Overall div
+		$("#playerIF").prop("height",(ch+40)/playerZoom);						// Hgt
+		$("#editDiv").css({width:w+"px",left:wid*playerZoom+16+"px",height:ch+"px"}); // Overall div
 		$("#getHelp").css({left:w-24+"px"});									// Help dot to right
-	
 		if (drupalMan)															// If under drupal manager
 			$("#showName").html("&nbsp; Qmedia Show Editor");							// Hide show
 		else
