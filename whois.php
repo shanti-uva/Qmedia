@@ -18,9 +18,11 @@ require_once('config.php');
 		print(mysql_result($result,$i,"date")." | ");			// Date
 		print(mysql_result($result,$i,"email")." | ");			// Email
 		if (mysql_result($result,$i,"version") == 1)			// If MapScholar
-			print("<a href='//www.viseyes.org/mapscholar/?".mysql_result($result,$i,"id")."'>".mysql_result($result,$i,"id")."</a> | ");	// Id
+			print("<a href='//www.viseyes.org/mapscholar/?".mysql_result($result,$i,"id")."'>M = ".mysql_result($result,$i,"id")."</a> | ");	// Id
+		else if (mysql_result($result,$i,"version") == 4)			// If VisualEyes 5
+			print("<a href='//www.viseyes.org/visualeyes/?".mysql_result($result,$i,"id")."'>V = ".mysql_result($result,$i,"id")."</a> | ");	// Id
 		else 													// Qmedia
-			print("<a href='//www.qmediaplayer.com/show.htm?".mysql_result($result,$i,"id")."'>".mysql_result($result,$i,"id")."</a> | ");	// Id
+			print("<a href='//www.qmediaplayer.com/show.htm?".mysql_result($result,$i,"id")."'>Q = ".mysql_result($result,$i,"id")."</a> | ");	// Id
 		print(mysql_result($result,$i,"title"));				// Title
 		print("<br></blockquote>");								// BR
 		}
