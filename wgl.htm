@@ -21,6 +21,8 @@
 <script>
 
 	var modelSrc="wgl/male02.obj";
+	
+	modelSrc="wgl/a.obj"
 	var modelScale=1;
 	var	ambientLight="#101030";
 	var spotLight="#ffeedd";
@@ -75,13 +77,14 @@
 		
 		if (modelSrc.match(/\.obj/i)) {										// IMPORT OBJ MODELS
 			var loader=new THREE.OBJLoader(manager);
-			loader.load(modelSrc,function(object) {
+			loader.load(modelSrc, function(object) {
 				model=object;
 				object.traverse(function(child) {
-					if (child instanceof THREE.Mesh) 
+					if ((child instanceof THREE.Mesh) && (modelSrc == "wgl/male02.obj"))
 						child.material.map=texture;
 					});
 				model.position.y=-80;
+				model.scale.x=model.scale.y=model.scale.z=modelScale;
 				scene.add(model);		
 				});
 			}
@@ -111,11 +114,11 @@
 			var urls=['wgl/px.jpg','wgl/nx.jpg','wgl/py.jpg','wgl/ny.jpg','wgl/pz.jpg','wgl/nz.jpg'];
 			var reflectionCube = THREE.ImageUtils.loadTextureCube(urls);
 			reflectionCube.format = THREE.RGBFormat;
-			var refractionCube = new THREE.CubeTexture( reflectionCube.image, new THREE.CubeRefractionMapping() );
+			var refractionCube = new THREE.CubeTexture( reflectionCube.image, THREE.CubeRefractionMapping );
 			refractionCube.format = THREE.RGBFormat;
-			var cubeMaterial3 = new THREE.MeshLambertMaterial( { color: 0xff6600, ambient: 0x993300, envMap: reflectionCube, combine: THREE.MixOperation, reflectivity: 0.3 } );
-			var cubeMaterial2 = new THREE.MeshLambertMaterial( { color: 0xffee00, ambient: 0x996600, envMap: refractionCube, refractionRatio: 0.95 } );
-			var cubeMaterial1 = new THREE.MeshLambertMaterial( { color: 0xffffff, ambient: 0xaaaaaa, envMap: reflectionCube } )
+			var cubeMaterial3 = new THREE.MeshLambertMaterial( { color: 0xff6600, envMap: reflectionCube, combine: THREE.MixOperation, reflectivity: 0.3 } );
+			var cubeMaterial2 = new THREE.MeshLambertMaterial( { color: 0xffee00, envMap: refractionCube, refractionRatio: 0.95 } );
+			var cubeMaterial1 = new THREE.MeshLambertMaterial( { color: 0xffffff, envMap: reflectionCube } )
 			var shader = THREE.ShaderLib[ "cube" ];
 			shader.uniforms[ "tCube" ].value=reflectionCube;
 			var material = new THREE.ShaderMaterial( {
@@ -124,6 +127,7 @@
 				}),
 			mesh=new THREE.Mesh( new THREE.BoxGeometry( 800, 800, 800 ), material );
 			scene.add(mesh);
+			trace(3)
 			}
 
 		// LIGHTING
