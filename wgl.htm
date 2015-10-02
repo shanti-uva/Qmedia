@@ -22,7 +22,7 @@
 
 	var modelSrc="wgl/male02.obj";
 	
-	modelSrc="wgl/a.obj"
+//	modelSrc="wgl/avatar.dae"
 	var modelScale=1;
 	var	ambientLight="#101030";
 	var spotLight="#ffeedd";
@@ -79,13 +79,14 @@
 			var loader=new THREE.OBJLoader(manager);
 			loader.load(modelSrc, function(object) {
 				model=object;
+				scene.add(model);		
 				object.traverse(function(child) {
 					if ((child instanceof THREE.Mesh) && (modelSrc == "wgl/male02.obj"))
 						child.material.map=texture;
 					});
 				model.position.y=-80;
 				model.scale.x=model.scale.y=model.scale.z=modelScale;
-				scene.add(model);		
+	
 				});
 			}
 		
@@ -95,16 +96,14 @@
 			ambientLight="#cccccc";
 			spotLight="#666666";
 			loader.load(modelSrc,function(object) {
-				model=object.scene;
-				model.traverse(function(child) {
-						if (child instanceof THREE.SkinnedMesh) {
-							var animation=new THREE.Animation(child,child.geometry.animation);
-							animation.play();
-							}
-					});
+				var model=object.skins[0];
+				var animation=new THREE.Animation(model,model.geometry.animation);
+				animation.timeScale=1;
+				animation.play();
 				model.position.y=-80;
 				model.scale.x=model.scale.y=model.scale.z=modelScale;
 				scene.add(model);		
+				trace(object)
 				});
 			}
 		
@@ -127,7 +126,6 @@
 				}),
 			mesh=new THREE.Mesh( new THREE.BoxGeometry( 800, 800, 800 ), material );
 			scene.add(mesh);
-			trace(3)
 			}
 
 		// LIGHTING
@@ -153,13 +151,15 @@
 
 	function animate() 															// ANIMATION LOOP
 	{
-		requestAnimationFrame(animate);												// Set timer
+		var delta=clock.getDelta()
 		if (controls && (controlMode != "goto")) {									// If controls set
-			controls.update(clock.getDelta());										// Update position?
-			THREE.AnimationHandler.update(clock.getDelta());						// Update animation
+			controls.update(delta);													// Update control time
+			THREE.AnimationHandler.update(delta);									// Update animation
 			}
+		requestAnimationFrame(animate);												// Set timer
 		renderer.render(scene,camera);												// Render
 	}
+
 
 	function SetControlMode(mode, time)											// SET CAMERA CONTROL MODE
 	{
@@ -170,7 +170,7 @@
  			case "orbit":
 		 	  	lastMode=controlMode;												// Save mode
     			controls=new THREE.OrbitControls(camera);
-  				controls.damping = 0.2;
+   				controls.damping = 0.2;
     			break;
   			case "track":
 		 	  	lastMode=controlMode;												// Save mode
