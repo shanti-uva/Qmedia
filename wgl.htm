@@ -29,7 +29,7 @@
 	var skyBox=true;
 	
 	var container;																// Iframe to hold WebGL player
-	var startTime,offTime=0;													// Current play time
+	var startTime,curTime=0;													// Current play time
 	var keys=[];																// Hold keyframes
 	var camera,scene,renderer,controls,clock,model;								// WebGL guts
 	var qe=new QmediaEvents("Qmedia3D");										// Alloc events library
@@ -86,11 +86,10 @@
 					});
 				model.position.y=-80;
 				model.scale.x=model.scale.y=model.scale.z=modelScale;
-	
+				qe.SendMessage("ready","");									// Send ready message
 				});
 			}
-		
-		if (modelSrc.match(/\.dae/i)) {										// IMPORT COLLADA DAE MODELS 
+		else if (modelSrc.match(/\.dae/i)) {									// IMPORT COLLADA DAE MODELS 
 			var loader = new THREE.ColladaLoader();
 			loader.options.convertUpAxis=true;
 			ambientLight="#cccccc";
@@ -104,8 +103,11 @@
 				model.scale.x=model.scale.y=model.scale.z=modelScale;
 				scene.add(model);		
 				trace(object)
+				qe.SendMessage("ready","");									// Send ready message
 				});
 			}
+		else
+			qe.SendMessage("ready","");										// Send ready message
 		
 		// SKYBOX
 		
@@ -138,7 +140,6 @@
 
 		animate();																	// Animate
 //		$("body").append("<div style='position:absolute;top:0px;z-index:1000;color:white'><br> &nbsp; Hit the C key to change control mode, P to play/pause, H for home</div>")
-		qe.SendMessage("ready","");													// Send ready message
 	
 	});
 
@@ -165,7 +166,9 @@
 	{
       	clock=new THREE.Clock();													// Reset clock
 	  	controlMode=mode;															// Set mode flag
- 		controls=null;																// No controls
+		controls={};																// Clear old control object
+   		controls.update=function() {};												// Null update function
+
 		switch (controlMode) {														// Route on mode
  			case "orbit":
 		 	  	lastMode=controlMode;												// Save mode
@@ -192,45 +195,54 @@
 		        controls.lon=-90;
 		        controls.lat=0;
 		        break;
- 			case "path": case "":
-				var i,s,e,pct;
-				controls={};
-   				if (controlMode == "path")										// If path mode
-					startTime=new Date().getTime()/1000;						// Set start
- 	    			
- 	    			controls.update=function() {								// UPDATE FUNCTION
-					if (!controlMode)	return;
+	
+			case "pause": case "":  											// Pause
+		        break;
+  			case "seek": 														// Go to position in keys
+				curTime=time;													// Set curent time
+				JumpToTime(time,keys);											// Go there
+				qe.SendMessage("time",curTime);									// Send time message
+  		        break;
+  			case "play": 			 											// Play
+ 				startTime=new Date().getTime()/1000;							// Set start
+  				time=(time < 0) ? curTime : time;								// Use curtime if not set
+ 				startTime-=time;												// Add offset
+      			controls.update=function() {									// Update function
+					curTime=new Date().getTime()/1000-startTime;				// Get now
+					JumpToTime(curTime, keys);									// Move there
+					qe.SendMessage("time",curTime);								// Send time message
+					};
+ 	 			break;
+	        	}
+ 	}
+	
+ 	function JumpToTime(when, keyList) 										// JUMP TO POINT IN ANIMATION SEQUENCE
+ 	{
+		var i,s,e,pct;
+		for (i=keyList.length-1;i>=0;--i) 										// Work backwards
+			if (keyList[i][0] <= when)											// If it's this one
+				break;															// Stop looking
+		if (i < 0)																// Didn't find one
+			return;																// Quit
+		s=e=keyList[i];															// Point to start			
+		if (i <	keyList.length-1)												// If not last
+			e=keyList[i+1];														// Point at end				
+		pct=e[0]-s[0];															// Duration
+		if (pct)	pct=(when-s[0])/pct;										// Point within key 0-1
+		if (s[7] == 2)															// Slow in and out
+			pct=1.0-((Math.cos(3.1414*pct)+1)/2.0);								// Full cosine curve
+		else if (s[7] == 1)														// Slow in
+			pct=1.0-(Math.cos(1.5707*pct));										// 1st quadrant of cosine curve
+		else if (s[7] == 3)														// Slow out
+			pct=1.0-(Math.cos(1.5707+(1.5707*pct))+1.0);						// 2nd quadrant of cosine curve
+		camera.position.x=s[1]-0+(e[1]-s[1])*pct;								// Get val
+		camera.position.y=s[2]-0+(e[2]-s[2])*pct;								// Get val
+		camera.position.z=s[3]-0+(e[3]-s[3])*pct;								// Get val
+		camera.rotation.x=s[4]-0+(e[4]-s[4])*pct;								// Get val
+		camera.rotation.y=s[5]-0+(e[5]-s[5])*pct;								// Get val
+		camera.rotation.z=s[6]-0+(e[6]-s[6])*pct;								// Get val
+	}
 
-						var time=new Date().getTime()/1000-startTime;			// Get now
-						time+=(offTime-0);										// Add offset
-						for (i=keys.length-1;i>=0;--i) 							// Work backwards
-							if (keys[i][0] <= time)								// If it's this one
-								break;											// Stop looking
-						if (i < 0)												// Didn't find one
-							return;												// Quit
-						s=e=keys[i];											// Point to start			
-						if (i <	keys.length-1)									// If not last
-							e=keys[i+1];										// Point at end				
-						pct=e[0]-s[0];											// Duration
-						if (pct)	pct=(time-s[0])/pct;						// Point within key 0-1
-						if (s[7] == 2)											// Slow in and out
-							pct=1.0-((Math.cos(3.1414*pct)+1)/2.0);				// Full cosine curve
-						else if (s[7] == 1)										// Slow in
-							pct=1.0-(Math.cos(1.5707*pct));						// 1st quadrant of cosine curve
-						else if (s[7] == 3)										// Slow out
-							pct=1.0-(Math.cos(1.5707+(1.5707*pct))+1.0);		// 2nd quadrant of cosine curve
-						camera.position.x=s[1]-0+(e[1]-s[1])*pct;				// Get val
-						camera.position.y=s[2]-0+(e[2]-s[2])*pct;				// Get val
-						camera.position.z=s[3]-0+(e[3]-s[3])*pct;				// Get val
-						camera.rotation.x=s[4]-0+(e[4]-s[4])*pct;				// Get val
-						camera.rotation.y=s[5]-0+(e[5]-s[5])*pct;				// Get val
-						camera.rotation.z=s[6]-0+(e[6]-s[6])*pct;				// Get val
-						if (i == keys.length-1)									// If done
-							SetControlMode(lastMode);							// Return to previous mode
-						};
-	 				break;
-       		}
-      	}
  		
 	keys.push([0,0,0,300, 	0,0,0,1]);
 	keys.push([5,100,0,300,	0,0,0,0]);
@@ -255,17 +267,11 @@
 
 	function onKeyDown(e) 													// KEYDOWN HANDLER
 	{
-		if (e.which == 75) {
+		var time=-1;
+		if (e.which == 75) {													// K
 			var str=camera.position.x.toFixed(3)+","+camera.position.y.toFixed(3)+","+camera.position.z.toFixed(3)+",";
 			str+=camera.rotation.x.toFixed(3)+","+camera.rotation.y.toFixed(3)+","+camera.rotation.z.toFixed(3);
 			console.log(str);
-			}
-		if (e.which == 67) {
-			if (controlMode == "orbit") 
-				controlMode="first";
-			else 
-				controlMode="orbit";
-			SetControlMode(controlMode);
 			}
 		if (e.which == 71) {													// G for goto
 			SetControlMode("goto");
@@ -281,16 +287,18 @@
 				}
 			SetControlMode("orbit");
 			}
-		if (e.which == 80) {													// P for play
-			if (controlMode == "path")											// If key playing
-				SetControlMode(lastMode);										// Return to previous mode
+		if (e.which == 80) {													// P for play/pause
+			if (controlMode == "play")											// If key playing
+				SetControlMode("pause");										// Return to previous mode
 			else{																// Start playing
 				if (e.shiftKey)													// As for time
-					offTime=prompt("Type time")-0;								// Get offset
-				else															// Just play
-					offTime=0;													// No offset
-				SetControlMode("path");											// Play
+					time=prompt("Type time to play from")-0;					// Get offset
+				SetControlMode("play",time);									// Play
 				}
+			}
+		if (e.which == 74) {													// J for jump
+			time=prompt("Type time to jump to")-0;								// Get offset
+			SetControlMode("seek",time);										// Play
 			}
 		if (e.which == 72) {													// H for home
 			camera.position.z=500;
@@ -307,14 +315,15 @@
 	function QmediaEventHandler(e)											// ON SHIVA EVENT
 	{
 		var v=e.data.split("|");												// Split into parts													
+		var time=0;
 		if (v[0] == "ShivaAct=path") {											// If a data 
 			keys=v[3].split(';')												// Get key sets
 //			keys="-100,0,0,300,0,0,0,1;3,100,0,300,0,0,0,3;6,200,0,300,0,3,0,0".split(';');
 			for (var i=0;i<keys.length;++i)										// For each set	
 				keys[i]=keys[i].split(',');										// Make into array
-			offTime=v[2]-0;														// Start time
+			time=v[2]-0;														// Start time
 			if (v[1] == "play")													// If immediately playing
-				SetControlMode("path");											// Play it
+				SetControlMode("play",0);										// Play it
 			}											
 		else if (v[0] == "ShivaAct=goto") {										// If goto
 			var s=v[1].split(',')												// Get vals
@@ -327,12 +336,13 @@
 			if (s[5] != undefined)	camera.rotation.z=s[5]-0;					// Get val
 			}
 		else if (v[0] == "ShivaAct=play") {										// If play
-			offTime=0;															// No offset
-			if (v[1])	offTime=v[1]-0;											// If time spec'd
-			SetControlMode("path");												// Play it
+			if (v[1])	time=v[1]-0;											// If time spec'd
+			SetControlMode("play",time);										// Play it
 			}
+		else if (v[0] == "ShivaAct=seek") 										// If seek
+			SetControlMode("seek",v[1]-0);										// Go there
 		else if (v[0] == "ShivaAct=pause") { 									// If pause
-			if (controlMode == "path")											// If key playing
+			if (controlMode == "play")											// If key playing
 				SetControlMode(lastMode);										// Return to previous mode
 			}
 		else if (v[0] == "ShivaAct=scene") 	{									// If scene
@@ -352,7 +362,7 @@
 	}
 	
 	QmediaEvents.prototype.SendMessage=function(cmd, msg)					// SEND MESSAGE TO CONTAINER
-		{
+	{
 		var str=this.header+cmd+"|extra";										// Add header				
 		if (msg) str+="|"+msg;													// If more to it, add
 		if (window.parent)														// If has a parent

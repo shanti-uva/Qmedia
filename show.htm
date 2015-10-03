@@ -366,6 +366,11 @@
 		if (!show.slideVectors)													// If no slides
 			$("#slideControlsDiv").css("display","none");						// Hide controls
 		var tag=document.createElement('script');								// Create script
+
+//////////////////////////
+//sd.playerSource="wgl/avatar.dae&s=100";
+//////////////////////////	
+	
 		if (!show.playerSource) {												// No scrubbable media
 			sd.noPlay=true;														// No playing
 			playerType="noplayer";												// No player
@@ -375,6 +380,10 @@
 			if (sd.noPlay)														// If no playing
 				$("#playBut").css("opacity",0);									// Hide button
 			$("#playerDiv").html("");											// Clear player
+			}
+		else if (show.playerSource.match(/\.obj|\.dae/i)) {						// If a 3D model
+			playerType="wgl";													// Set type
+			RunPlayer("init");													// Init player
 			}
 		else if (show.playerSource.match(/\/\//i)) {							// If HTML5
 			if (player && (playerType == "html5")) {							// Player not active loaded
@@ -1298,6 +1307,13 @@
 		else if (v[0] == "QmediaAssess=play") 									// Play video
 			RunPlayer("play",v[2]);												// Roll player	
 		}
+	else if (e.data && e.data.match(/Qmedia3D/)) {								// A WGL message
+		var v=e.data.split("|");												// Get data
+		if (v[0] == "Qmedia3D=ready") 											// Ready
+			RunPlayer("ready");													// Set player
+		if (v[0] == "Qmedia3D=time")											// Time				
+			playerCurTime=v[2];													// Set current time
+		}
 	else if (e.data.match(/PutJSON/)) 											// Incoming JSON data
 		LoadShow($.parseJSON(e.data.substr(8)));								// Convert to obj and load
 	else if (e.data && e.data.match(/Qmedia/)) {								// An message
@@ -1387,6 +1403,12 @@
 				}
 			else if (playerType == "noplayer")									// If noplayer
 				player=new Date().getTime()-(playerNow*1000);					// Get current time			
+			if (playerType == "wgl") {											// If WGL
+				if (playerMode == "play")										// If in play
+					player.contentWindow.postMessage("ShivaAct=play|"+playerNow,"*");	 // Send message to wgl pane
+				else if (playerMode == "pause")									// If pause
+					player.contentWindow.postMessage("ShivaAct=pause","*");	 	// Send message to wgl pane
+				}
 			if (what == "play")													// Only in play
 				RunPlayer("show");												// Show where we're at
 			if (playerMode == "play")	playerStarted=playerNow;				// Save start point
@@ -1409,9 +1431,12 @@
 				player.seekTo(playerNow,true);									// Cue
 			else if (playerType == "vimeo") 									// If Vimeo
 				player.contentWindow.postMessage("{\"method\":\"seekTo\",\"value\":\""+playerNow+"\"}","*");
-			else if (playerType == "html5") 									// If HTML5
+			else if (playerType == "html5") {									// If HTML5
 				if (player.readyState)											// If ready
 					player.currentTime=playerNow;								// Cue
+				}
+			else if (playerType == "wgl") 										// If WGL
+				player.contentWindow.postMessage("ShivaAct=seek|"+playerNow,"*"); // Send message to wgl pane
 			else if (playerType == "noplayer")									// If noplayer
 				player=new Date().getTime()-(playerNow*1000);					// Get current time			
 			if (what == "scrub")												// Only in scrub
@@ -1427,6 +1452,8 @@
 				player.contentWindow.postMessage("{\"method\":\"pause\"}","*");	// Send
  			else if (playerType == "html5") 									// If HTML5
 				player.pause(); 												// Pause
+			else if (playerType == "wgl") 										// If WGL
+				player.contentWindow.postMessage("ShivaAct=pause","*");			// Send message to wgl pane
 			RecordPlayTime();													// Record player action, if any
 			}
 		else if (what == "show") {												// Scrub
@@ -1477,6 +1504,10 @@
 			if (player && (playerType == "youtube")) 							// If initted YouTube
 				player.setSize(w,w*sd.playerAspect);							// Resize
 			else if ((playerType == "vimeo") || (playerType == "html5")) {		// If Vimeo or HTML5
+				$("#vplayer").width(w);											// Set width
+				$("#vplayer").height(w*sd.playerAspect);						// Set height
+				}
+			else if (playerType == "wgl")  {									// If WGL
 				$("#vplayer").width(w);											// Set width
 				$("#vplayer").height(w*sd.playerAspect);						// Set height
 				}
@@ -1534,8 +1565,14 @@
 			else if (playerType == "vimeo") {									// If Vimeo
 				str="<iframe id='vplayer' src='//player.vimeo.com/video/";		// Iframe start
 				str+=sd.playerSource;											// Add source
-				str+="?api=1&player_id=vplayer' width='500' height='281' frameborder='0' webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>";
+				str+="?api=1&player_id=vplayer' width='100' height='281' frameborder='0' webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>";
 				$("#playerDiv").html(str);										// Add vimeo iframe
+		       	player=$("#vplayer")[0];										// Point to iframe
+				}
+			else if (playerType == "wgl") {										// If WGL
+				str="<iframe style='width:100%' id='vplayer' src='wgl.htm?m="	// Iframe start
+				str+=sd.playerSource+"' frameborder='0'></iframe>";				// Finish iframe
+				$("#playerDiv").html(str);										// Add WGL iframe
 		       	player=$("#vplayer")[0];										// Point to iframe
 				}
 			else if (playerType == "html5") {									// If HTML5
