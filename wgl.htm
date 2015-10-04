@@ -23,15 +23,19 @@
 	var modelSrc="wgl/male02.obj";
 	
 //	modelSrc="wgl/avatar.dae"
-	var modelScale=1;
-	var	ambientLight="#101030";
-	var spotLight="#ffeedd";
-	var skyBox=true;
+	var modelScale=1;															// Size of model
+	var keyScale=1;																// Scale of keyframe animation
+	var animationScale=1;														// Scale of embedded animation
+	var animationLoop=true;														// Loop animation?
+	var animationSync=false;													// Sync embed and motion animation?
+	var	ambientLight="#101030";													// Ambient light color
+	var spotLight="#ffeedd";													// Spotlight color
+	var skyBox=true;															// Show skybox?
 	
 	var container;																// Iframe to hold WebGL player
 	var startTime,curTime=0;													// Current play time
 	var keys=[];																// Hold keyframes
-	var camera,scene,renderer,controls,clock,model;								// WebGL guts
+	var camera,scene,renderer,controls,clock,model,animation;					// WebGL guts
 	var qe=new QmediaEvents("Qmedia3D");										// Alloc events library
 	var controlMode="orbit",lastMode;
 	
@@ -44,11 +48,18 @@
 			if (v[0] == 'm')	modelSrc=v[1];									// If model
 			if (v[0] == 's')	modelScale=v[1]-0;								// If scale
 			if (v[0] == 'c')	controlMode=v[1];								// If control
-			if (v[0] == 'b')	skyBox=false;									// If no skybox
+			if (v[0] == 'b')	skyBox=v[1] == "false" ? false : true;			// If no skybox
+			if (v[0] == 't')	keyScale=v[1]-0;								// If keyframe time scale
+			if (v[0] == 'a')	animationScale=v[1]-0;							// If animation time scale
+			if (v[0] == 'l') {													// Looping
+				if (v[1] == "false") 		animationLoop=false;				// Turn off
+				else if (v[1] == "sync")  	animationLoop=false,animationSync=true; // Sync animation to motion
+				}	
 			}
 		if (modelSrc.match(/\/\//))												// If external domain
 			modelSrc="proxy.php?url="+modelSrc;									// Add proxy
 		}
+	
 	$(document).ready(function() {												// When loaded
 		$("body").on("keydown",onKeyDown);										// Register handler
  		$("body").append("<div id='containerDiv'></div>");						// Add container div
@@ -95,10 +106,12 @@
 			ambientLight="#cccccc";
 			spotLight="#666666";
 			loader.load(modelSrc,function(object) {
-				var model=object.skins[0];
-				var animation=new THREE.Animation(model,model.geometry.animation);
-				animation.timeScale=1;
-				animation.play();
+				model=object.skins[0];
+				animation=new THREE.Animation(model,model.geometry.animation);
+				animation.timeScale=animationScale;
+				animation.loop=animationLoop;
+				if (animationLoop)
+					animation.play();
 				model.position.y=-80;
 				model.scale.x=model.scale.y=model.scale.z=modelScale;
 				scene.add(model);		
@@ -137,9 +150,7 @@
 		var directionalLight=new THREE.DirectionalLight(spotLight);
 		directionalLight.position.set(0,0,1);
 		scene.add(directionalLight);
-
 		animate();																	// Animate
-//		$("body").append("<div style='position:absolute;top:0px;z-index:1000;color:white'><br> &nbsp; Hit the C key to change control mode, P to play/pause, H for home</div>")
 	
 	});
 
@@ -215,20 +226,22 @@
  	 			break;
 	        	}
  	}
-	
+	 
  	function JumpToTime(when, keyList) 										// JUMP TO POINT IN ANIMATION SEQUENCE
  	{
 		var i,s,e,pct;
-		for (i=keyList.length-1;i>=0;--i) 										// Work backwards
-			if (keyList[i][0] <= when)											// If it's this one
+		var sWhen=when*keyScale;												// Adjust time for animatiom time scale
+		var n=keyList.length-1;													// Last key
+		for (i=n;i>=0;--i) 														// Work backwards
+			if (keyList[i][0] <= sWhen)											// If it's this one
 				break;															// Stop looking
 		if (i < 0)																// Didn't find one
 			return;																// Quit
 		s=e=keyList[i];															// Point to start			
-		if (i <	keyList.length-1)												// If not last
+		if (i <	n)																// If not last
 			e=keyList[i+1];														// Point at end				
 		pct=e[0]-s[0];															// Duration
-		if (pct)	pct=(when-s[0])/pct;										// Point within key 0-1
+		if (pct)	pct=((when*keyScale)-s[0])/pct;								// Point within key 0-1
 		if (s[7] == 2)															// Slow in and out
 			pct=1.0-((Math.cos(3.1414*pct)+1)/2.0);								// Full cosine curve
 		else if (s[7] == 1)														// Slow in
@@ -241,14 +254,18 @@
 		camera.rotation.x=s[4]-0+(e[4]-s[4])*pct;								// Get val
 		camera.rotation.y=s[5]-0+(e[5]-s[5])*pct;								// Get val
 		camera.rotation.z=s[6]-0+(e[6]-s[6])*pct;								// Get val
+		if (animation && animationSync) {										// If syncing an animation object
+			animation.play(curTime*animationScale);								// Start playing
+			THREE.AnimationHandler.update(curTime*animationScale);				// Update animation
+			animation.stop();													// Stop playing
+			}
 	}
 
- 		
-	keys.push([0,0,0,300, 	0,0,0,1]);
-	keys.push([5,100,0,300,	0,0,0,0]);
-	keys.push([10,200,0,300,	0,-1,0,0]);
+	keys.push([0,0,0,300,0,0,0,1]);
+	keys.push([5,100,0,300,0,0,0,0]);
+	keys.push([10,200,0,300,0,-1,0,0]);
 	keys.push([15,36.340,30.424,-151.439,-0.024,0.025,0.001,3]);
-	keys.push([30,0,0,300, 	0,0,0,1]);
+	keys.push([30,0,0,300,0,0,0,1]);
 	
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{
