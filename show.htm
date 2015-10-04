@@ -1311,8 +1311,10 @@
 		var v=e.data.split("|");												// Get data
 		if (v[0] == "Qmedia3D=ready") 											// Ready
 			RunPlayer("ready");													// Set player
-		if (v[0] == "Qmedia3D=time")											// Time				
-			playerCurTime=v[2];													// Set current time
+		if (v[0] == "Qmedia3D=time") {											// Time				
+			if (v[2] != undefined)												// If valid
+				playerCurTime=v[2]-0;											// Set current time
+			}
 		}
 	else if (e.data.match(/PutJSON/)) 											// Incoming JSON data
 		LoadShow($.parseJSON(e.data.substr(8)));								// Convert to obj and load
