@@ -28,9 +28,10 @@
 	var animationScale=1;														// Scale of embedded animation
 	var animationLoop=true;														// Loop animation?
 	var animationSync=false;													// Sync embed and motion animation?
+	var animationLead=false;													// Embedded animation leads
 	var	ambientLight="#101030";													// Ambient light color
 	var spotLight="#ffeedd";													// Spotlight color
-	var skyBox=true;															// Show skybox?
+	var skyBox="castle";														// Skybox style
 	
 	var container;																// Iframe to hold WebGL player
 	var startTime,curTime=0;													// Current play time
@@ -39,8 +40,9 @@
 	var qe=new QmediaEvents("Qmedia3D");										// Alloc events library
 	var controlMode="orbit",lastMode;
 	
-	if (!Detector.webgl) Detector.addGetWebGLMessage();							// If not Wrbgl, warn
+	if (!Detector.webgl) Detector.addGetWebGLMessage();							// If not WGL, warn
 	var url=window.location.search.substring(1);								// Get query string
+	trace(url)
 	if (url) {																	// If a query
 		url=url.split("&");														// Split into parts
 		for (var i=0;i<url.length;++i) {										// For each key/val pair
@@ -48,12 +50,13 @@
 			if (v[0] == 'm')	modelSrc=v[1];									// If model
 			if (v[0] == 's')	modelScale=v[1]-0;								// If scale
 			if (v[0] == 'c')	controlMode=v[1];								// If control
-			if (v[0] == 'b')	skyBox=v[1] == "false" ? false : true;			// If no skybox
 			if (v[0] == 't')	keyScale=v[1]-0;								// If keyframe time scale
 			if (v[0] == 'a')	animationScale=v[1]-0;							// If animation time scale
+			if (v[0] == 'b') 	skyBox=v[1];									// Skybox style
 			if (v[0] == 'l') {													// Looping
-				if (v[1] == "false") 		animationLoop=false;				// Turn off
+				if (v[1] == "off") 			animationLoop=false;				// Turn off
 				else if (v[1] == "sync")  	animationLoop=false,animationSync=true; // Sync animation to motion
+				else if (v[1] == "on")  	animationLoop=false,animationLead=true; // Embedded animation leads
 				}	
 			}
 		if (modelSrc.match(/\/\//))												// If external domain
@@ -64,7 +67,7 @@
 		$("body").on("keydown",onKeyDown);										// Register handler
  		$("body").append("<div id='containerDiv'></div>");						// Add container div
  		camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,1,2000);	// Create camera
-		camera.position.z=400;													// Set z
+		camera.position.z=500;													// Set z
 		SetControlMode(controlMode);											// Default control mode
 		renderer=new THREE.WebGLRenderer({antialias:true});						// Create renderer
 		renderer.setSize(window.innerWidth,window.innerHeight-2);				// Set remder size
@@ -95,7 +98,6 @@
 					if ((child instanceof THREE.Mesh) && (modelSrc == "wgl/male02.obj"))
 						child.material.map=texture;
 					});
-				model.position.y=-80;
 				model.scale.x=model.scale.y=model.scale.z=modelScale;
 				qe.SendMessage("ready","");									// Send ready message
 				});
@@ -112,7 +114,6 @@
 				animation.loop=animationLoop;
 				if (animationLoop)
 					animation.play();
-				model.position.y=-80;
 				model.scale.x=model.scale.y=model.scale.z=modelScale;
 				scene.add(model);		
 				trace(object)
@@ -124,7 +125,7 @@
 		
 		// SKYBOX
 		
-		if (skyBox) {
+		if (skyBox == 'castle') {
 			var urls=['wgl/px.jpg','wgl/nx.jpg','wgl/py.jpg','wgl/ny.jpg','wgl/pz.jpg','wgl/nz.jpg'];
 			var reflectionCube = THREE.ImageUtils.loadTextureCube(urls);
 			reflectionCube.format = THREE.RGBFormat;
@@ -140,8 +141,39 @@
 				uniforms: shader.uniforms, depthWrite: false, side: THREE.BackSide
 				}),
 			mesh=new THREE.Mesh( new THREE.BoxGeometry( 800, 800, 800 ), material );
+			mesh.position.y=80;
 			scene.add(mesh);
 			}
+		if (skyBox == 'grid') {
+			var helper = new THREE.GridHelper(1000,50);
+			helper.material.opacity=0.4;
+			helper.material.transparent=true;
+			scene.add(helper);
+			}
+		if (skyBox == 'check') {
+			var i,j,cbm=[]
+			var cbg=new THREE.PlaneGeometry(1000,1000,16,16);
+			cbm.push( new THREE.MeshBasicMaterial( { color: 0xeeeeee, side: THREE.DoubleSide }) );
+			cbm.push( new THREE.MeshBasicMaterial( { color: 0x333333, side: THREE.DoubleSide }) );
+			for (i=0;i<cbg.faces.length/2;i++) {
+			    j=i*2; 
+			    cbg.faces[j].materialIndex   = ((i+Math.floor(i/16))%2);
+			    cbg.faces[j+1].materialIndex = ((i+Math.floor(i/16))%2); 
+				}
+			cb=new THREE.Mesh(cbg,new THREE.MeshFaceMaterial(cbm));
+			cb.rotation.x=-Math.PI/2;
+			scene.add(cb);			
+			}
+		if (skyBox == 'wood') {
+			var tex=THREE.ImageUtils.loadTexture("wgl/wood.jpg");
+			var mat=new THREE.MeshPhongMaterial();
+			mat.map=tex;
+			var cbg=new THREE.PlaneGeometry(1000,1000,1,1);
+			var mesh=new THREE.Mesh(cbg,mat);
+			mesh.rotation.x=-Math.PI/2;
+			scene.add(mesh);			
+			}
+
 
 		// LIGHTING
 		
@@ -154,12 +186,14 @@
 	
 	});
 
+
 	function onWindowResize() 													// ON WINDOW RESIZE
 	{
 		camera.aspect=window.innerWidth/window.innerHeight;							// Set apsect
 		camera.updateProjectionMatrix();											// Reset matrix
 		renderer.setSize(window.innerWidth,window.innerHeight-2);					// Reset render size
 	}
+
 
 	function animate() 															// ANIMATION LOOP
 	{
@@ -170,6 +204,10 @@
 			}
 		requestAnimationFrame(animate);												// Set timer
 		renderer.render(scene,camera);												// Render
+		if (animation && animationLead) { 											// If playing an animation object
+			curTime=animation.currentTime/animationScale;							// Set time
+			qe.SendMessage("time",curTime);											// Send time message
+		}
 	}
 
 
@@ -208,17 +246,29 @@
 		        break;
 	
 			case "pause": case "":  											// Pause
+				if (animation && animationLead) 								// If playing an animation object
+					animation.stop();											// Stop playing
 		        break;
   			case "seek": 														// Go to position in keys
-				curTime=time;													// Set curent time
-				JumpToTime(time,keys);											// Go there
-				qe.SendMessage("time",curTime);									// Send time message
+				qe.SendMessage("time",time);									// Send time message
+				curTime=time;													// Set current time
+				if (animation && animationLead) {								// If playing an animation object
+					animation.play(time*animationScale);						// Start playing
+					THREE.AnimationHandler.update(curTime*animationScale);		// Update animation
+					animation.stop();											// Stop playing
+					}
+				else
+					JumpToTime(time,keys);										// Go there
   		        break;
   			case "play": 			 											// Play
+				if (animation && animationLead) {								// If playing an animation object
+					if (time == undefined)	time=curTime;						// If no time set, use curTime
+					animation.play(time*animationScale);						// Start playing
+		     		break;
+		     		}
  				startTime=new Date().getTime()/1000;							// Set start
-  				time=(time < 0) ? curTime : time;								// Use curtime if not set
- 				startTime-=time;												// Add offset
-      			controls.update=function() {									// Update function
+ 				startTime-=curTime;												// Add offset
+       			controls.update=function() {									// Update function
 					curTime=new Date().getTime()/1000-startTime;				// Get now
 					JumpToTime(curTime, keys);									// Move there
 					qe.SendMessage("time",curTime);								// Send time message
@@ -261,11 +311,11 @@
 			}
 	}
 
-	keys.push([0,0,0,300,0,0,0,1]);
-	keys.push([5,100,0,300,0,0,0,0]);
-	keys.push([10,200,0,300,0,-1,0,0]);
-	keys.push([15,36.340,30.424,-151.439,-0.024,0.025,0.001,3]);
-	keys.push([30,0,0,300,0,0,0,1]);
+	keys.push([0,0,0,500,0,0,0,1]);
+	keys.push([5,100,0,500,0,0,0,0]);
+	keys.push([10,200,0,500,0,-1,0,0]);
+	keys.push([15,36.340,30.424,-1.439,-0.024,0.025,0.001,3]);
+	keys.push([30,0,0,500,0,0,0,1]);
 	
 	function trace(msg, p1, p2, p3, p4)										// CONSOLE 
 	{
@@ -284,7 +334,6 @@
 
 	function onKeyDown(e) 													// KEYDOWN HANDLER
 	{
-		var time=-1;
 		if (e.which == 75) {													// K
 			var str=camera.position.x.toFixed(3)+","+camera.position.y.toFixed(3)+","+camera.position.z.toFixed(3)+",";
 			str+=camera.rotation.x.toFixed(3)+","+camera.rotation.y.toFixed(3)+","+camera.rotation.z.toFixed(3);
@@ -292,7 +341,7 @@
 			}
 		if (e.which == 71) {													// G for goto
 			SetControlMode("goto");
-			var str=prompt("Type Go to pos: t=,x=,y=...");
+			var str=prompt("Type Go to pos: x=,y=...");
 			var v=str.split(",");
 			for (var i=0;i<v.length;++i) {
 				if (v[i].split("=")[0] == "x")	camera.position.x=v[i].split("=")[1]-0;
@@ -309,8 +358,8 @@
 				SetControlMode("pause");										// Return to previous mode
 			else{																// Start playing
 				if (e.shiftKey)													// As for time
-					time=prompt("Type time to play from")-0;					// Get offset
-				SetControlMode("play",time);									// Play
+					curTime=prompt("Type time to play from")-0;					// Get offset
+				SetControlMode("play",curTime);									// Play
 				}
 			}
 		if (e.which == 74) {													// J for jump
