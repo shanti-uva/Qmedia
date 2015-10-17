@@ -1167,7 +1167,7 @@
 						var h="To when";										// Header
 						var m="Type where in the media clip you want to go (in seconds)."; // Message
 						if (str == "load") 										// If a load
-						 	h="Load new show",m="Type number of show to load.";	// Set proper text
+						 	h="Load new show",m="Type number of show to load. <br><br><b>Advanced feature!</b> This can cause erratic behavior if not set properly.";	// Set proper text
 						if (conPtr[id].p.split(":")[1] != undefined)			// If a time set	
 							t=conPtr[id].p.split(":")[1];						// Get time
 						GetTextBox(h,m,t,function(t) {							// On entry
