@@ -650,6 +650,7 @@
 						AnimatePanes(o.r,o.d,pane);								// Animate transition
 					if (o.p) {													// If a player command
 						var v=o.p.split(":");									// Split
+						if (v[0])	v[0]=v[0].replace(/play/i,"jump");			// Turn play into jump
 						RunPlayer(v[0],v[1]);  									// Send command to player
 						}
 					showCurSource[pane]=o.cs;									// Then is now
