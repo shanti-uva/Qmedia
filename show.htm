@@ -589,11 +589,7 @@
 					var src=o.cs;												// Point at source
 					clearInterval(imageAnimationTimer[pane]);					// Kill image timer
 					if (src.match(/\.png|.gif|\.jpg|\.jpeg|drive\.google/i)) {	// An image, or google drive image
-						if (src.match(/drive\.google/i))	{					// A google drive image
-							var id=src.match(/\/d\/(.*?)\//);					// Extract id
-							if (id)												// An id found
-								src="//drive.google.com/uc?export=view&id="+id[1];	// Construct 'direct' link
-							}
+						src=ConvertFromGoogleDrive(src);						// Get driect link if drive image
 						if (src.match(/[^#]*/)[0] != showCurSource[pane].match(/[^#]*/)[0])  		// Bases are different
 							$("#"+div).html("<img id='"+div+"IM' style='opacity:0' width='100%' src='"+src+"'>"); 	// Load an image
 						else													// Same image base
@@ -855,11 +851,7 @@
 			return;																// Quit
 		var src=sd.transText;													// Get source
 		if (src.match(/\.pdf|drive\.google/i) && (src.length < 300)) {			// A pdf google drive file spec'd
-			if (src.match(/drive\.google/i)) {									// A google drive image
-				var id=src.match(/\/d\/(.*?)\//);								// Extract id
-				if (id)															// An id found
-					src="//drive.google.com/uc?export=view&qmf=.pdf&id="+id[1];	// Construct 'direct' link
-				}
+			src=ConvertFromGoogleDrive(src);									// Get direct link if drive image
 			if (sd.lastPdfPage != start)										// If not same
 				$("#transcriptText").html("<iframe src='"+src+"#page="+start+"' width='100%' height='99%' frameborder='0'/>");	
 			sd.lastPdfPage=start;												// Now is then
@@ -997,11 +989,7 @@
 			}
 		var src=sd.transText;													// Get source
 		if (src.match(/\.pdf|drive\.google/i) && (src.length < 300)) {			// A pdf google drive file spec'd
-			if (src.match(/drive\.google/i)) {									// A google drive image
-				var id=src.match(/\/d\/(.*?)\//);								// Extract id
-				if (id)															// An id found
-					src="//drive.google.com/uc?export=view&qmf=.pdf&id="+id[1];	// Construct 'direct' link
-				}
+			src=ConvertFromGoogleDrive(src);									// Get direct link if drive image
 			$("#transcriptText").html("<iframe src='"+src+"' width='100%' height='99%' frameborder='0'/>")	
 			$("#transSearchDiv").css({ display:"none",cursor:"auto"});			// Hide search / gear
 			}
@@ -2047,7 +2035,7 @@
 		Sound("ding");															// Ding
 	}
 
-	function LoadVideoNotes(name)										// LOAD NOTES FROM SERVER
+	function LoadVideoNotes(name)											// LOAD NOTES FROM SERVER
 	{
 		var dat={};
 		var url=host+"loaduserdata.php";										// Base file
@@ -2061,6 +2049,19 @@
 		notesText=notes.data;													// Set notes
 		VideoNotes(true);														// Redraw
 	}
+
+	function ConvertFromGoogleDrive(url)									// CONVERT GOOGLE DRIVE LINK TO DIRECT LINK
+	{
+		if (url && url.match(/drive\.google/i)) {								// A google drive image
+			var id=url.match(/\?id=(.+)/i);										// Extract id
+			if (!id)															// Nothing there
+				id=url.match(/\/d\/(.*?)\//);									// Try this way
+			if (id)																// An id found
+				url="//drive.google.com/uc?export=view&id="+id[1];				// Construct 'direct' link
+			}
+		return url;																// Return link
+	}
+
 	
 </script>
 </body></html>

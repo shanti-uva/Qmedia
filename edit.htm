@@ -1031,11 +1031,8 @@
 			pic="images/webthumb.jpg";											// Assume web content
 			if (o.c && o.c.match(/\.png|.gif|\.jpg|.jpeg/i)) 					// An image
 				pic=o.c;														// Point at image
-			else if (o.c && o.c.match(/drive\.google/i)) {						// An image on Google drive
-				var id=o.c.match(/\/d\/(.*?)\//);								// Extract id
-				if (id)															// An id found
-					pic="//drive.google.com/uc?export=view&id="+id[1];			// Construct 'direct' link
-				}
+			else if (o.c && o.c.match(/drive\.google/i)) 						// An image on Google drive
+				pic=ConvertFromGoogleDrive(o.c);								// Get direct link if drive image
 			else if (o.c && o.c.match(/assess=/i)) 								// An assessment
 				pic="images/testthumb.jpg";										// Point at icon
 			else if (o.c && o.c.match(/video\.htm\?src=/i)) 					// A video
@@ -1304,10 +1301,8 @@
 		str+="<div style='position:relative;height:1px;background-color:#666;width:100%;;top:50%'></div>"
 		str+="<div style='position:relative;height:1px;background-color:#bbb;width:100%;top:75%'></div>"
 		var src=conPtr[num].c;													// Point at image
-		if (src && src.match(/drive\.google/i)) {								// An image on Google drive
-			var id=src.match(/\/d\/(.*?)\//);									// Extract id
-			if (id)	src="//drive.google.com/uc?export=view&id="+id[1];			// An id found, construct 'direct' link
-			}
+		if (src && src.match(/drive\.google/i)) 								// An image on Google drive
+			src=ConvertFromGoogleDrive(src);									// Get direct link if drive image
 		str+="<div id='imgins' style='position:relative;top:-3px;left:0px'><img id='imginsi' src='"+src+"' width='100%'></div>";
 		str+="<div id='imgzbx' style='position:absolute;top:-3px;border:2px solid yellow;background-color:#bbb;opacity:.5'></div>";
 		str+="</div>";
@@ -1658,6 +1653,17 @@
 		return str+"</select>"
 	}
 	
+	function ConvertFromGoogleDrive(url)									// CONVERT GOOGLE DRIVE LINK TO DIRECT LINK
+	{
+		if (url && url.match(/drive\.google/i)) {								// A google drive image
+			var id=url.match(/\?id=(.+)/i);										// Extract id
+			if (!id)															// Nothing there
+				id=url.match(/\/d\/(.*?)\//);									// Try this way
+			if (id)																// An id found
+				url="//drive.google.com/uc?export=view&id="+id[1];				// Construct 'direct' link
+			}
+		return url;																// Return link
+	}
 	
 </script>
 </body></html>
