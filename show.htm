@@ -530,6 +530,8 @@
 		RunPlayer("resize");													// Resize player
 		RunSlide("resize");														// Resize slides
 		RunInfo("resize");														// Resize info
+		if (sd.slideBackCol != undefined) 										// If a slide bg col spec'd
+			$("#slideDiv").css("background-color",sd.slideBackCol);				// Set it
 		}		
 
 	function AnimatePanes(end, dur, which)									// ANIMATE CHANGE OF PANE RATIO
