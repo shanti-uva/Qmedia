@@ -1011,6 +1011,7 @@
 			if (y > 1) {														// If a valid position
  				SendShivaMessage("ShivaAct=transclick",y);						// Send that position 
 	 			RunPlayer("scrub",GetTimeFromCharPos(y),true);					// Show
+	 			RunPlayer("show",GetTimeFromCharPos(y),true);					// Show
 				}
  			lastClickTime=now;													// Set time of last click
  			});
