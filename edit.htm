@@ -1191,22 +1191,14 @@
 		else if (type == "Flickr")												// If Flickr
 			GetFlickrImage(function(s) { callback(s); } );						// Get url
 		else if (type == "HTML")												// If HTML
-			GetHTMLEditor(val,function(s) { callback("<html>"+s+"</html>"); } );	// Get code
+			GetHTMLEditor(val,function(s) { callback("<html>"+s+"</html>"); } );// Get code
 		else if (type == "Video") {												// If Video
 			val=val.replace(/video\.htm\?src=/,"");								// Remove path
 			GetTextBox("Media Source", "Type in media source id or URL",val,	// Get text
 	 			function(h) { 													// Callback
-					var re=/id="kaltura_player_([^"]+)"/;						// See if Kaltura embed code
-					re=re.exec(h);												// Run regex					
-					if (re) {													// It's kaltura
-						var flv=301971;											// Video flavor
-						var pid=2003471;										// Partner id
-						if (h.match(/partner_id\/(\d+)/i)) {					// If a partner id
-							pid=h.match(/partner_id\/(\d+)/i)[1];				// Set it										
-							}
-						h="//www.kaltura.com/p/"+pid+"/sp/0/playManifest/entryId/"+re[1]+"/format/url/flavorParamId/"+pid+"/video.mp4"	
-	 					}
-	 				callback("video.htm?src="+h); } );							// Set 							
+					h=GetKalturaDirectLink(h);									// Convert if Kaltura file
+	 				callback("video.htm?src="+h);  								// Set 
+	 				});														
 			}
 		else if (type == "Assess") {											// If Assess
 			var i,opts=[];
@@ -1505,25 +1497,8 @@
 		$("#contentsPlayOnClick").on("change", function() { curJson.contentsPlayOnClick=$(this).val(); });	// Extract value	
 		$("#logIn").on("change", function() { curJson.logIn=$(this).val(); });					// Extract value	
 		$("#playerSource").on("change", function() { 											// On source change	
-				var v=$(this).val();															// Get value
-				trace(v)
-				var re=/id="kaltura_player_([^"]+)"/;											// See if Kaltura embed code
-				var re=re.exec(v);																// Run regex					
-				if (re) {																		// It's kaltura
-					var flv=301971;																// Collab ideo flavor
-					var pid=2003471;															// Collab partner id
-					var kid=re[1];																// Get Collab mediaid
-					if (v.match(/partner_id\/(\d+)/i)) {										// If a partner id
-						pid=v.match(/partner_id\/(\d+)/i)[1];									// Set it										
-						var kid=v.match(/entry_id=([^&]+)/)[1];									// Get id
-						if (pid == 381832)														// Media base
-							v="//cfvod.kaltura.com/pd/p/"+pid+"/sp/"+pid+"00/serveFlavor/entryId/"+kid+"/v/1/flavorId/1_uq8hm9q7/name/a.mp4";
-						}
-					else if (re)																// Collab 
-						v="//www.kaltura.com/p/"+pid+"/sp/0/playManifest/entryId/"+kid+"/format/url/flavorParamId/"+pid+"/video.mp4"	
-					}
-				curJson.playerSource=v;															// Set value	
-		 	});
+				curJson.playerSource=GetKalturaDirectLink($(this).val());						// Convert if Kaltura file
+			 	});
 		$("#playerStart").on("change", function() { curJson.playerStart=$(this).val(); });		// Extract value	
 		$("#playerStop").on("change", function() { curJson.playerStop=$(this).val(); });		// Extract value	
 		$("#playerAspect").on("change", function() { curJson.playerAspect=$(this).val(); });	// Extract value	
@@ -1664,6 +1639,29 @@
 			}
 		return url;																// Return link
 	}
+
+	function GetKalturaDirectLink(url) 										// GET DRECT LINK TO KALTURA MEDIA
+	{
+		if (!url)																// If no url
+			return "";															// Return null
+		if (!url.match(/kaltura_player/))										// Not Kaltura
+			return url;															// Return original
+		var mid=0;																// Media id
+		var pid=2003471;														// Collab partner id
+		var flv=301971;															// Collab video flavor
+		if (url.match(/<object/i)) {											// Object-style embed code
+			mid=url.match(/kaltura_player_([^"]+)/i)[1];						// Get media id
+			url="//www.kaltura.com/p/"+pid+"/sp/0/playManifest/entryId/"+mid+"/format/url/flavorParamId/"+pid+"/video.mp4"
+			}
+		else if (url.match(/<iframe/i)) {										// Iframe-style embed code
+			pid=url.match(/partner_id\/(\d+)/i)[1];								// Get partner id
+			mid=url.match(/entry_id=([^&]+)/)[1];								// Get media id
+			flv="0_ithj599o";													// MP4 used by mediabase
+			url="//cfvod.kaltura.com/pd/p/"+pid+"/sp/"+pid+"00/serveFlavor/entryId/"+mid+"/v/2/flavorId/"+flv+"/name/a.mp4";
+			}
+		return url;																// Return converted url
+}
+
 	
 </script>
 </body></html>
