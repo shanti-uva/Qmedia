@@ -8,7 +8,7 @@ require_once('config.php');
 	$password=$_REQUEST['password'];							// Password
 	$password=addEscapes($password);							// Escape password	
 	$id=addEscapes($id);										// ID
-	$query="SELECT * FROM qshow WHERE id = '$id'";				// Make query
+	$query="SELECT * FROM qdata WHERE id = '$id'";				// Make query
 	$result=mysql_query($query);								// Run query
 	if (($result == false) || (!mysql_numrows($result)))		// Error
 			print("LoadShow({ \"qmfmsg\":\"error\"})");
