@@ -68,7 +68,8 @@
 		str+="<br/><blockquote><table cellspacing=0 cellpadding=0 style='font-size:11px'>";
 		str+="<tr><td><b>Email</b><span style='color:#990000'> *</span></td><td><input"+this.butsty+"type='text' id='email' size='20' value='"+this.email+"'/></td></tr>";
 		str+="<tr><td><b>Password</b><span style='color:#990000'> *</span>&nbsp;&nbsp;</b></td><td><input"+this.butsty+"type='password' id='password' size='20' value='"+this.password+"'/></td></tr>";
-		str+="<tr><td><b>Private?&nbsp;&nbsp;</b></td><td><input"+this.butsty+"type='checkbox' id='private'/></td></tr>";
+		if (this.version != 5)
+			str+="<tr><td><b>Private?&nbsp;&nbsp;</b></td><td><input"+this.butsty+"type='checkbox' id='private'/></td></tr>";
 		str+="</table></blockquote><div style='font-size:12px;text-align:right'><br>";	
 		str+="<button"+this.butsty+"id='saveBut'>Save</button>";	
 		str+="<button"+this.butsty+"id='cancelBut'>Cancel</button></div>";	
