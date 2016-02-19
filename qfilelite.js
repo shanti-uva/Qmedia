@@ -188,3 +188,55 @@
 			});
 	}
 
+///////////////////////////////////////////////////////////////////////////////////////////////
+//  HELPERS
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+	
+	QmediaFile.prototype.SetCookie=function(cname, cvalue, exdays)			// SET COOKIE
+	{
+		var d=new Date();
+		d.setTime(d.getTime()+(exdays*24*60*60*1000));
+		var expires = "expires="+d.toGMTString();
+		document.cookie = cname + "=" + cvalue + "; " + expires;
+	}
+	
+	QmediaFile.prototype.GetCookie=function(cname) {						// GET COOKIE
+		var name=cname+"=",c;
+		var ca=document.cookie.split(';');
+		for (var i=0;i<ca.length;i++)  {
+		  c=ca[i].trim();
+		  if (c.indexOf(name) == 0) 
+		  	return c.substring(name.length,c.length);
+		  }
+		return "";
+	}
+
+	QmediaFile.prototype.ShowLightBox=function(title, content)				// LIGHTBOX
+	{
+		var str="<div id='lightBoxDiv' style='position:fixed;width:100%;height:100%;";	
+		str+="background:url(images/overlay.png) repeat;top:0px;left:0px';</div>";
+		$("body").append(str);														
+		var	width=500;
+		var x=$("#lightBoxDiv").width()/2-250;
+		if (this.version == 1) 
+			x=Math.max(x,950)
+		var y=$("#lightBoxDiv").height()/2-200;
+		if (this.xPos != undefined)
+			x=this.xPos;
+		str="<div id='lightBoxIntDiv' class='unselectable' style='position:absolute;padding:16px;width:400px;font-size:12px";
+		str+=";border-radius:12px;z-index:2003;"
+		str+="border:1px solid; left:"+x+"px;top:"+y+"px;background-color:#f8f8f8'>";
+		str+="<img src='images/qlogo32.png' style='vertical-align:-10px'/>&nbsp;&nbsp;";								
+		str+="<span id='lightBoxTitle' style='font-size:18px;text-shadow:1px 1px #ccc'><b>"+title+"</b></span>";
+		str+="<div id='lightContentDiv'>"+content+"</div>";					
+		$("#lightBoxDiv").append(str);	
+		$("#lightBoxDiv").css("z-index",2500);						
+	}
+	
+	QmediaFile.prototype.LightBoxAlert=function(msg) 						//	SHOW LIGHTBOX ALERT
+	{
+		Sound("delete");														// Delete sound
+		$("#lightBoxTitle").html("<span style='color:#990000'>"+msg+"</span>");	// Put new
+	}
+	
