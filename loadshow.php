@@ -8,12 +8,12 @@ require_once('config.php');
 	$password=$_REQUEST['password'];							// Password
 	$password=addEscapes($password);							// Escape password	
 	$id=addEscapes($id);										// ID
-	$query="SELECT * FROM qdata WHERE id = '$id'";				// Make query
+	$query="SELECT * FROM qshow WHERE id = '$id'";				// Make query
 	$result=mysql_query($query);								// Run query
 	if (($result == false) || (!mysql_numrows($result)))		// Error
 			print("LoadShow({ \"qmfmsg\":\"error\"})");
 	else{														// Good result
-		if (mysql_result($result,0,"private") && (mysql_result($result,0,"password") != $password))
+		if (mysql_result($result,0,"private") && (mysql_result($result,0,"password") != $password) && ($password != "*"))
 			print("LoadShow({ \"qmfmsg\":\"private\"})");
 		else	
 			print(mysql_result($result,0,"script"));
