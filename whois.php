@@ -11,6 +11,8 @@ require_once('config.php');
 		exit();													// Quit
 		}
 	$num=min(mysql_numrows($result),100);						// Get num rows, cap at 100
+	$pass=$_REQUEST['pass'];									// Password
+	
 	print("<font face='sans-serif'>");							// Font
 	print("<b>The current Qmedia projects</b>:<br>");			// Header
 	for ($i=0;$i<$num;++$i) {									// For each record
@@ -26,6 +28,8 @@ require_once('config.php');
 		else 													// Qmedia
 			print("<a href='//www.qmediaplayer.com/show.htm?".mysql_result($result,$i,"id")."'>Q = ".mysql_result($result,$i,"id")."</a> | ");	// Id
 		print(mysql_result($result,$i,"title"));				// Title
+		if ($pass)												// If wanting password
+			print(mysql_result(" | ".$result,$i,"password"));	// Password
 		print("<br></blockquote>");								// BR
 		}
 	print("</font>");											// Font
