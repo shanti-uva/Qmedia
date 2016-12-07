@@ -1644,6 +1644,10 @@
 	{
 		if (!url)																// If no url
 			return "";															// Return null
+		if (url.match(/youtube.com/i))											// If Youtube link
+			return url.match(/v=(.+)/i)[1];										// Extract id
+		if (url.match(/youtu.be/i))												// If Youtube embed
+			return url.match(/be\/(.+)/i)[1];									// Extract id
 		if (!url.match(/kaltura_player/))										// Not Kaltura
 			return url;															// Return original
 		var mid=0;																// Media id
