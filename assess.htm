@@ -94,15 +94,25 @@
 		var e={}
 		e.data='ShivaAct=data|{';
 		e.data+='"pages":[';
-		e.data+='{"title":"Sort"';
-		e.data+=',"numTries":3';
-		e.data+=',"text":"Sort these."';
-		e.data+=',\"prompt":"Drag then"';
-		e.data+=',\"whyRight":"Good!"';
-		e.data+=',"optionType":"sort","options":["first:sex","second:drugs","third:rock","fourth:roll"]}';
+		e.data+='{"title":"Mental Demand","skip":"false"';
+		e.data+=',"text":"<b>How mentally demanding was the task?</b><br><br>Carefully select the amount that reflects your experience."';
+		e.data+=',"optionType":"slider","options":["Very Low:Very High"]},';
+		e.data+='{"title":"Physical Demand","skip":"false"';
+		e.data+=',"text":"<b>How physically demanding was the task?</b><br><br>Carefully select the amount that reflects your experience."';
+		e.data+=',"optionType":"slider","options":["Very Low:Very High"]},';
+		e.data+='{"title":"Temporal Demand","skip":"false"';
+		e.data+=',"text":"<b>How hurried or rushed was the pace of the task?</b><br><br>Carefully select the amount that reflects your experience."';
+		e.data+=',"optionType":"slider","options":["Very Low:Very High"]},';
+
+		e.data+='{"title":"Performance","skip":"false"';
+		e.data+=',"text":"<b>How successful were you in accomplishing what you were asked to do?</b><br><br>Carefully select the amount that reflects your experience."';
+		e.data+=',"optionType":"slider","options":["Very Low:Very High"]},';
+		e.data+='{"title":"Contribution","skip":"false"';
+		e.data+=',"text":"<b>Of the two workload measures below, which one contributed the most to the task you just completed?.</b>"';
+		e.data+=',"optionType":"radio","options":["Physical Demand","Performance"]}';
 		e.data+="]}"
 		
-//		QmediaEventHandler(e);													
+		QmediaEventHandler(e);													
 		/////////////////////////////////////////////////////////////////	
 
 
@@ -175,6 +185,20 @@
 			if (d.options && d.options[0] && d.options[0].match(/eq/i))			// If including equations
 				str+="<img id='equation1'/><div id='qneditor'></div>";			// Add image/div for Codecogs editor	
 			}	
+		else if (d.optionType == "slider") {									// Slider option
+			var prevPos=0;
+			var w=Math.min($("#containerDiv").width()*.66,600);					// Get width
+			str+="<div id='slibase' style='border-bottom:2px solid #aaa;width:"+w+"px;height:30px'>";
+			for (i=0;i<20;++i) {
+				str+="<div id='slitic"+i+"' style='border-left:1px solid #aaa;width:1px;height:10px;"
+				str+="position:absolute'></div>";
+				}
+			str+="<div id='sliticp' style='border-left:4px solid #009900;width:0px;height:30px;position:absolute;display:none;'></div>"
+			str+="</div>";
+			str+=d.options[0].split(":")[0];
+			str+="<div id='sliright' style='position:absolute'>"+d.options[0].split(":")[1]+"</div>"
+			str+="<br><br>";	
+			}
 		else if (d.optionType == "notes") {										// Notes option
 			qe.SendMessage("notes","start");									// Send start message
 			if (d.pic) str+="<img src='"+d.pic+"' height=75><br>";				// Add pic
@@ -188,6 +212,23 @@
 			str+=" <input id='skipBut' type='button' value='Skip' class='nextbutSty'>"; 	// Add button
 		str+="</p>";															// End tag
 		$("#optionsLDiv").html(str);											// Set div
+		if (d.optionType == "slider") {											// Slider option
+			var x=$("#slibase").offset().left;									// Left
+			var y=$("#slibase").offset().top+$("#slibase").height();			// Bottom
+			for (i=0;i<20;++i)													// For each tic
+				$("#slitic"+i).css({"left":(i*w/19+x)+"px","top":+(y-10)+"px"});// Position
+			$("#slitic0").css({"height":"15px","top":+(y-15)+"px","border-left":"2px solid #aaa"});
+			$("#slitic10").css({"height":"20px","top":+(y-20)+"px","border-left":"2px solid #aaa"});
+			$("#slitic19").css({"height":"15px","top":+(y-13)+"px","border-left":"2px solid #aaa"});
+			$("#sliright").css({"top":+(y+1)+"px","left":(w+x-$("#sliright").width()+"px")});	// Position max text
+			$("#slibase").on("click",function(e) {								// CLICK ON SCALE HANDLER
+				sliAns=Math.round(e.offsetX/w*100);								// Calc answer
+				if (!prevPos)	prevPos=e.clientX;								// Animation start 1st time
+				$("#sliticp").css({"left":prevPos+"px","display":"inline"});	// Show
+				$("#sliticp").animate({ left:e.clientX});						// Animate to place
+				prevPos=e.clientX;												// Then in now
+				});
+			}
  		$("#sortable" ).sortable({ axis:"y"} );									// Make sortable, if a sort
 		i=$("#optionsLDiv").height()-16;										// Height of options side
 		if ((d.optionType != "draw") && (d.optionType != "notes"))	{			// Not the draw or notes options
@@ -204,13 +245,18 @@
 	/////////////////////////////////////////////////////////////////////////////////////////
 	
 		$("#nextBut").on("click",function() {									// NEXT BUTTON HANDLER
-			var ans
+			var ans;
 			++numTries;															// Increment tries
 			if (d.optionType == "write") {										// Draw style
 				ans=$("#opt").val();											// Get answer
 				}	
 			else if (d.optionType == "notes") {									// Notes style
 				qe.SendMessage("answer",d.title+"|personalNotes");				// Send answer message
+				Draw(curPage+1);												// Move on
+				return;															// Quit
+				}
+			else if (d.optionType == "slider") {								// Slider style
+				qe.SendMessage("answer",sliAns+"|slider");						// Send answer message
 				Draw(curPage+1);												// Move on
 				return;															// Quit
 				}
