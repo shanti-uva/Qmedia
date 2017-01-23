@@ -131,7 +131,7 @@
 
 	function Draw(num, showRight, answer)									// DRAW NODE
 	{
-		var i,lab,str="",col="#000";												
+		var i,lab,str="",col="#000",sliAns=-1;												
 		if (num >= aData.pages.length) {										// Past last page
 			qe.SendMessage("done");												// Send done message
 			return;																// Quit
@@ -213,10 +213,10 @@
 		str+="</p>";															// End tag
 		$("#optionsLDiv").html(str);											// Set div
 		if (d.optionType == "slider") {											// Slider option
-			var x=$("#slibase").offset().left;									// Left
-			var y=$("#slibase").offset().top+$("#slibase").height();			// Bottom
+			var x=$("#slibase").position().left;								// Left
+			var y=$("#slibase").position().top+$("#slibase").height();			// Bottom
 			for (i=0;i<20;++i)													// For each tic
-				$("#slitic"+i).css({"left":(i*w/19+x)+"px","top":+(y-10)+"px"});// Position
+				$("#slitic"+i).css({"left":((i*(w/19)+x))+"px","top":+(y-10)+"px"});// Position
 			$("#slitic0").css({"height":"15px","top":+(y-15)+"px","border-left":"2px solid #aaa"});
 			$("#slitic10").css({"height":"20px","top":+(y-20)+"px","border-left":"2px solid #aaa"});
 			$("#slitic19").css({"height":"15px","top":+(y-13)+"px","border-left":"2px solid #aaa"});
