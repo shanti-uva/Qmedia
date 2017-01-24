@@ -112,7 +112,8 @@
 		e.data+=',"optionType":"radio","options":["Physical Demand","Performance"]}';
 		e.data+="]}"
 		
-		QmediaEventHandler(e);													
+	//	QmediaEventHandler(e);													
+	
 		/////////////////////////////////////////////////////////////////	
 
 
@@ -195,8 +196,10 @@
 				}
 			str+="<div id='sliticp' style='border-left:4px solid #009900;width:0px;height:30px;position:absolute;display:none;'></div>"
 			str+="</div>";
-			str+=d.options[0].split(":")[0];
-			str+="<div id='sliright' style='position:absolute'>"+d.options[0].split(":")[1]+"</div>"
+			if (d.options[0]) {
+				str+=d.options[0].split(":")[0];
+				str+="<div id='sliright' style='position:absolute'>"+d.options[0].split(":")[1]+"</div>"
+				}
 			str+="<br><br>";	
 			}
 		else if (d.optionType == "notes") {										// Notes option
